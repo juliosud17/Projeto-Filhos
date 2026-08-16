@@ -2,6 +2,8 @@
 
 *Status: 🔴 não criado ainda — este é um stub, não um índice completo. Registrado aqui de propósito pra virar item de trabalho visível, não pra fingir que já existe.*
 
+**Atualização 2026-08-16:** agora existe uma fonte oficial anexada ao projeto (`pedagogia/bncc-oficial/`, documento do MEC baixado direto da fonte) — quando este mapa for construído, ele deveria ser conferido contra ela, não só contra os dois índices próprios abaixo. A comparação em si ainda não foi feita (ver `docs/DECISOES.md`, entrada de 2026-08-16).
+
 ## O que isto deveria ser
 
 Um mapa único de toda habilidade BNCC coberta pelo app (EF01LP01-26, EF01MA01-22), cruzando: qual atividade cobre, em qual módulo, se é lado de leitura ou produção, e se está dentro ou fora do escopo digital — hoje essa informação existe, mas **espalhada** pelos dois índices de currículo:

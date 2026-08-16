@@ -22,7 +22,8 @@ App educacional infantil adaptativo (Benjamin, 6 anos, e Joaquim, 3 anos). Organ
 - **`MODULO8_PROJETO_LEITOR.md`** — detalhamento do Módulo 8 (fora da tela por design).
 - **`MOTOR_DE_ENSINO.md`** — protótipo do fluxo Ensinar → Demonstrar → Praticar → Dominar.
 - **`REFERENCIA_NOVA_ESCOLA.md`** — material de referência usado na curadoria de conteúdo.
-- **`HABILIDADES.md`**, **`PREREQUISITOS.md`**, **`REVISAO_ESPACADA.md`** — stubs, ainda a construir (ver cada um pro porquê).
+- **`bncc-oficial/`** — o documento oficial da BNCC (MEC), baixado direto da fonte, mais recortes extraídos das seções de Língua Portuguesa (1º/2º anos) e Matemática (1º ano). Fonte de verdade pra conferir os índices acima — comparação ainda não feita, ver `bncc-oficial/README.md`.
+- **`HABILIDADES.md`**, **`PREREQUISITOS.md`** — stubs, ainda a construir (ver cada um pro porquê).
 
 ## `qa/` — qualidade
 - **`CHECKLIST_QA.md`** — checklist antes de marcar algo como pronto.
@@ -34,10 +35,9 @@ App educacional infantil adaptativo (Benjamin, 6 anos, e Joaquim, 3 anos). Organ
 - **`REGRAS_PERMANENTES.md`** — regras de processo (git, documentação, testes).
 
 ## `testes/`
-Suíte de testes automatizados (Node + jsdom) — 28 arquivos, um por módulo/sistema. Mapa completo em `qa/CASOS_DE_TESTE.md`. Para rodar qualquer um:
+Suíte de testes automatizados (Node + jsdom) — 32 arquivos, um por módulo/sistema. Mapa completo em `qa/CASOS_DE_TESTE.md`. `npm install` uma vez, depois:
 
 ```
-node testes/qa_test_nome.js
+node testes/_run_all.js        # suíte inteira, com resumo agregado
+node testes/qa_test_nome.js    # um arquivo específico
 ```
-
-(exige o `ilha_aprendiz.html` no caminho `/tmp/ilha_aprendiz.html` — pendência técnica conhecida, ver `docs/ARQUITETURA.md`.)

@@ -6,6 +6,18 @@
 
 ---
 
+## 2026-08-16 — Documento oficial da BNCC baixado e alocado no projeto
+
+**Decisão:** o Júlio perguntou se tínhamos algum guia oficial do MEC anexado — não tínhamos, só os índices próprios (`pedagogia/CURRICULO_BNCC_PORTUGUES.md`/`CURRICULO_BNCC_MATEMATICA.md`), que referenciam códigos de habilidade sem fonte pra conferir. Baixamos o PDF oficial completo (`basenacionalcomum.mec.gov.br`) e alocamos em `pedagogia/bncc-oficial/`, junto com dois recortes extraídos (Língua Portuguesa 1º/2º anos, Matemática 1º ano) pra uso prático — a fonte de verdade que faltava.
+
+**Motivo:** decisão explícita do Júlio ("aloque os documentos em nossas pastas, devem ser nossas diretrizes e guias"). Contagem de códigos EF01LP (26) e EF01MA (22) no documento extraído bate exatamente com o que os índices próprios já afirmavam ter, o que é um bom sinal inicial — mas isso **não é a mesma coisa** que ter comparado item a item se cada descrição de habilidade bate com o texto oficial.
+
+**Escopo desta entrega — deliberadamente parado aqui:** o Júlio pediu explicitamente pra alocar os documentos agora e comparar depois, em separado. Este commit é só a alocação; a comparação linha a linha contra `CURRICULO_BNCC_PORTUGUES.md`/`CURRICULO_BNCC_MATEMATICA.md` fica registrada como próximo passo pendente, não feita ainda.
+
+**Nota técnica:** `pdftotext` (poppler) não conseguiu ler este PDF específico do MEC (erro de xref table) — usamos `pdf-parse` (Node.js) como alternativa. Detalhe completo, incluindo o artefato cosmético de extração conhecido, em `pedagogia/bncc-oficial/README.md`.
+
+---
+
 ## 2026-08-16 — Trava de ritmo por bimestre: referência informativa, não bloqueio
 
 **Decisão:** `js/ritmo-bimestre.js`. Módulo de Matemática cujo bimestre (`mod.bimestre`, ex. "3º bimestre") está à frente do bimestre real do calendário (calculado por mês, aproximado — ver comentário no código) ganha um selo "🗓️ Adiantado" no card do módulo e um resumo agregado no card da trilha. **Nenhum módulo fica bloqueado por causa disso** — é puramente informativo, zero fricção no clique. Só se aplica a Matemática; Português já trava por domínio + Desafio Final entre módulos sequenciais. Deliberadamente não existe sinal de "atrasado".

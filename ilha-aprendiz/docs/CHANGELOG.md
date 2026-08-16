@@ -4,6 +4,12 @@
 
 ---
 
+## 2026-08-16 — Documento oficial da BNCC alocado no projeto
+
+- `pedagogia/bncc-oficial/` novo: PDF oficial completo (MEC, 600 páginas) + recortes extraídos de Língua Portuguesa (1º/2º anos) e Matemática (1º ano) + README explicando fonte, método de extração e limitações conhecidas.
+- Contagem de códigos EF01LP (26) e EF01MA (22) no documento bate com o que os índices próprios já afirmavam.
+- Comparação item a item contra `pedagogia/CURRICULO_BNCC_PORTUGUES.md`/`CURRICULO_BNCC_MATEMATICA.md` ainda não feita — próximo passo, por pedido explícito do Júlio de separar "alocar" de "comparar".
+
 ## 2026-08-16 — Trava de ritmo por bimestre (item 3 do roadmap)
 
 - `js/ritmo-bimestre.js` novo: mapeia mês do calendário pro bimestre aproximado (1-4), compara contra o bimestre de cada módulo de Matemática.
