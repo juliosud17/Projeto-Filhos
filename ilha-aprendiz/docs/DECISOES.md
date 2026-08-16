@@ -6,6 +6,16 @@
 
 ---
 
+## 2026-08-16 — Suíte de testes passa a carregar o app via helper compartilhado, não mais `/tmp`
+
+**Decisão:** `testes/_util/load_app_html.js` substitui o `fs.readFileSync('/tmp/ilha_aprendiz.html', ...)` hardcoded que existia em cada um dos 29 arquivos de teste. `package.json` + `jsdom` como devDependency também foram adicionados (não existiam antes).
+
+**Motivo:** pré-requisito de segurança pra começar a modularizar `app/ilha_aprendiz.html` (ver entrada abaixo e `docs/ARQUITETURA.md`) — não dava pra verificar que a modularização não quebrou nada sem primeiro conseguir rodar a suíte de verdade nesta máquina. De quebra, resolve uma fragilidade já registrada como pendência técnica desde a criação do `docs/ARQUITETURA.md`. O helper já nasce preparado pra "achatar" `<link>`/`<script src>` externos de volta pra inline, então não precisa ser tocado de novo quando a modularização acontecer.
+
+**Baseline confirmada nesta mudança** (primeira execução real da suíte nesta máquina): 28/29 arquivos limpos, 1 falha já conhecida e documentada (`qa_test_regression.js`, artefato de `setTimeout`/jsdom).
+
+---
+
 ## 2026-08-16 — Reorganizar a pasta de trabalho e criar camada de documentação viva
 
 **Decisão:** renomear `Ilha Aprendiz/` → `ilha-aprendiz/` e `1 ano fundamental/` → `materiais-brutos/` (kebab-case, sem espaço/acento); inicializar git; e reestruturar `ilha-aprendiz/` em três camadas — código (`app/`), documentação viva (`docs/`, `pedagogia/`, `qa/`), e governança do agente (`claude/`, com `CLAUDE.md` na raiz).

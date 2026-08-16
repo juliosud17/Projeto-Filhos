@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-08-16 — Infraestrutura de teste (groundwork da modularização)
+
+- `package.json` + `jsdom` (devDependency) criados — não existiam antes.
+- `testes/_util/load_app_html.js`: helper compartilhado que substitui o `/tmp/ilha_aprendiz.html` hardcoded nos 29 arquivos de teste, e já sabe achatar `<link>`/`<script src>` externos de volta pra inline (preparado pra quando o app virar multi-arquivo).
+- `testes/_run_all.js`: roda a suíte inteira e imprime um resumo agregado (`npm test`).
+- Baseline confirmada: 28/29 arquivos limpos, 1 falha conhecida (`qa_test_regression.js`).
+- Nenhuma linha de `app/ilha_aprendiz.html` foi alterada nesta entrega — só a forma como os testes carregam o arquivo.
+
 ## 2026-08-16 — Reorganização estrutural do projeto
 
 - Pasta de trabalho reorganizada: `Ilha Aprendiz/` → `ilha-aprendiz/`, `1 ano fundamental/` → `materiais-brutos/`.

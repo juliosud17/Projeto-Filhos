@@ -1,6 +1,6 @@
 const fs = require('fs');
 const { JSDOM, VirtualConsole } = require('jsdom');
-let html = fs.readFileSync('/tmp/ilha_aprendiz.html', 'utf8');
+let html = require('./_util/load_app_html').loadAppHtml();
 
 const testScript = `
 <script>

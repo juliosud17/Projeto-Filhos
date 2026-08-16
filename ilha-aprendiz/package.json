@@ -1,0 +1,12 @@
+{
+  "name": "ilha-aprendiz",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Suite de testes (Node + jsdom) para o app Ilha Aprendiz.",
+  "scripts": {
+    "test": "node testes/_run_all.js"
+  },
+  "devDependencies": {
+    "jsdom": "^24.0.0"
+  }
+}

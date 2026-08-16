@@ -19,7 +19,9 @@ Estrutura interna (por posição no arquivo, não por pasta):
 
 ## Testes
 
-`testes/qa_test_*.js` (Node + jsdom) — cada arquivo faz `fs.readFileSync` do HTML de um caminho **hardcoded**: `/tmp/ilha_aprendiz.html`. Rodar a suíte localmente hoje exige copiar `app/ilha_aprendiz.html` pra esse caminho antes (ou editar o `readFileSync` no topo de cada teste). Isso é uma fragilidade conhecida, ainda não corrigida — ver "Pendências" abaixo.
+`testes/qa_test_*.js` (Node + jsdom), 29 arquivos. Desde 2026-08-16, todos carregam o app via `testes/_util/load_app_html.js` (`npm install` + `node testes/_run_all.js`, ou `node testes/qa_test_nome.js` individualmente) — não depende mais de copiar o arquivo pra `/tmp` (era uma fragilidade conhecida, corrigida nesta entrega; ver `docs/DECISOES.md`). O helper já foi desenhado pensando na modularização: hoje só faz `readFileSync` do HTML único, mas quando `app/ilha_aprendiz.html` passar a referenciar `css/*.css` e `js/*.js` externos, ele "achata" essas tags de volta pra inline antes de entregar pro jsdom — os 29 arquivos de teste não precisam mudar de novo quando isso acontecer.
+
+**Baseline estabelecida em 2026-08-16** (primeira vez que a suíte roda de fato nesta máquina): 28 de 29 arquivos limpos, 1 falha conhecida (`qa_test_regression.js`, artefato de `setTimeout`/jsdom — ver "Pendências" abaixo). `qa_test_new_activities.js` usa formato de saída próprio (`TOTAL ERRORS: N`), diferente do `RESULT: N passed, M failed` do resto da suíte.
 
 ## Direção futura: modularização (planejada, ainda não iniciada)
 
@@ -64,5 +66,6 @@ Um "conceito" de conteúdo vira dado estruturado em vez de código escrito à m�
 
 ## Pendências técnicas conhecidas
 
-- Caminho hardcoded `/tmp/ilha_aprendiz.html` nos testes — resolver antes ou junto da modularização (uma vez que o app vire multi-arquivo, os testes precisam carregar mais que um `readFileSync` de qualquer forma).
+- ~~Caminho hardcoded `/tmp/ilha_aprendiz.html` nos testes~~ — resolvido em 2026-08-16, ver `docs/DECISOES.md`.
 - Flakiness conhecida e documentada (não são bugs novos, não travar CI por causa deles): `qa_test_regression.js` e `qa_test_svg.js` (artefato de `setTimeout` no harness), intermitência ocasional em `qa_test_typing.js`.
+- `npm install` (jsdom) precisa ser rodado uma vez por máquina antes de `node testes/_run_all.js` funcionar — `node_modules/` está no `.gitignore`, não versionado.
