@@ -36,7 +36,7 @@ Ver [`pedagogia/MOTOR_DE_ENSINO.md`](pedagogia/MOTOR_DE_ENSINO.md) pro protótip
 - Desafio Final (avaliação por módulo): **completo e testado** nos 21 módulos com nível.
 - Persistência de progresso: **existe** desde 2026-08-16 (`js/storage.js`, localStorage) — nível de cada atividade, histórico de mastery, Desafio Final e estrelas sobrevivem a fechar a aba. Ver `docs/ARQUITETURA.md` e `docs/DECISOES.md`.
 - Revisão espaçada: **existe** desde 2026-08-16 (`js/revisao-espacada.js`) — atividades dominadas voltam em intervalos crescentes via o card "🔁 Revisão de Hoje". Ver `pedagogia/REVISAO_ESPACADA.md`.
-- Trava de ritmo por bimestre: **não existe** — próximo item do roadmap.
+- Trava de ritmo por bimestre: **existe** desde 2026-08-16 (`js/ritmo-bimestre.js`) — só Matemática, só selo informativo "🗓️ Adiantado", nunca bloqueia. Ver `docs/DECISOES.md`.
 - Uso real com o Benjamin jogando: **ainda não começou**.
 - Código: modularizado em 2026-08-16 — `app/ilha_aprendiz.html` (175 linhas) + `css/`, `data/`, `js/`. Scripts clássicos (não ES modules), conteúdo como `const` (não JSON via `fetch`) — continua abrindo com duplo-clique, sem servidor. Ver `docs/ARQUITETURA.md`.
 
@@ -46,7 +46,7 @@ Ver [`docs/ROADMAP.md`](docs/ROADMAP.md) pra detalhe e justificativa de cada ite
 
 1. ~~Persistência de progresso~~ — feito
 2. ~~Revisão espaçada~~ — feito
-3. Trava de ritmo por bimestre (especialmente Matemática)
+3. ~~Trava de ritmo por bimestre~~ — feito
 4. Redistribuir densidade entre bimestres (1º bimestre está sobrecarregado)
 5. Avaliação real com o Benjamin jogando
 

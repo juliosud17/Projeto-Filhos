@@ -24,6 +24,7 @@
 
 | Arquivo | Cobre |
 |---|---|
+| `qa_test_ritmo_bimestre.js` | Trava de ritmo por bimestre (`js/ritmo-bimestre.js`): mapeamento mês→bimestre, detecção de módulo adiantado, agregação por trilha, renderização (Matemática mostra selo, Português nunca mostra) |
 | `qa_test_revisao_espacada.js` | Revisão espaçada (`js/revisao-espacada.js`): vencimento por estágio, montagem/pontuação da sessão, avanço condicionado, card condicional, integração com `endSession()`, resets do admin, persistência |
 | `qa_test_persistencia.js` | Persistência (`js/storage.js`): round-trip save/load, defesas contra dado corrompido/versão errada/valor fora do range, `clearProgress()`, hooks reais do admin |
 | `qa_test_prova.js` | Desafio Final: fluxo completo (dominar módulo → bloqueado até passar → aprovar → desbloqueia próximo → reset via admin), critério 80% geral + 60% por atividade |
@@ -38,4 +39,4 @@
 
 ## O que falta neste mapa
 
-Nenhum teste cobre hoje: trava de ritmo por bimestre (não existe a funcionalidade ainda). Conforme cada item do `docs/ROADMAP.md` for implementado, este mapa precisa ganhar uma linha nova — regra permanente em `claude/REGRAS_PERMANENTES.md`: funcionalidade nova exige teste novo. (Persistência e revisão espaçada já têm teste — ver tabela acima.)
+Os 5 itens originais do `docs/ROADMAP.md` (persistência, revisão espaçada, trava de ritmo, redistribuir densidade, avaliação real) já têm cobertura de teste onde fazia sentido ter — os dois últimos são trabalho de conteúdo/observação, não código, então não geram teste automatizado por natureza. Regra permanente em `claude/REGRAS_PERMANENTES.md` continua valendo: toda funcionalidade nova de código exige teste novo.

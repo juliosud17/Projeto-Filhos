@@ -6,6 +6,22 @@
 
 ---
 
+## 2026-08-16 — Trava de ritmo por bimestre: referência informativa, não bloqueio
+
+**Decisão:** `js/ritmo-bimestre.js`. Módulo de Matemática cujo bimestre (`mod.bimestre`, ex. "3º bimestre") está à frente do bimestre real do calendário (calculado por mês, aproximado — ver comentário no código) ganha um selo "🗓️ Adiantado" no card do módulo e um resumo agregado no card da trilha. **Nenhum módulo fica bloqueado por causa disso** — é puramente informativo, zero fricção no clique. Só se aplica a Matemática; Português já trava por domínio + Desafio Final entre módulos sequenciais. Deliberadamente não existe sinal de "atrasado".
+
+**Motivo:** essa era a decisão de formato mais em aberto do roadmap (bloqueio rígido vs. referência vs. outro mecanismo) — escolhida sem input adicional do Júlio além de "continue", então registrada aqui em detalhe. Três fatores pesaram pra "referência, não bloqueio":
+
+1. **Consistência com o princípio já registrado em `CLAUDE.md`** — "nunca trava a criança" foi usado até agora só pra erro dentro de uma atividade, mas bloquear um módulo inteiro por causa da DATA (não por falta de domínio) seria um tipo de trava nova e mais arbitrária — a criança pode estar genuinamente pronta e curiosa, e o calendário é só uma aproximação.
+2. **A trilha de Português já mostra que bloqueio funciona bem quando é por domínio** (a criança realmente não sabe o conteúdo ainda) — bloquear por data é uma justificativa mais fraca, mais fácil de frustrar sem necessidade.
+3. **Consistência com o tom "encorajador, nunca punitivo"** já registrado em `docs/ECOSSISTEMA.md` — daí também a decisão de nunca sinalizar "atrasado" (só teria efeito de culpa, sem ganho pedagógico real).
+
+**Efeito real esperado:** isso não *impede* varrer os 12 módulos de Matemática de uma vez (ainda dá pra fazer) — dá visibilidade pros pais decidirem o ritmo com informação, que é consistente com o app já pressupor acompanhamento adulto na maior parte das atividades. Se isso na prática não for suficiente (a avaliação real do item 5 do roadmap pode revelar isso), o próximo passo seria considerar um mecanismo mais forte — registrado como possibilidade em aberto, não fechada.
+
+**Testado** (`testes/qa_test_ritmo_bimestre.js`, 23 checagens): mapeamento mês→bimestre nos limites de cada trimestre, extração do número do bimestre do rótulo, `moduloAdiantado` (incluindo confirmar que nunca sinaliza módulo passado), agregação por trilha, cobertura real dos 4 bimestres nos dados de Matemática, renderização sem erro nas telas de Matérias/Módulos, e confirmação de que o selo nunca aparece em Português. Suíte inteira (32 arquivos): mesmo resultado da baseline.
+
+---
+
 ## 2026-08-16 — Revisão espaçada: sessão dedicada, intervalos fixos por estágio, nunca recua
 
 **Decisão:** `js/revisao-espacada.js`. Atividade dominada (nível 5, 80%+) entra num ciclo com estágios 0-4, intervalo de revisão crescente (2/5/10/21/45 dias, fixo em 45 depois disso). Card "🔁 Revisão de Hoje" na tela de Ano Letivo do Benjamin, visível só quando há atividade vencida, abre uma sessão de 2 rodadas por atividade vencida, reaproveitando o loop de jogo normal. Pontua numa trilha separada (`state.revisaoResults`), nunca em `mastery`. Desempenho ≥60% na sessão avança o estágio; abaixo disso, não avança, mas também nunca recua.

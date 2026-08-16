@@ -140,9 +140,13 @@ function renderMaterias(){
   grid.appendChild(ptCard);
 
   const mt = trilhaProgress(MATH_MODULES_BENJAMIN);
+  const mtAdiantados = modulosAdiantadosDaTrilha(MATH_MODULES_BENJAMIN);
+  const mtNote = mtAdiantados.length > 0
+    ? `<p style="margin-top:4px; color:var(--orange); font-weight:700; font-size:12px;">🗓️ ${mtAdiantados.length} módulo${mtAdiantados.length===1?"":"s"} adiantado${mtAdiantados.length===1?"":"s"} do calendário</p>`
+    : "";
   const mtCard = document.createElement("div");
   mtCard.className = "game-card";
-  mtCard.innerHTML = `<span class="tag">${mt.done}/${mt.total} atividades</span><div class="icon">🔢</div><h4>Matemática</h4><p>Números, geometria, medidas, dinheiro e mais — ${MATH_MODULES_BENJAMIN.length} módulos</p>`;
+  mtCard.innerHTML = `<span class="tag">${mt.done}/${mt.total} atividades</span><div class="icon">🔢</div><h4>Matemática</h4><p>Números, geometria, medidas, dinheiro e mais — ${MATH_MODULES_BENJAMIN.length} módulos</p>${mtNote}`;
   mtCard.onclick = ()=> openModulos("matematica");
   grid.appendChild(mtCard);
 
@@ -203,6 +207,13 @@ function renderModulos(){
         tag = "🏁 Falta o Desafio Final";
       }else{
         tag = `${doneCount}/${container.activities.length} atividades`;
+      }
+      // Trava de ritmo por bimestre (referência, não bloqueio — ver
+      // js/ritmo-bimestre.js): só faz sentido em Matemática, onde nada
+      // mais pausa o ritmo entre módulos independentes. Português já
+      // trava por domínio + Desafio Final, não precisa do sinal extra.
+      if(trilha === "matematica" && unlocked && moduloAdiantado(mod)){
+        extraHtml += `<p style="margin-top:6px; color:var(--orange); font-weight:700; font-size:12px;">🗓️ Adiantado — este módulo é do ${mod.bimestre}. Pode jogar sem problema, é só uma referência de ritmo.</p>`;
       }
       card.innerHTML = `<span class="tag">${tag}</span><div class="icon">${mod.icon}</div><h4>${mod.name}</h4><p>${mod.desc}</p>${extraHtml}`;
       if(unlocked) card.onclick = ()=> openAtividades(mod.id);

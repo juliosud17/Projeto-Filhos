@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-08-16 — Trava de ritmo por bimestre (item 3 do roadmap)
+
+- `js/ritmo-bimestre.js` novo: mapeia mês do calendário pro bimestre aproximado (1-4), compara contra o bimestre de cada módulo de Matemática.
+- Selo "🗓️ Adiantado" no card do módulo (`renderModulos`) e resumo agregado no card da trilha (`renderMaterias`) — só em Matemática, só informativo, nenhum módulo é bloqueado.
+- `testes/qa_test_ritmo_bimestre.js` novo (23 checagens). Suíte completa: 31/32 arquivos limpos, mesma falha já conhecida.
+- Decisão de formato (referência vs. bloqueio) documentada com justificativa completa em `docs/DECISOES.md`.
+
 ## 2026-08-16 — Revisão espaçada (item 2 do roadmap)
 
 - `js/revisao-espacada.js` novo: ciclo de revisão por estágio (0-4), intervalos 2/5/10/21/45 dias.

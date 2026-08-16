@@ -13,7 +13,7 @@
 | Motor de Ensino (Aprender → Ver exemplo → Fazer comigo → Agora é você) | 🟡 Prova de conceito em 2 das 53 atividades (M6 Matemática) |
 | Persistência de progresso | 🟢 Existe desde 2026-08-16 (`js/storage.js`, localStorage) |
 | Revisão espaçada | 🟢 Existe desde 2026-08-16 (`js/revisao-espacada.js`) |
-| Trava de ritmo por bimestre | 🔴 Não existe |
+| Trava de ritmo por bimestre | 🟢 Existe desde 2026-08-16 (`js/ritmo-bimestre.js`, referência informativa) |
 | Estrutura de documentação viva (este conjunto de arquivos) | 🟢 Criada em 2026-08-16 |
 | Modularização do código (`app/ilha_aprendiz.html` → `js/`, `css/`, `data/`) | 🟢 Feita em 2026-08-16 — ver `docs/ARQUITETURA.md` |
 
@@ -25,7 +25,7 @@ Descoberto em agosto de 2026 (ver `BRIEFING.md` para a conta completa): 265 nív
 2. Matemática não tem freio — os 12 módulos são independentes entre si, nada impede varrer tudo em poucas semanas.
 3. Não existe revisão espaçada — depois do nível 5 + prova aprovada, a atividade nunca mais volta.
 
-Até 2026-08-16, um fator tornava essa discussão só teórica: sem persistência, "quantos dias o conteúdo dura" dependia de quanto tempo a aba ficava aberta, não de dias corridos. Isso está resolvido agora (`js/storage.js`), e a causa 3 (revisão espaçada) também já foi endereçada (`js/revisao-espacada.js`) — restam as causas 1 e 2 (distribuição entre bimestres e freio em Matemática), itens 3-4 abaixo.
+Até 2026-08-16, um fator tornava essa discussão só teórica: sem persistência, "quantos dias o conteúdo dura" dependia de quanto tempo a aba ficava aberta, não de dias corridos. Isso está resolvido agora (`js/storage.js`), e a causa 3 (revisão espaçada) também já foi endereçada (`js/revisao-espacada.js`). A causa 2 (Matemática sem freio) ganhou um **sinal informativo** de ritmo (`js/ritmo-bimestre.js`) — não um freio de verdade, de propósito (ver `docs/DECISOES.md`): ainda dá pra varrer tudo, só que agora com um selo visível avisando que está adiantado. Resta a causa 1 (distribuição entre bimestres), item 4 abaixo.
 
 ## Próximos passos, em ordem
 
@@ -35,14 +35,14 @@ localStorage via `js/storage.js`: nível de cada atividade, histórico de master
 ### ~~2. Revisão espaçada~~ — feito em 2026-08-16
 Atividades já dominadas voltam em intervalos crescentes (2/5/10/21/45 dias) via o card "🔁 Revisão de Hoje" na tela de Ano Letivo. Desenho completo e decisões de escopo em `pedagogia/REVISAO_ESPACADA.md` e `docs/DECISOES.md`.
 
-### 3. Trava de ritmo por bimestre
-Especialmente em Matemática — impedir ou desencorajar varrer os 12 módulos de uma vez, alinhando a liberação aproximada ao calendário real. Formato ainda em aberto (bloqueio rígido vs. bimestre como referência com liberação por domínio de pré-requisitos vs. outro mecanismo) — decidir e registrar em `DECISOES.md` quando este item for atacado.
+### ~~3. Trava de ritmo por bimestre~~ — feito em 2026-08-16
+Formato escolhido: **referência informativa, não bloqueio.** Módulo de Matemática cujo bimestre está à frente do bimestre real do calendário ganha um selo "🗓️ Adiantado" (no card do módulo e um resumo no card da trilha) — nenhum módulo fica inacessível por causa disso. Só Matemática (Português já trava por domínio+Desafio Final). Justificativa completa da escolha entre bloqueio rígido vs. referência em `docs/DECISOES.md`.
 
 ### 4. Redistribuir densidade entre bimestres
 O Módulo 1 de Português (7 atividades, 13% do conteúdo do ano sozinho) e o peso geral do 1º bimestre merecem um olhar; pode fazer sentido quebrar o Módulo 1 ou realocar conteúdo pro 3º bimestre, que hoje está raso.
 
 ### 5. Avaliação real com o Benjamin jogando
-A etapa que já estava combinada como prioridade desde antes deste documento existir. Persistência e revisão espaçada já existem, então já dá pra observar ritmo de verdade — mas ainda faz mais sentido depois da trava de ritmo (item 3), senão a observação capturaria o app no formato "sem freio" que já se sabe que não vai durar o ano.
+A etapa que já estava combinada como prioridade desde antes deste documento existir. Persistência, revisão espaçada e o sinal de ritmo já existem — dá pra começar essa avaliação a qualquer momento agora, inclusive em paralelo ao item 4, já que nenhum dos itens restantes é pré-requisito técnico deste.
 
 ### ~~Em paralelo: modularização do código~~ — feito em 2026-08-16
 `app/ilha_aprendiz.html` já está separado em `css/`, `data/` e `js/` (ver `docs/ARQUITETURA.md`). Isso não estava bloqueando os itens 1-5, mas reduz o risco de trabalhar neles agora — em especial o item 1 (persistência), que nasce como `js/storage.js` novo, e não mais como código espalhado dentro de um arquivo de 5.600 linhas.

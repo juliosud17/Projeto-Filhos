@@ -22,6 +22,7 @@ app/
 └── js/
     ├── mastery.js         (domínio/progressão, MODULE_CONTAINERS, Desafio Final)
     ├── navigation.js       (árvore de telas)
+    ├── ritmo-bimestre.js   (sinal de ritmo por bimestre — desde 2026-08-16)
     ├── revisao-espacada.js (revisão espaçada — desde 2026-08-16)
     ├── storage.js          (persistência — localStorage, desde 2026-08-16)
     ├── admin.js            (painel de admin)
