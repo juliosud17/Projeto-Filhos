@@ -32,7 +32,7 @@ function inlineStylesheets(html) {
     (match, href) => {
       if (!isLocalRef(href)) return match;
       const css = fs.readFileSync(path.join(APP_DIR, href), 'utf8');
-      return `<style>\n${css}\n</style>`;
+      return `<style>\n${css}</style>`;
     }
   );
 }
