@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-08-16 — Correção dos 12 achados da auditoria BNCC
+
+- **EF01MA13** (Formas no Mundo): rótulo corrigido (EF01MA13 real + "além" antecipando EF02MA14), conteúdo mantido.
+- **EF01MA11/12** (Onde Está?/Siga o Mapa): vocabulário de "Onde Está?" corrigido pra "à frente/atrás", enunciado estabelece o referencial.
+- **EF01MA01** (Quantos Tem?): nova variação "número como código" (banco `MM1_CODE_EXAMPLES`).
+- **EF01MA09** (Organize por Tamanho): 2 variações novas, cor e forma (`mm3OddOneOutRound`).
+- **EF01LP17/20/22/24** (Módulo 4/5 PT): textos corrigidos; gênero "legenda de foto" adicionado a `FUNCTIONAL_TEXTS`.
+- 7 achados menores: texto corrigido em todos; 2 (EF01MA14, EF01MA16) só na documentação, gap de conteúdo registrado como pendência honesta.
+- 12 checagens de teste novas (`qa_test_math_m1.js`, `qa_test_math_m3.js`, `qa_test_math_m7.js`, `qa_test_modulo4.js`), verificando o conteúdo corrigido especificamente.
+- Suíte completa revalidada a cada mudança — mesmo resultado da baseline em todas.
+
 ## 2026-08-16 — Comparação do currículo próprio contra o texto oficial da BNCC
 
 - `qa/auditorias/auditoria_bncc_oficial.md` novo: comparação código a código das 48 habilidades (26 EF01LP + 22 EF01MA) contra `pedagogia/bncc-oficial/`.

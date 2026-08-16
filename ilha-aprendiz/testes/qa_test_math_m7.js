@@ -43,6 +43,34 @@ function testMC(gameId, roundsPerLevel, expectedOptsFn){
 testMC("onde_esta", 60, ()=>3);
 testMC("siga_o_mapa", 60); // opts varia (4 single-axis nível 1-3, 3 diagonal nível 4-5)
 
+// Onde Está? corrigido em 2026-08-16 (achado EF01MA11, ver
+// qa/auditorias/auditoria_bncc_oficial.md): usava "em cima"/"embaixo", que é
+// vocabulário oficial do EF01MA12 (testado no Siga o Mapa via o robô como
+// referência explícita) -- agora usa "à frente"/"atrás", a marca do EF01MA11
+// (posição em relação à própria posição de quem descreve), com o enunciado
+// estabelecendo esse referencial ("em relação a você").
+(function testVocabularioEF01MA11(){
+  let sawFrente=false, sawAtras=false, usedOldVocab=false, sawSelfFraming=false;
+  for(let lvl=1; lvl<=5; lvl++){
+    for(let i=0;i<20;i++){
+      state.game="onde_esta"; state.subgames=["onde_esta"]; state.round=1; state.totalRounds=1;
+      state.pools={}; state.roundPlan=["onde_esta"]; state.currentRender="onde_esta"; state.roundFirstTryUsed=false;
+      activityLevel.onde_esta = lvl;
+      renderRound();
+      const promptText = document.querySelector('.prompt').textContent;
+      const optTexts = Array.from(document.querySelectorAll('.option-btn')).map(b=>b.textContent);
+      if(optTexts.some(t=>t.includes('à frente'))) sawFrente = true;
+      if(optTexts.some(t=>t.includes('atrás'))) sawAtras = true;
+      if(optTexts.some(t=>t.includes('em cima') || t.includes('embaixo'))) usedOldVocab = true;
+      if(promptText.includes('em relação a você')) sawSelfFraming = true;
+    }
+  }
+  check("Onde Está? usa 'à frente' (vocabulário EF01MA11)", sawFrente);
+  check("Onde Está? usa 'atrás' (vocabulário EF01MA11)", sawAtras);
+  check("Onde Está? não usa mais 'em cima'/'embaixo' (isso é EF01MA12)", !usedOldVocab);
+  check('Onde Está? estabelece o referencial ("em relação a você")', sawSelfFraming);
+})();
+
 // mm7FullyMastered gating
 activityLevel.onde_esta=1; mastery['onde_esta:1']=[];
 activityLevel.siga_o_mapa=1; mastery['siga_o_mapa:1']=[];

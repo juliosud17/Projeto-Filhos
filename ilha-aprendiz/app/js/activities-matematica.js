@@ -2,9 +2,34 @@
 function renderQuantosTem(stage){
   const lvl = activityLevel.quantos_tem || 5;
   const [min, max] = MM1_QTY_RANGE[lvl];
-  const askOrdinal = Math.random() < 0.5 && max >= 3;
+  const roll = Math.random();
+  // 3 variações, não 2: quantidade, ordem e "número como código" (a
+  // terceira metade da EF01MA01 que faltava -- ver
+  // qa/auditorias/auditoria_bncc_oficial.md, achado de 2026-08-16. A BNCC
+  // pede reconhecer situações em que o número NÃO indica quantidade nem
+  // ordem, é só um código de identificação: número de casa, de camisa...).
+  const askCode = roll < (1/3);
+  const askOrdinal = !askCode && Math.random() < 0.5 && max >= 3;
 
-  if(!askOrdinal){
+  if(askCode){
+    const item = MM1_CODE_EXAMPLES[Math.floor(Math.random()*MM1_CODE_EXAMPLES.length)];
+    const correct = item.isCode ? "É só um código (nome)" : "Mostra quantidade ou ordem";
+    const wrong = item.isCode ? "Mostra quantidade ou ordem" : "É só um código (nome)";
+    const options = shuffle([correct, wrong]);
+    const spoken = `${item.text} Esse número mostra quantidade ou ordem, ou é só um código pra identificar, tipo um nome?`;
+    stage.innerHTML = `<div class="prompt">${item.emoji} ${item.text}<br>Esse número mostra QUANTIDADE/ORDEM, ou é só um CÓDIGO (tipo um nome)?</div>
+      <button class="tts-btn" onclick="speak('${spoken.replace(/'/g,"\\'")}')">🔊 Ouvir de novo</button>
+      <div class="options-row" id="opts"></div>`;
+    speak(spoken);
+    const opts = stage.querySelector("#opts");
+    options.forEach(label=>{
+      const b = document.createElement("button");
+      b.className = "option-btn";
+      b.textContent = label;
+      b.onclick = ()=> registerAnswer(label === correct, b);
+      opts.appendChild(b);
+    });
+  }else if(!askOrdinal){
     const n = Math.floor(Math.random()*(max-min+1))+min;
     const emoji = COUNT_EMOJI[Math.floor(Math.random()*COUNT_EMOJI.length)];
     const row = Array(n).fill(emoji).join(" ");
@@ -313,9 +338,59 @@ function renderQualEMaior(stage){
    base, como numa prateleira), pede pra achar o maior ou o menor. Manter o
    mesmo objeto em todos os itens é o que torna a comparação de tamanho justa
    e sem ambiguidade — nunca compara coisas diferentes entre si. */
+/* Monta a rodada de "achar o diferente" por COR ou por FORMA (variantes
+   novas, ver renderOrganizePorTamanho) -- N itens iguais no atributo que
+   NÃO está sendo testado, 1 item diferente só no atributo perguntado,
+   isolando a comparação (mesmo princípio já usado no tamanho: "manter o
+   mesmo objeto evita comparação injusta"). */
+function mm3OddOneOutRound(stage, count, attributeLabel, drawFn){
+  const letters = "ABCDE".slice(0, count).split("");
+  const oddIdx = Math.floor(Math.random()*count);
+  const correct = letters[oddIdx];
+  const spoken = `Qual é diferente dos outros pela ${attributeLabel}?`;
+  const itemsHtml = letters.map((l,i)=>{
+    return `<div style="display:flex; flex-direction:column; align-items:center; margin:4px 10px;">
+      ${drawFn(i === oddIdx)}
+      <div style="font-weight:800; color:var(--purple-dark); margin-top:4px;">${l}</div>
+    </div>`;
+  }).join("");
+  stage.innerHTML = `<div class="prompt">Qual é diferente dos outros pela ${attributeLabel}?</div>
+    <div style="display:flex; justify-content:center; align-items:center; flex-wrap:wrap; margin:14px 0; min-height:90px;">${itemsHtml}</div>
+    <button class="tts-btn" onclick="speak('${spoken.replace(/'/g,"\\'")}')">🔊 Ouvir de novo</button>
+    <div class="options-row" id="opts"></div>`;
+  speak(spoken);
+  const opts = stage.querySelector("#opts");
+  letters.forEach(l=>{
+    const b = document.createElement("button");
+    b.className = "option-btn";
+    b.textContent = l;
+    b.onclick = ()=> registerAnswer(l === correct, b);
+    opts.appendChild(b);
+  });
+}
+
+/* --- Benjamin (Matemática M3): Organize por Tamanho (EF01MA09) — a
+   habilidade oficial pede organizar objetos "por meio de atributos, tais
+   como cor, forma e medida", não só medida/tamanho. Corrigido em
+   2026-08-16 (ver qa/auditorias/auditoria_bncc_oficial.md): agora alterna
+   3 variantes — tamanho (mecânica original, maior/menor), cor e forma
+   (mecânica nova, achar o item diferente dos outros nesse atributo). */
 function renderOrganizePorTamanho(stage){
   const lvl = activityLevel.organize_por_tamanho || 5;
   const count = MM3_ORDER_COUNT[lvl];
+  const roll = Math.random();
+  if(roll < (1/3)){
+    const shape = MM8_PLANE_SHAPES[Math.floor(Math.random()*MM8_PLANE_SHAPES.length)];
+    const [baseColor, oddColor] = shuffle([...MM8_PLANE_COLORS]).slice(0, 2);
+    mm3OddOneOutRound(stage, count, "COR", isOdd => mm8DrawShape(shape, 0, isOdd ? oddColor : baseColor));
+    return;
+  }
+  if(roll < (2/3)){
+    const color = MM8_PLANE_COLORS[Math.floor(Math.random()*MM8_PLANE_COLORS.length)];
+    const [baseShape, oddShape] = shuffle([...MM8_PLANE_SHAPES]).slice(0, 2);
+    mm3OddOneOutRound(stage, count, "FORMA", isOdd => mm8DrawShape(isOdd ? oddShape : baseShape, 0, color));
+    return;
+  }
   const sizes = [];
   while(sizes.length < count){
     const s = Math.floor(Math.random()*9)+1;
@@ -742,7 +817,14 @@ function renderDezenaEUnidade(stage){
    controla quais células entram no sorteio da pergunta (MM7_LEVEL_CELLS),
    não a grade em si — assim o vocabulário pedido cresce gradualmente
    (esquerda/direita isolados primeiro, cantos combinados só nos níveis
-   altos), sem nunca mostrar uma grade incompleta ou ambígua. */
+   altos), sem nunca mostrar uma grade incompleta ou ambígua.
+   Enunciado em relação a VOCÊ (a criança), de propósito ("à frente de
+   você"/"atrás de você") — é a marca do EF01MA11 ("em relação à sua
+   própria posição"), diferente do EF01MA12 (posição segundo um ponto de
+   referência qualquer, dado explicitamente — esse é o Siga o Mapa, com o
+   robô como referência). Corrigido em 2026-08-16, ver
+   qa/auditorias/auditoria_bncc_oficial.md — antes usava "em cima"/"embaixo",
+   que é vocabulário oficial do EF01MA12, não do EF01MA11. */
 function renderOndeEsta(stage){
   const lvl = activityLevel.onde_esta || 5;
   const cellPool = MM7_LEVEL_CELLS[lvl];
@@ -762,10 +844,10 @@ function renderOndeEsta(stage){
   const options = shuffle([correct, ...wrongs]);
 
   const article = targetInfo.fem ? "a" : "o";
-  const spoken = `Onde está ${article} ${targetInfo.name}?`;
+  const spoken = `Imagine que você está bem no meio dessa grade. Onde está ${article} ${targetInfo.name} em relação a você?`;
   const gridHtml = grid.map(row => row.map(e=>`<div style="font-size:30px; padding:6px;">${e}</div>`).join("")).join("");
 
-  stage.innerHTML = `<div class="prompt">Onde está ${article} ${targetInfo.name} ${targetEmoji}?</div>
+  stage.innerHTML = `<div class="prompt">Imagine que você está bem no meio. Onde está ${article} ${targetInfo.name} ${targetEmoji} em relação a você?</div>
     <div style="display:grid; grid-template-columns:repeat(3,1fr); max-width:220px; margin:14px auto; background:#f7f5ff; border-radius:14px; text-align:center;">${gridHtml}</div>
     <button class="tts-btn" onclick="speak('${spoken.replace(/'/g,"\\'")}')">🔊 Ouvir de novo</button>
     <div class="options-row" id="opts"></div>`;

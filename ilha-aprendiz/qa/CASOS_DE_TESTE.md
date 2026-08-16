@@ -9,7 +9,7 @@
 | `qa_test_modulo2.js` / `qa_test_modulo2_complete.js` | Módulo 2 (Leitura de Palavras): renderização por nível, gate de desbloqueio do Módulo 3, cards de menu/admin |
 | `qa_test_escrita_certa.js` | Atividade Escrita Certa (Módulo 2): pares certo/erro ortográfico |
 | `qa_test_modulo3.js` | Módulo 3 (Frases e Textos Curtos): Parlendas, Som do Meio/Fim, Pontuação Certa |
-| `qa_test_modulo4.js` | Módulo 4 (Produções Escritas): fluxo de digitação nas 3 atividades |
+| `qa_test_modulo4.js` | Módulo 4 (Produções Escritas): fluxo de digitação nas 3 atividades, cobertura do gênero "legenda" (correção BNCC 2026-08-16) |
 | `qa_test_modulo5.js` | Módulo 5 (Compreensão): Sinônimos/Antônimos, Qual é o Gênero?, Ler e Responder |
 | `qa_test_modulo6.js` | Módulo 6 (Narrativas): inclui teste determinístico da mecânica de ordenar (Reconte a História) |
 | `qa_test_modulo7.js` | Módulo 7 (Gramática): Substantivo/Verbo, Que Ação Combina?, Pontuação no Textinho |
@@ -18,7 +18,7 @@
 
 | Arquivo | Cobre |
 |---|---|
-| `qa_test_math_m1.js` … `qa_test_math_m12.js` | Um arquivo por módulo M1-M12 — as atividades daquele módulo em todos os 5 níveis, geralmente 60 rodadas simuladas por atividade/nível, checagem de opção duplicada, resposta certa sempre encontrável, gate de desbloqueio (sempre destravado, trilha independente) |
+| `qa_test_math_m1.js` … `qa_test_math_m12.js` | Um arquivo por módulo M1-M12 — as atividades daquele módulo em todos os 5 níveis, geralmente 60 rodadas simuladas por atividade/nível, checagem de opção duplicada, resposta certa sempre encontrável, gate de desbloqueio (sempre destravado, trilha independente). `m1`/`m3`/`m7` também verificam as variantes/vocabulário corrigidos na auditoria BNCC de 2026-08-16 (`qa/auditorias/auditoria_bncc_oficial.md`) |
 
 ## Sistemas transversais
 

@@ -244,10 +244,14 @@ const LISTS = [
   {level:5, title:"Lista de bichos que se enrolam", items:["TATU","MINHOCA","___"], answer:"COBRA", hint:"🐍"},
 ];
 
-/* Textos funcionais curtos com 1 lacuna — bilhete, convite, receita (EF01LP17)
-   e combinado/regra da turma (EF01LP21), misturados no mesmo banco porque as
-   4 habilidades pedem o mesmo formato (texto curto do cotidiano com 1 palavra
-   faltando), só muda o gênero textual. */
+/* Textos funcionais curtos com 1 lacuna — bilhete, convite, receita e legenda
+   de foto (EF01LP17/20) e combinado/regra da turma (EF01LP21), misturados no
+   mesmo banco porque pedem o mesmo formato (texto curto do cotidiano com 1
+   palavra faltando), só muda o gênero textual. "Legenda" (type:"legenda")
+   adicionado em 2026-08-16 -- o texto oficial do EF01LP17/20 cita
+   explicitamente "legendas para álbuns, fotos ou ilustrações" entre os
+   gêneros, e o banco não tinha nenhum item desse gênero até então (ver
+   qa/auditorias/auditoria_bncc_oficial.md). */
 const FUNCTIONAL_TEXTS = [
   {level:1, type:"bilhete", text:"Mamãe, fui brincar na ___ da vizinha.", answer:"CASA", hint:"🏠"},
   {level:1, type:"regra",   text:"Regra da sala: sempre levantar a ___ antes de falar.", answer:"MÃO", hint:"✋"},
@@ -259,12 +263,19 @@ const FUNCTIONAL_TEXTS = [
   {level:4, type:"receita", text:"Receita de bolo: misture farinha, ovo e ___.", answer:"LEITE", hint:"🥛"},
   {level:5, type:"bilhete", text:"Levei o ___ emprestado para a biblioteca da escola.", answer:"LIVRO", hint:"📖"},
   {level:5, type:"regra",   text:"Regra da sala: pedir ___ para usar o brinquedo do amigo.", answer:"LICENÇA", hint:"🙏"},
-  // Expansão — mais textos funcionais por nível, mesmos 4 gêneros
+  // Expansão — mais textos funcionais por nível, mesmos gêneros
   {level:1, type:"bilhete", text:"Vovó, deixei o ___ em cima da mesa.", answer:"BILHETE", hint:"📝"},
   {level:2, type:"regra",   text:"Regra da sala: guardar o ___ depois de usar.", answer:"LÁPIS", hint:"✏️"},
   {level:3, type:"convite", text:"Venha ver o ___ que vai fazer erupção na feira de ciências!", answer:"VULCÃO", hint:"🌋"},
   {level:4, type:"receita", text:"Receita de pipoca: coloque o ___ na panela quente.", answer:"MILHO", hint:"🌽"},
   {level:5, type:"bilhete", text:"Fui à ___ comprar pão, já volto.", answer:"CIDADE", hint:"🏙️"},
+  // Gênero "legenda" (de foto/ilustração) -- adicionado 2026-08-16, era o
+  // gênero que faltava do EF01LP17/20 (ver comentário acima do banco).
+  {level:1, type:"legenda", text:"Foto: o menino sorrindo com o ___ novo.", answer:"BRINQUEDO", hint:"🧸"},
+  {level:2, type:"legenda", text:"Foto: a família reunida na hora do ___.", answer:"JANTAR", hint:"🍽️"},
+  {level:3, type:"legenda", text:"Foto: as crianças brincando no ___ da escola.", answer:"PÁTIO", hint:"🏫"},
+  {level:4, type:"legenda", text:"Foto: o gato dormindo em cima do ___ macio.", answer:"SOFÁ", hint:"🛋️"},
+  {level:5, type:"legenda", text:"Foto: os amigos reunidos no dia do ___.", answer:"PASSEIO", hint:"🚶"},
 ];
 
 /* As atividades do Módulo 5 (Compreensão de Textos e Gêneros). "Ler e

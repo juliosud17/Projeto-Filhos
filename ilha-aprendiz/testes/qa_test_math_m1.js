@@ -50,6 +50,35 @@ testMC("quantos_tem", 60);
 testMC("conta_comigo_b", 60);
 testMC("qual_tem_mais", 2, ()=>2); // sempre 2 opções (Grupo A / Grupo B)
 
+// 1b. variante "número como código" da EF01MA01 (achado 2026-08-16, ver
+// qa/auditorias/auditoria_bncc_oficial.md) -- roda muitas rodadas até pegar
+// as duas respostas ("código" e "quantidade/ordem") e confirma que bate com
+// MM1_CODE_EXAMPLES.isCode em cada caso.
+(function testCodeVariant(){
+  activityLevel.quantos_tem = 5; mastery['quantos_tem:5'] = [];
+  let sawCode = false, sawNotCode = false, mismatches = 0;
+  for(let i=0; i<200 && (!sawCode || !sawNotCode); i++){
+    state.game="quantos_tem"; state.subgames=["quantos_tem"]; state.round=1; state.totalRounds=1;
+    state.pools={}; state.roundPlan=["quantos_tem"]; state.currentRender="quantos_tem"; state.roundFirstTryUsed=false;
+    renderRound();
+    const promptEl = document.querySelector('.prompt');
+    if(!promptEl || !promptEl.textContent.includes('CÓDIGO')) continue; // não foi a variante código nesta rodada
+    const matched = MM1_CODE_EXAMPLES.find(it => promptEl.textContent.includes(it.text));
+    if(!matched) { mismatches++; continue; }
+    if(matched.isCode) sawCode = true; else sawNotCode = true;
+    const opts = document.querySelectorAll('.option-btn');
+    const correctBtn = Array.from(opts).find(b => matched.isCode ? b.textContent.includes('código') : b.textContent.includes('quantidade'));
+    if(correctBtn && correctBtn.onclick){
+      const before = state.sessionStars;
+      correctBtn.onclick();
+      if(state.sessionStars <= before) mismatches++;
+    }
+  }
+  check("variante 'código' da Quantos Tem? aparece (item isCode:true)", sawCode);
+  check("variante 'código' da Quantos Tem? cobre item isCode:false também", sawNotCode);
+  check("cada rodada 'código' bate certo com MM1_CODE_EXAMPLES.isCode", mismatches === 0);
+})();
+
 // 2. mm1FullyMastered gating
 activityLevel.quantos_tem=1; mastery['quantos_tem:1']=[];
 activityLevel.conta_comigo_b=1; mastery['conta_comigo_b:1']=[];

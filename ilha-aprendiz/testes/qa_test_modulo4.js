@@ -21,6 +21,14 @@ let ftOk = true;
 FUNCTIONAL_TEXTS.forEach(it=>{ if(!it.text.includes("___")){ console.log("FUNCTIONAL_TEXT missing blank: "+it.text); ftOk=false; } if(!it.answer){ ftOk=false; } });
 check("every FUNCTIONAL_TEXTS entry has a blank and an answer", ftOk);
 
+// Gênero "legenda" (de foto/ilustração) adicionado em 2026-08-16 -- achado
+// EF01LP17/20, ver qa/auditorias/auditoria_bncc_oficial.md (o texto oficial
+// cita explicitamente legendas para álbuns/fotos/ilustrações entre os
+// gêneros, e o banco não tinha nenhum item desse gênero até então).
+const legendaItems = FUNCTIONAL_TEXTS.filter(it=>it.type==='legenda');
+check("banco tem itens do gênero legenda (EF01LP17/20)", legendaItems.length >= 5);
+check("gênero legenda cobre os 5 níveis", new Set(legendaItems.map(it=>it.level)).size === 5);
+
 // 2. renderListaCompleta across levels — type correct answer (with lowercase+no accent) and wrong answer
 function testTyped(gameId, lvl, correctAnswerGetter){
   activityLevel[gameId] = lvl;

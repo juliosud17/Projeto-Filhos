@@ -44,6 +44,27 @@ testMC("qual_e_maior", 60, ()=>2);
 testMC("organize_por_tamanho", 60);
 testMC("o_que_vem_depois", 60, ()=>3);
 
+// Organize por Tamanho ganhou variantes de COR e FORMA em 2026-08-16 (achado
+// EF01MA09, ver qa/auditorias/auditoria_bncc_oficial.md — a habilidade
+// oficial pede cor/forma/medida, não só tamanho). Roda até ver as 3
+// variantes aparecerem.
+(function testAtributoVariants(){
+  activityLevel.organize_por_tamanho = 5; mastery['organize_por_tamanho:5'] = [];
+  let sawCor=false, sawForma=false, sawTamanho=false;
+  for(let i=0; i<150 && !(sawCor && sawForma && sawTamanho); i++){
+    state.game="organize_por_tamanho"; state.subgames=["organize_por_tamanho"]; state.round=1; state.totalRounds=1;
+    state.pools={}; state.roundPlan=["organize_por_tamanho"]; state.currentRender="organize_por_tamanho"; state.roundFirstTryUsed=false;
+    renderRound();
+    const promptText = document.querySelector('.prompt').textContent;
+    if(promptText.includes('COR')) sawCor = true;
+    else if(promptText.includes('FORMA')) sawForma = true;
+    else if(promptText.includes('MAIOR') || promptText.includes('MENOR')) sawTamanho = true;
+  }
+  check("Organize por Tamanho tem variante COR", sawCor);
+  check("Organize por Tamanho tem variante FORMA", sawForma);
+  check("Organize por Tamanho mantém a variante original de TAMANHO", sawTamanho);
+})();
+
 // mm3FullyMastered gating
 activityLevel.qual_e_maior=1; mastery['qual_e_maior:1']=[];
 activityLevel.organize_por_tamanho=1; mastery['organize_por_tamanho:1']=[];

@@ -1,6 +1,6 @@
 // Conteudo + definicao das atividades dos 12 modulos da trilha de Matematica (Benjamin).
 const MM1_ACTIVITIES = [
-  {id:"quantos_tem",     name:"Quantos Tem?",   icon:"🔢", desc:"Contar quantidade e reconhecer posição/ordem (EF01MA01)"},
+  {id:"quantos_tem",     name:"Quantos Tem?",   icon:"🔢", desc:"Contar quantidade, reconhecer posição/ordem e identificar número-código (EF01MA01)"},
   {id:"conta_comigo_b",  name:"Conta Comigo",   icon:"🧮", desc:"Contar com estratégias diferentes: um a um, em grupos, por estimativa (EF01MA02)"},
   {id:"qual_tem_mais",   name:"Qual Tem Mais?", icon:"⚖️", desc:"Comparar e estimar quantidades de dois grupos (EF01MA03)"},
 ];
@@ -32,7 +32,7 @@ const MM2_STEP_BY_LEVEL = {1:[10], 2:[5,10], 3:[2,5,10], 4:[2,5,10], 5:[2,5,10]}
    Depois?" é sempre dita explicitamente em voz alta. */
 const MM3_ACTIVITIES = [
   {id:"qual_e_maior",         name:"Qual é Maior?",         icon:"⚖️", desc:"Comparar dois números com apoio visual de quantidade (EF01MA05)"},
-  {id:"organize_por_tamanho", name:"Organize por Tamanho",  icon:"📐", desc:"Colocar objetos em ordem do menor pro maior (EF01MA09)"},
+  {id:"organize_por_tamanho", name:"Organize por Tamanho",  icon:"📐", desc:"Comparar por tamanho, cor ou forma (EF01MA09)"},
   {id:"o_que_vem_depois",     name:"O Que Vem Depois?",     icon:"🔮", desc:"Descobrir o próximo item de um padrão, com a regra explicada (EF01MA10)"},
 ];
 /* Faixa de número por nível pro Qual é Maior? — nível 1-2 fica dentro do
@@ -74,6 +74,25 @@ const MM1_MAXGAP = {1:99, 2:6, 3:4, 4:2, 5:1};
    vizinha, senão "qual é o 3º" não tem como ser respondido de verdade. */
 const ANIMAL_ROW_EMOJI = ["🐶","🐱","🐰","🐻","🐸","🦊","🐼","🐨","🦁","🐷","🐵","🐔","🐮","🐹","🦉"];
 const ORDINAL_WORDS = {1:"1º",2:"2º",3:"3º",4:"4º",5:"5º",6:"6º",7:"7º",8:"8º",9:"9º",10:"10º",11:"11º",12:"12º",13:"13º",14:"14º",15:"15º"};
+/* Terceira metade da EF01MA01 (a que faltava — ver
+   qa/auditorias/auditoria_bncc_oficial.md, achado 2026-08-16): a habilidade
+   oficial não é só "quantidade vs. ordem", é "quantidade/ordem VS. número
+   que não indica nem uma coisa nem outra, é só um código de identificação"
+   (número de casa, de camisa, de telefone...). Metade dos itens aqui é
+   quantidade/ordem de verdade (isCode:false), metade é código (isCode:true) —
+   sempre com contexto concreto do dia a dia de uma criança de 6 anos. */
+const MM1_CODE_EXAMPLES = [
+  {emoji:"🏠", text:"A casa da Ana é a número 7 na rua.", isCode:true},
+  {emoji:"👕", text:"O jogador joga com a camisa número 10.", isCode:true},
+  {emoji:"🚌", text:"Esse é o ônibus número 214.", isCode:true},
+  {emoji:"📺", text:"Troque pro canal número 5.", isCode:true},
+  {emoji:"🎂", text:"O Benjamin fez 6 anos no aniversário dele.", isCode:false},
+  {emoji:"🍬", text:"Ele ganhou 8 balas de presente.", isCode:false},
+  {emoji:"🥉", text:"Ela chegou em 3º lugar na corrida.", isCode:false},
+  {emoji:"📖", text:"Esse é o capítulo 2 do livro.", isCode:false},
+  {emoji:"🍎", text:"Tinha 5 maçãs na fruteira.", isCode:false},
+  {emoji:"🎽", text:"Ele ficou em 1º lugar na competição.", isCode:false},
+];
 
 const MM4_ACTIVITIES = [
   {id:"fatos_da_soma",       name:"Fatos da Soma",     icon:"➕", desc:"Somar dois grupos com apoio visual, evoluindo pra só números (EF01MA06)"},
@@ -159,7 +178,13 @@ const ANIMAL_NAMES = {
    coluna (esquerda/meio/direita) — o meio-meio vira "bem no meio", e as
    posições no meio de uma linha/coluna omitem a parte redundante ("no
    meio") pra não soar estranho ("no meio, no meio"). */
-const MM7_ROW_LABELS = ["em cima", "", "embaixo"];
+/* "à frente"/"atrás" (não "em cima"/"embaixo") de propósito -- é o vocabulário
+   que a BNCC usa especificamente no EF01MA11 (posição em relação à PRÓPRIA
+   posição de quem descreve), diferente do EF01MA12 ("em cima"/"em baixo" é
+   o exemplo oficial desse outro código, testado em Siga o Mapa via o robô
+   como ponto de referência explícito). Corrigido em 2026-08-16 -- ver
+   qa/auditorias/auditoria_bncc_oficial.md. */
+const MM7_ROW_LABELS = ["à frente", "", "atrás"];
 const MM7_COL_LABELS = ["à esquerda", "", "à direita"];
 function mm7CellLabel(row, col){
   if(row === 1 && col === 1) return "bem no meio";

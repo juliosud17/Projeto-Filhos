@@ -6,6 +6,24 @@
 
 ---
 
+## 2026-08-16 — Correção dos 12 achados da auditoria BNCC, via framework de papéis
+
+**O que foi feito:** as 5 divergências reais + 7 achados menores da auditoria (ver entrada anterior e `qa/auditorias/auditoria_bncc_oficial.md`) foram corrigidos no mesmo dia, a pedido explícito do Júlio ("arrume elas, use as investiduras dos agentes que temos pra isso") — usando o framework de papéis do `claude/AGENTES.md`: Especialista Pedagógico decidiu o quê/como corrigir cada achado, Desenvolvedor implementou, QA testou.
+
+**Decisões de correção, achado a achado:**
+1. **EF01MA13** (Formas no Mundo) — conteúdo mantido (cubo/pirâmide continuam testados), só o rótulo corrigido pra ser honesto: EF01MA13 (4 formas oficiais) + "além" explicitamente antecipando EF02MA14. Escolhido em vez de remover cubo/pirâmide porque é conteúdo válido, consistente com a proposta "um ano à frente" do app — só estava mal rotulado.
+2. **EF01MA11/12** (Onde Está?/Siga o Mapa) — vocabulário de "Onde Está?" trocado de "em cima/embaixo" pra "à frente/atrás", com o enunciado agora estabelecendo o referencial ("em relação a você"). "Siga o Mapa" não mudou.
+3. **EF01MA01** (Quantos Tem?) — nova 3ª variação: classificar número como quantidade/ordem vs. código de identificação (número de casa, camisa, canal).
+4. **EF01MA09** (Organize por Tamanho) — 2 variações novas ("ache o diferente" por cor e por forma), somadas à original (tamanho).
+5. **EF01LP17/20/22/24** (Módulo 4/5 de Português) — textos das habilidades corrigidos (verbo completo, lista de gêneros completa); gênero "legenda de foto" adicionado ao banco `FUNCTIONAL_TEXTS` (5 itens novos).
+6-12. **Achados menores** — todos os 7 tiveram o texto corrigido pra bater com o oficial; 2 deles (EF01MA14, EF01MA16) só na documentação, porque a lacuna real (relacionar 2D a face de sólido 3D; usar horário de relógio) exigiria conteúdo/jogo novo — registrado como pendência conhecida em vez de fabricar cobertura que não existe.
+
+**Por que não criar atividades totalmente novas pros achados 3-5:** optei por estender atividades existentes (nova variação dentro do mesmo formato) em vez de construir jogos novos do zero — mais rápido, mais consistente visualmente, e menor risco de quebrar algo, já que reaproveita motores já testados (ex.: `mm8DrawShape` pro achado 4, o mesmo padrão de completar lacuna pro achado 5).
+
+**Testado:** suíte completa revalidada depois de cada mudança individual (não só no final) + checagens novas direcionadas em `qa_test_math_m1.js` (+3), `qa_test_math_m3.js` (+3), `qa_test_math_m7.js` (+4), `qa_test_modulo4.js` (+2) — total de 12 checagens novas verificando especificamente o conteúdo corrigido, não só "não quebrou nada". Suíte completa (32 arquivos): mesmo resultado da baseline (única falha conhecida em `qa_test_regression.js`; uma falha intermitente pré-existente em `qa_test_typing.js` apareceu uma vez, confirmada como flake já documentado, não regressão).
+
+---
+
 ## 2026-08-16 — Comparação do currículo próprio contra o texto oficial da BNCC
 
 **O que foi feito:** comparação código a código das 26 habilidades EF01LP e 22 EF01MA como descritas em `app/data/registro-modulos.js` (fonte real usada pelo app) contra o texto oficial em `pedagogia/bncc-oficial/`. Relatório completo em `qa/auditorias/auditoria_bncc_oficial.md`.
