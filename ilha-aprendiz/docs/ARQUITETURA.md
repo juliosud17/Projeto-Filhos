@@ -22,6 +22,7 @@ app/
 └── js/
     ├── mastery.js         (domínio/progressão, MODULE_CONTAINERS, Desafio Final)
     ├── navigation.js       (árvore de telas)
+    ├── storage.js          (persistência — localStorage, desde 2026-08-16)
     ├── admin.js            (painel de admin)
     ├── utils.js            (sorteio, fala, som, ícone/emoji)
     ├── teaching-engine.js  (Motor de Ensino: fluxo da aula)
@@ -59,7 +60,6 @@ O corte de ~5.600 linhas em 15 arquivos foi feito por **extração mecânica de 
 
 ## Próximos refinamentos possíveis (não urgentes, não bloqueiam nada)
 
-- **`js/storage.js`** ainda não existe — nasce junto com o item 1 do `docs/ROADMAP.md` (persistência).
 - **Per-módulo em vez de per-trilha** em `data/portugues-atividades.js`/`matematica-atividades.js` (19 arquivos menores em vez de 2 grandes) — só vale a pena se esses arquivos ficarem difíceis de navegar na prática.
 - **Schema JSON por conceito pedagógico** (`id`, `titulo`, `pre_requisitos`, `ensino: {...}`) — ideia registrada em `pedagogia/PREREQUISITOS.md`, ainda não aplicada aos dados reais; hoje o conteúdo continua como array/objeto JS "achatado", não nesse formato mais rico.
 

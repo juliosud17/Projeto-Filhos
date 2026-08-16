@@ -20,7 +20,7 @@ Regras que não podem ser quebradas silenciosamente — qualquer mudança que vi
 - **Toda mudança deve preservar os testes existentes.** Antes de considerar qualquer alteração pronta, a suíte em `testes/` roda inteira. Falhas pré-existentes conhecidas (flakiness de `setTimeout`/`Math.random` em `qa_test_regression.js` e `qa_test_svg.js`, intermitência em `qa_test_typing.js`) são toleradas e já documentadas — uma falha *nova* não é.
 - **Novas funcionalidades precisam de teste automatizado** no mesmo padrão jsdom já usado (ver `qa/CHECKLIST_QA.md`).
 - **Trilha de Português é sequencial** (módulo N só desbloqueia com módulo N-1 100% dominado + Desafio Final aprovado); **trilha de Matemática é independente** (os 12 módulos não têm ordem obrigatória entre si). Não confundir as duas regras ao adicionar módulo novo.
-- **Nenhum progresso é salvo entre sessões hoje** (sem localStorage — decisão técnica documentada, não esquecimento). Até isso mudar, qualquer discussão sobre "ritmo" ou "quantos dias o conteúdo dura" é teórica.
+- **Progresso é salvo entre sessões** desde 2026-08-16 (`js/storage.js`, localStorage) — o que passa a tornar possível de verdade observar ritmo real de uso (antes disso, era só teórico).
 
 ## Arquitetura pedagógica (por atividade, quando tiver aula)
 
@@ -34,8 +34,8 @@ Ver [`pedagogia/MOTOR_DE_ENSINO.md`](pedagogia/MOTOR_DE_ENSINO.md) pro protótip
 
 - Conteúdo pedagógico: **completo** para as trilhas planejadas — Português 7/8 módulos em tela + 1 fora da tela (`pedagogia/MODULO8_PROJETO_LEITOR.md`); Matemática 12/13 + 1 fora da tela.
 - Desafio Final (avaliação por módulo): **completo e testado** nos 21 módulos com nível.
-- Persistência de progresso: **não existe** — maior lacuna técnica em aberto, pré-requisito de tudo abaixo.
-- Revisão espaçada, trava de ritmo por bimestre: **não existem** — lacunas identificadas, ainda não atacadas.
+- Persistência de progresso: **existe** desde 2026-08-16 (`js/storage.js`, localStorage) — nível de cada atividade, histórico de mastery, Desafio Final e estrelas sobrevivem a fechar a aba. Ver `docs/ARQUITETURA.md` e `docs/DECISOES.md`.
+- Revisão espaçada, trava de ritmo por bimestre: **não existem** — lacunas identificadas, próximos itens do roadmap agora que persistência existe.
 - Uso real com o Benjamin jogando: **ainda não começou**.
 - Código: modularizado em 2026-08-16 — `app/ilha_aprendiz.html` (175 linhas) + `css/`, `data/`, `js/`. Scripts clássicos (não ES modules), conteúdo como `const` (não JSON via `fetch`) — continua abrindo com duplo-clique, sem servidor. Ver `docs/ARQUITETURA.md`.
 

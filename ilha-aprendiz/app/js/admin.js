@@ -140,6 +140,7 @@ function adminPlay(child, gameId, level){
 function adminReset(gameId){
   if(activityLevel.hasOwnProperty(gameId)) activityLevel[gameId] = 1;
   Object.keys(mastery).forEach(k=>{ if(k === gameId || k.startsWith(gameId + ":")) delete mastery[k]; });
+  saveProgress();
   renderAdmin();
 }
 
@@ -152,6 +153,7 @@ function adminPlayProva(containerId){
 function adminResetProva(containerId){
   delete provaPassed[containerId];
   delete provaScores[containerId];
+  saveProgress();
   renderAdmin();
 }
 
@@ -163,6 +165,7 @@ function adminResetAll(){
   state.totalStars.joaquim = 0;
   state.totalStars.benjamin = 0;
   updateGlobalStars();
+  clearProgress(); // reset precisa sobreviver ao próximo carregamento, não só à sessão atual
   renderAdmin();
 }
 

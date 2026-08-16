@@ -2,6 +2,8 @@
 
 *Atualizado em agosto de 2026. Este documento resume propósito, conteúdo construído, o gargalo de ritmo identificado e os próximos passos propostos — pensados pra fazer o mesmo conteúdo render o ano letivo inteiro, em vez de reescrever tudo do zero.*
 
+> **Nota (2026-08-16):** desde a criação deste documento, dois itens tratados abaixo como pendência já foram resolvidos — **modularização do código** e **persistência de progresso** (item 1 dos "próximos passos"). O texto abaixo não foi reescrito pra preservar o registro histórico da descoberta original; o status atual e vivo fica em `docs/ROADMAP.md`, `docs/DECISOES.md` e `CLAUDE.md`.
+
 ---
 
 ## Propósito

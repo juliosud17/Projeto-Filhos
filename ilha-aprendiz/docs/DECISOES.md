@@ -6,6 +6,18 @@
 
 ---
 
+## 2026-08-16 — Persistência de progresso: localStorage salva tudo, não só o nível
+
+**Decisão:** `js/storage.js` persiste `activityLevel` (nível 1-5 de cada atividade), `mastery` (histórico completo das últimas 10 tentativas de primeira jogada, por nível), `provaPassed`/`provaScores` (Desafio Final) e `state.totalStars` — não só um resumo. `saveProgress()` é chamado depois de cada rodada com registro de mastery, fim de sessão, fim de Desafio Final e reset de admin; `loadProgress()` roda uma vez ao carregar a página. Formato versionado (`version: 1`) e validação leve em cada campo restaurado (tipo, range, forma), pra um localStorage adulterado ou de versão futura incompatível não corromper o estado em memória.
+
+**Motivo:** opção explícita do Júlio entre persistir "tudo" (incluindo o histórico fino de mastery) vs. só o essencial (nível + Desafio Final, sem o histórico das últimas 10 tentativas). "Tudo" foi escolhido — mantém a métrica de domínio (`masteryPercent`) com a mesma precisão entre sessões que já tinha dentro de uma sessão só.
+
+**Escopo deliberadamente de fora:** a tela/rodada exata em que a criança estava no meio de uma sessão não é restaurada — reabrir o app sempre volta pra tela de seleção de criança (`screen-home`), com os dados corretos já carregados. Retomar no meio de uma rodada (inclusive um Desafio Final em andamento) foi considerado risco desproporcional ao ganho.
+
+**Testado** (`testes/qa_test_persistencia.js`, 26 checagens): round-trip completo (salvar → resetar em memória → restaurar, comparando cada campo), defesas contra JSON corrompido, versão desconhecida, nível fora do range 1-5, chave inexistente, mastery mal formado e estrelas negativas, `clearProgress()`, e confirmação de que os hooks reais (`adminReset`, `adminResetAll`) gravam/limpam o localStorage de fato, não só o estado em memória. Suíte inteira (30 arquivos agora) revalidada — mesmo resultado da baseline (a mesma falha já conhecida em `qa_test_regression.js`).
+
+---
+
 ## 2026-08-16 — Modularizar `app/ilha_aprendiz.html` em CSS/dados/JS, sem servidor e sem build
 
 **Decisão:** dividir o arquivo único (~5.600 linhas) em 15 arquivos (`css/`, `data/`, `js/`), usando `<script src="...">` **clássico** (sem `type="module"`) e conteúdo como `const` em `.js` (não `.json` via `fetch`). `app/ilha_aprendiz.html` (mantido com esse nome, não renomeado pra `index.html`) cai pra 175 linhas.

@@ -11,7 +11,7 @@
 | Desafio Final (avaliação por módulo) | 🟢 Completo e testado nos 21 módulos com nível |
 | Navegação (árvore de 4 telas) | 🟢 Reorganizada |
 | Motor de Ensino (Aprender → Ver exemplo → Fazer comigo → Agora é você) | 🟡 Prova de conceito em 2 das 53 atividades (M6 Matemática) |
-| Persistência de progresso | 🔴 Não existe |
+| Persistência de progresso | 🟢 Existe desde 2026-08-16 (`js/storage.js`, localStorage) |
 | Revisão espaçada | 🔴 Não existe |
 | Trava de ritmo por bimestre | 🔴 Não existe |
 | Estrutura de documentação viva (este conjunto de arquivos) | 🟢 Criada em 2026-08-16 |
@@ -25,12 +25,12 @@ Descoberto em agosto de 2026 (ver `BRIEFING.md` para a conta completa): 265 nív
 2. Matemática não tem freio — os 12 módulos são independentes entre si, nada impede varrer tudo em poucas semanas.
 3. Não existe revisão espaçada — depois do nível 5 + prova aprovada, a atividade nunca mais volta.
 
-E o fator que torna essa discussão só teórica por enquanto: **sem persistência, "quantos dias o conteúdo dura" depende de quanto tempo a aba fica aberta, não de dias corridos.** Por isso persistência é pré-requisito de tudo abaixo, não um item qualquer da lista.
+Até 2026-08-16, um fator tornava essa discussão só teórica: sem persistência, "quantos dias o conteúdo dura" dependia de quanto tempo a aba ficava aberta, não de dias corridos. Isso está resolvido agora (`js/storage.js`) — a partir daqui, os itens 2 e 3 abaixo passam a ser observáveis de verdade com uso real.
 
 ## Próximos passos, em ordem
 
-### 1. Persistência de progresso
-localStorage ou equivalente. Pré-requisito pra medir ritmo real — sem isso, os itens 2 e 3 não têm como ser avaliados na prática.
+### ~~1. Persistência de progresso~~ — feito em 2026-08-16
+localStorage via `js/storage.js`: nível de cada atividade, histórico de mastery (últimas 10 tentativas), Desafio Final e estrelas sobrevivem a fechar a aba. Detalhe técnico e decisão de escopo em `docs/ARQUITETURA.md` e `docs/DECISOES.md`. Isso desbloqueia os itens 2 e 3 abaixo, que antes não tinham como ser avaliados na prática.
 
 ### 2. Revisão espaçada
 Trazer de volta, em intervalos crescentes, atividades já dominadas — em vez de "nível 5 aprovado = nunca mais aparece". É o que mais estica a vida útil do conteúdo existente sem escrever uma linha nova de currículo. Ver `pedagogia/REVISAO_ESPACADA.md` (ainda a projetar).

@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-08-16 — Persistência de progresso (item 1 do roadmap)
+
+- `js/storage.js` novo: `saveProgress()`/`loadProgress()`/`clearProgress()` via `localStorage`, formato versionado.
+- Persiste `activityLevel`, `mastery` (histórico completo, não resumido), `provaPassed`, `provaScores` e `state.totalStars`.
+- Hooks em `js/game-loop.js` (fim de rodada com mastery, fim de sessão, fim de Desafio Final) e `js/admin.js` (`adminReset`, `adminResetProva`, `adminResetAll`).
+- Fechar a aba não zera mais o progresso — reabrir volta pra tela de seleção de criança com nível/domínio/Desafio Final/estrelas restaurados. Não restaura a tela/rodada exata em que a criança estava (decisão deliberada, ver `docs/DECISOES.md`).
+- `testes/qa_test_persistencia.js` novo (26 checagens). Suíte completa: 29/30 arquivos limpos, mesma falha já conhecida.
+
 ## 2026-08-16 — Modularização de `app/ilha_aprendiz.html`
 
 - Arquivo único (~5.600 linhas) dividido em `css/app.css`, 7 arquivos em `data/` e 8 em `js/` — `ilha_aprendiz.html` cai pra 175 linhas.

@@ -24,6 +24,7 @@
 
 | Arquivo | Cobre |
 |---|---|
+| `qa_test_persistencia.js` | Persistência (`js/storage.js`): round-trip save/load, defesas contra dado corrompido/versão errada/valor fora do range, `clearProgress()`, hooks reais do admin |
 | `qa_test_prova.js` | Desafio Final: fluxo completo (dominar módulo → bloqueado até passar → aprovar → desbloqueia próximo → reset via admin), critério 80% geral + 60% por atividade |
 | `qa_test_motor_ensino.js` | Motor de Ensino (Aprender → Ver exemplo → Fazer comigo → Agora é você): aula na 1ª vez, "Pular aula", "Rever aula", sugestão após 3 erros seguidos |
 | `qa_test_nav_tree.js` | Navegação em árvore de 4 telas (Ano Letivo → Matéria → Módulo → Atividades): cada nível de navegação, voltar sem perder contexto, Joaquim continua na lista simples |
@@ -36,4 +37,4 @@
 
 ## O que falta neste mapa
 
-Nenhum teste cobre hoje: persistência (não existe a funcionalidade ainda), revisão espaçada (idem), trava de ritmo (idem). Conforme cada item do `docs/ROADMAP.md` for implementado, este mapa precisa ganhar uma linha nova — regra permanente em `claude/REGRAS_PERMANENTES.md`: funcionalidade nova exige teste novo.
+Nenhum teste cobre hoje: revisão espaçada (não existe a funcionalidade ainda), trava de ritmo (idem). Conforme cada item do `docs/ROADMAP.md` for implementado, este mapa precisa ganhar uma linha nova — regra permanente em `claude/REGRAS_PERMANENTES.md`: funcionalidade nova exige teste novo. (Persistência já tem teste — `qa_test_persistencia.js`, ver acima.)

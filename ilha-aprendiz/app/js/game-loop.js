@@ -132,6 +132,7 @@ function endProva(){
   document.getElementById("prova-retry-btn").textContent = passed ? "🔁 Fazer de novo (por diversão)" : "🔁 Tentar de novo";
 
   state.provaMode = false;
+  saveProgress(); // provaPassed/provaScores e estrelas mudaram acima
   showScreen("screen-prova-result");
 }
 
@@ -226,6 +227,7 @@ function endSession(){
   }
   document.getElementById("end-summary").textContent =
     `Você ganhou ${state.sessionStars} de ${state.totalRounds} estrelas nesta rodada. Total geral: ${state.totalStars[state.child]} ⭐.${msg}`;
+  saveProgress(); // nível pode ter subido e/ou estrelas mudaram acima
   showScreen("screen-end");
 }
 
@@ -244,6 +246,7 @@ function registerAnswer(isCorrect, btnEl){
         ? state.game + ":" + activityLevel[state.game]
         : state.game;
       recordMastery(key, isCorrect);
+      saveProgress();
       // erros seguidos de PRIMEIRA tentativa na atividade atual — só pra
       // sugerir gentilmente "rever a aula", nunca pra travar ou penalizar.
       state.wrongStreak = isCorrect ? 0 : (state.wrongStreak || 0) + 1;
