@@ -140,6 +140,7 @@ function adminPlay(child, gameId, level){
 function adminReset(gameId){
   if(activityLevel.hasOwnProperty(gameId)) activityLevel[gameId] = 1;
   Object.keys(mastery).forEach(k=>{ if(k === gameId || k.startsWith(gameId + ":")) delete mastery[k]; });
+  delete reviewState[gameId]; // reset de verdade: sai do ciclo de revisão até dominar de novo
   saveProgress();
   renderAdmin();
 }
@@ -162,6 +163,7 @@ function adminResetAll(){
   Object.keys(mastery).forEach(k=> delete mastery[k]);
   Object.keys(provaPassed).forEach(k=> delete provaPassed[k]);
   Object.keys(provaScores).forEach(k=> delete provaScores[k]);
+  Object.keys(reviewState).forEach(k=> delete reviewState[k]);
   state.totalStars.joaquim = 0;
   state.totalStars.benjamin = 0;
   updateGlobalStars();
@@ -184,6 +186,9 @@ function backToMenu(){
     if(state.navBack === "modulos"){
       renderModulos();
       showScreen("screen-modulos");
+    }else if(state.navBack === "anoletivo"){
+      renderAnoLetivo();
+      showScreen("screen-menu");
     }else{
       renderAtividades();
       showScreen("screen-atividades");

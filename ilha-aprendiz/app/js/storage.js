@@ -41,6 +41,7 @@ function saveProgress(){
       mastery,
       provaPassed,
       provaScores,
+      reviewState,
       totalStars: state.totalStars,
       savedAt: new Date().toISOString()
     };
@@ -100,6 +101,14 @@ function loadProgress(){
       const s = saved.provaScores[k];
       if(s && typeof s === "object" && Array.isArray(s.perActivity)){
         provaScores[k] = s;
+      }
+    });
+  }
+  if(saved.reviewState && typeof saved.reviewState === "object"){
+    Object.keys(saved.reviewState).forEach(k=>{
+      const r = saved.reviewState[k];
+      if(r && typeof r === "object" && Number.isInteger(r.stage) && r.stage >= 0 && r.stage < REVIEW_INTERVALS_DAYS.length && typeof r.lastReviewedAt === "string" && !isNaN(Date.parse(r.lastReviewedAt))){
+        reviewState[k] = { stage: r.stage, lastReviewedAt: r.lastReviewedAt };
       }
     });
   }

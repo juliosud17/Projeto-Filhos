@@ -35,7 +35,8 @@ Ver [`pedagogia/MOTOR_DE_ENSINO.md`](pedagogia/MOTOR_DE_ENSINO.md) pro protótip
 - Conteúdo pedagógico: **completo** para as trilhas planejadas — Português 7/8 módulos em tela + 1 fora da tela (`pedagogia/MODULO8_PROJETO_LEITOR.md`); Matemática 12/13 + 1 fora da tela.
 - Desafio Final (avaliação por módulo): **completo e testado** nos 21 módulos com nível.
 - Persistência de progresso: **existe** desde 2026-08-16 (`js/storage.js`, localStorage) — nível de cada atividade, histórico de mastery, Desafio Final e estrelas sobrevivem a fechar a aba. Ver `docs/ARQUITETURA.md` e `docs/DECISOES.md`.
-- Revisão espaçada, trava de ritmo por bimestre: **não existem** — lacunas identificadas, próximos itens do roadmap agora que persistência existe.
+- Revisão espaçada: **existe** desde 2026-08-16 (`js/revisao-espacada.js`) — atividades dominadas voltam em intervalos crescentes via o card "🔁 Revisão de Hoje". Ver `pedagogia/REVISAO_ESPACADA.md`.
+- Trava de ritmo por bimestre: **não existe** — próximo item do roadmap.
 - Uso real com o Benjamin jogando: **ainda não começou**.
 - Código: modularizado em 2026-08-16 — `app/ilha_aprendiz.html` (175 linhas) + `css/`, `data/`, `js/`. Scripts clássicos (não ES modules), conteúdo como `const` (não JSON via `fetch`) — continua abrindo com duplo-clique, sem servidor. Ver `docs/ARQUITETURA.md`.
 
@@ -43,13 +44,13 @@ Ver [`pedagogia/MOTOR_DE_ENSINO.md`](pedagogia/MOTOR_DE_ENSINO.md) pro protótip
 
 Ver [`docs/ROADMAP.md`](docs/ROADMAP.md) pra detalhe e justificativa de cada item. Resumo:
 
-1. Persistência de progresso
-2. Revisão espaçada
+1. ~~Persistência de progresso~~ — feito
+2. ~~Revisão espaçada~~ — feito
 3. Trava de ritmo por bimestre (especialmente Matemática)
 4. Redistribuir densidade entre bimestres (1º bimestre está sobrecarregado)
 5. Avaliação real com o Benjamin jogando
 
-(Item de infraestrutura "modularizar o HTML monolítico" já foi feito em 2026-08-16 — ver `docs/ARQUITETURA.md`.)
+(Item de infraestrutura "modularizar o HTML monolítico" também já foi feito em 2026-08-16 — ver `docs/ARQUITETURA.md`. Detalhe de cada item em `docs/ROADMAP.md`.)
 
 ## Papéis que o Claude assume nesta sessão
 

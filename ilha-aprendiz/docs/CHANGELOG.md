@@ -4,6 +4,15 @@
 
 ---
 
+## 2026-08-16 — Revisão espaçada (item 2 do roadmap)
+
+- `js/revisao-espacada.js` novo: ciclo de revisão por estágio (0-4), intervalos 2/5/10/21/45 dias.
+- Card "🔁 Revisão de Hoje" em `renderAnoLetivo()`, visível só quando há atividade vencida.
+- Hooks: `endSession()` registra atividade recém-dominada no ciclo; `nextRound()`/`registerAnswer()` ganharam o modo `revisaoMode` (pontuação isolada, não mexe em `mastery`); `adminReset`/`adminResetAll` limpam o ciclo também.
+- `js/storage.js` estendido pra persistir `reviewState`.
+- `testes/qa_test_revisao_espacada.js` novo (38 checagens). Suíte completa: 30/31 arquivos limpos, mesma falha já conhecida.
+- Decisões de design documentadas em `pedagogia/REVISAO_ESPACADA.md` e `docs/DECISOES.md`.
+
 ## 2026-08-16 — Persistência de progresso (item 1 do roadmap)
 
 - `js/storage.js` novo: `saveProgress()`/`loadProgress()`/`clearProgress()` via `localStorage`, formato versionado.

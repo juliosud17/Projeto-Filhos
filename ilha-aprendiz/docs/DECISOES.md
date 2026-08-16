@@ -6,6 +6,16 @@
 
 ---
 
+## 2026-08-16 — Revisão espaçada: sessão dedicada, intervalos fixos por estágio, nunca recua
+
+**Decisão:** `js/revisao-espacada.js`. Atividade dominada (nível 5, 80%+) entra num ciclo com estágios 0-4, intervalo de revisão crescente (2/5/10/21/45 dias, fixo em 45 depois disso). Card "🔁 Revisão de Hoje" na tela de Ano Letivo do Benjamin, visível só quando há atividade vencida, abre uma sessão de 2 rodadas por atividade vencida, reaproveitando o loop de jogo normal. Pontua numa trilha separada (`state.revisaoResults`), nunca em `mastery`. Desempenho ≥60% na sessão avança o estágio; abaixo disso, não avança, mas também nunca recua.
+
+**Motivo:** decisão de design pedagógico feita sem input adicional do Júlio além do "pode continuar" — registrada aqui com o raciocínio completo em vez de silenciosa, exatamente pra poder ser revisitada se não for isso que ele tinha em mente. Escolhas específicas com justificativa completa em `pedagogia/REVISAO_ESPACADA.md`: sessão dedicada (não misturada com prática normal) porque reaproveita a arquitetura de sessão já existente sem alterá-la; intervalo fixo por estágio (não gatilho adaptativo por sinal de esquecimento) porque não havia dado de uso real ainda pra calibrar um gatilho adaptativo sem chutar; threshold de 60% por atividade espelha o mesmo critério já usado no Desafio Final, por consistência; "nunca recua" é aplicação direta do princípio "nunca penalizar erro" do `CLAUDE.md`, estendido de estrelas/progresso pra também cobrir o cronograma de revisão.
+
+**Testado** (`testes/qa_test_revisao_espacada.js`, 38 checagens): entrada no ciclo (idempotente), vencimento por estágio, montagem de sessão, isolamento de `mastery`, avanço condicionado ao desempenho, navegação de volta, aparição condicional do card, integração via `endSession()`, limpeza pelos resets do admin, persistência completa. Suíte inteira (31 arquivos): mesmo resultado da baseline.
+
+---
+
 ## 2026-08-16 — Persistência de progresso: localStorage salva tudo, não só o nível
 
 **Decisão:** `js/storage.js` persiste `activityLevel` (nível 1-5 de cada atividade), `mastery` (histórico completo das últimas 10 tentativas de primeira jogada, por nível), `provaPassed`/`provaScores` (Desafio Final) e `state.totalStars` — não só um resumo. `saveProgress()` é chamado depois de cada rodada com registro de mastery, fim de sessão, fim de Desafio Final e reset de admin; `loadProgress()` roda uma vez ao carregar a página. Formato versionado (`version: 1`) e validação leve em cada campo restaurado (tipo, range, forma), pra um localStorage adulterado ou de versão futura incompatível não corromper o estado em memória.

@@ -37,13 +37,15 @@ function nextRound(){
   document.getElementById("feedback-msg").textContent = "";
   document.getElementById("feedback-msg").className = "feedback-msg";
   if(state.round > state.totalRounds){
-    if(state.provaMode){ endProva(); } else { endSession(); }
+    if(state.provaMode){ endProva(); } else if(state.revisaoMode){ endRevisao(); } else { endSession(); }
     return;
   }
   // sorteia qual das atividades do módulo aparece nesta rodada
   state.currentRender = state.roundPlan[state.round - 1];
   if(state.provaMode){
     document.getElementById("round-info").textContent = `🏁 Desafio Final · Pergunta ${state.round} de ${state.totalRounds}`;
+  }else if(state.revisaoMode){
+    document.getElementById("round-info").textContent = `🔁 Revisão de Hoje · Pergunta ${state.round} de ${state.totalRounds}`;
   }else{
     const levelTag = activityLevel.hasOwnProperty(state.game) ? ` · Nível ${activityLevel[state.game]}/5` : "";
     document.getElementById("round-info").textContent = `Rodada ${state.round} de ${state.totalRounds}${levelTag}`;
@@ -186,6 +188,7 @@ function endSession(){
       playAgainBtn.textContent = `▶️ Ir para o Nível ${lvl+1}`;
     }else if(pct >= 80 && lvl === 5){
       msg = ` Nível 5 dominado (${pct}%) — atividade completa! 🏆`;
+      registerActivityMastered(state.game); // entra no ciclo de revisão espaçada (sem efeito se já estava)
       // acha o container dessa atividade (Módulo 1, 2, 3...) e, se ele acabou
       // de ficar completo, avisa sobre o desbloqueio do próximo módulo —
       // genérico, funciona pra qualquer atividade de qualquer módulo leveled.
@@ -241,6 +244,13 @@ function registerAnswer(isCorrect, btnEl){
       const r = state.provaResults[state.currentRender];
       r.total++;
       if(isCorrect) r.correct++;
+    }else if(state.revisaoMode){
+      // Revisão: pontua na trilha separada de revisaoResults, por atividade
+      // individual (state.currentRender, não state.game — o "jogo" aqui é
+      // multi-atividade). Igual ao Desafio Final, NUNCA em `mastery`.
+      const r = state.revisaoResults[state.currentRender];
+      r.total++;
+      if(isCorrect) r.correct++;
     }else{
       const key = activityLevel.hasOwnProperty(state.game)
         ? state.game + ":" + activityLevel[state.game]
@@ -269,7 +279,7 @@ function registerAnswer(isCorrect, btnEl){
     // de só "tenta de novo", oferece um jeito fácil de rever a explicação —
     // sinal de que provavelmente não é distração, é o conceito mesmo que
     // ainda não pegou.
-    if(!state.provaMode && state.wrongStreak >= 3 && LESSONS[state.game]){
+    if(!state.provaMode && !state.revisaoMode && state.wrongStreak >= 3 && LESSONS[state.game]){
       fb.innerHTML = 'Quase! Tenta de novo 💪 &nbsp;<a href="#" onclick="showLesson(state.game, true); return false;" style="color:var(--purple-dark); text-decoration:underline; font-weight:800;">👀 Rever a aulinha?</a>';
     }else{
       fb.textContent = "Quase! Tenta de novo 💪";

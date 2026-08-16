@@ -72,6 +72,23 @@ function renderAnoLetivo(){
   const grid = document.getElementById("game-grid");
   grid.innerHTML = "";
 
+  // Revisão espaçada: só aparece quando há pelo menos 1 atividade já
+  // dominada vencida pra revisão (ver js/revisao-espacada.js). Fica em
+  // destaque, antes do card do ano letivo, pra não competir por atenção
+  // com os módulos normais nem exigir a criança lembrar de procurar.
+  const due = dueReviewActivities();
+  if(due.length > 0){
+    const revCard = document.createElement("div");
+    revCard.className = "game-card";
+    revCard.style.border = "2px solid var(--orange)";
+    revCard.innerHTML = `<span class="tag">${due.length} atividade${due.length===1?"":"s"}</span>
+      <div class="icon">🔁</div>
+      <h4>Revisão de Hoje</h4>
+      <p>Já dominou isso antes — vamos relembrar rapidinho pra não esquecer!</p>`;
+    revCard.onclick = ()=> { state.navBack = "anoletivo"; startRevisao(); };
+    grid.appendChild(revCard);
+  }
+
   const allMods = ALL_MODULES_BENJAMIN.filter(m=>m.built);
   const doneMods = allMods.filter(m=>{
     const c = containerById(m.id);
