@@ -4,6 +4,12 @@
 
 ---
 
+## 2026-08-16 — Comparação do currículo próprio contra o texto oficial da BNCC
+
+- `qa/auditorias/auditoria_bncc_oficial.md` novo: comparação código a código das 48 habilidades (26 EF01LP + 22 EF01MA) contra `pedagogia/bncc-oficial/`.
+- 5 divergências reais encontradas (destaque: EF01MA13 usa a lista de formas do 2º ano) + 7 achados menores. Maioria dos códigos bate bem.
+- Nenhuma correção aplicada ainda — só o relatório. Próximo passo depende de decisão do Júlio.
+
 ## 2026-08-16 — Documento oficial da BNCC alocado no projeto
 
 - `pedagogia/bncc-oficial/` novo: PDF oficial completo (MEC, 600 páginas) + recortes extraídos de Língua Portuguesa (1º/2º anos) e Matemática (1º ano) + README explicando fonte, método de extração e limitações conhecidas.

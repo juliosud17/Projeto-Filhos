@@ -6,6 +6,23 @@
 
 ---
 
+## 2026-08-16 — Comparação do currículo próprio contra o texto oficial da BNCC
+
+**O que foi feito:** comparação código a código das 26 habilidades EF01LP e 22 EF01MA como descritas em `app/data/registro-modulos.js` (fonte real usada pelo app) contra o texto oficial em `pedagogia/bncc-oficial/`. Relatório completo em `qa/auditorias/auditoria_bncc_oficial.md`.
+
+**Resultado:** a maioria dos 48 códigos bate bem com o oficial. 5 divergências reais encontradas, por ordem de relevância:
+1. **EF01MA13** ("Formas no Mundo") usa a lista de 6 formas geométricas do EF02MA14 (2º ano) — cubo e pirâmide não fazem parte do EF01MA13 oficial (só cone, cilindro, esfera, bloco retangular).
+2. **EF01MA11/EF01MA12** — o vocabulário oficial de cada código ("em frente/atrás" pra EF01MA11, "em cima/em baixo" citado no EF01MA12) está com sinais trocados entre as atividades "Onde Está?" e "Siga o Mapa".
+3. **EF01MA01** — a atividade cobre só a metade "quantidade vs. ordem" da habilidade; a outra metade oficial ("números como código de identificação", ex. número de casa) não tem atividade.
+4. **EF01MA09** — atividade só testa ordenação por tamanho; oficial também pede cor e forma como critério.
+5. **EF01LP17/20/22/24** — texto oficial sempre inclui "legendas para álbuns/fotos" na lista de gêneros (o gênero Fotolegendas já pesquisado em `pedagogia/REFERENCIA_NOVA_ESCOLA.md`) e o verbo "planejar"/"identificar" antes de produzir/reproduzir; nossos textos capturam só metade disso.
+
+Mais 7 achados menores (imprecisão de redação, sem gap de conteúdo real) documentados no relatório.
+
+**Escopo desta entrega:** só o relatório — **nenhuma correção de código, jogo ou documentação de currículo foi aplicada ainda**. Fica registrado como pendência conhecida até decisão do Júlio sobre o que (se algo) vale corrigir.
+
+---
+
 ## 2026-08-16 — Documento oficial da BNCC baixado e alocado no projeto
 
 **Decisão:** o Júlio perguntou se tínhamos algum guia oficial do MEC anexado — não tínhamos, só os índices próprios (`pedagogia/CURRICULO_BNCC_PORTUGUES.md`/`CURRICULO_BNCC_MATEMATICA.md`), que referenciam códigos de habilidade sem fonte pra conferir. Baixamos o PDF oficial completo (`basenacionalcomum.mec.gov.br`) e alocamos em `pedagogia/bncc-oficial/`, junto com dois recortes extraídos (Língua Portuguesa 1º/2º anos, Matemática 1º ano) pra uso prático — a fonte de verdade que faltava.
