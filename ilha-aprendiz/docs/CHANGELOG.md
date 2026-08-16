@@ -11,7 +11,7 @@
 - Módulo 8 (Castelo dos Livros) ganhou tela própria (`screen-projeto-leitor`, `js/projeto-leitor.js`, `data/projeto-leitor.js`) com o conteúdo de `pedagogia/MODULO8_PROJETO_LEITOR.md` — não é jogo, é leitura em família.
 - Ponto de extensão pra "Aventura de Hoje" preparado (`regionIsRecommendedToday`, hoje sempre `false`, não implementado).
 - CSS novo (`.mundo-map`, `.map-hotspot`) — container de proporção travada + hotspots em `%`, sem `@media` (primeira peça verdadeiramente responsiva/espacial da UI).
-- Asset de imagem ainda não incorporado — `app/assets/maps/` reservado, `?calibrar=1` na URL ajuda a calibrar as coordenadas contra o arquivo real quando chegar.
+- Asset da imagem incorporado no mesmo dia (`app/assets/maps/ilha-das-letras.webp`, 1536×1024) — coordenadas dos 8 hotspots recalibradas contra o arquivo real. Pendência: arquivo pesado (2,4MB), sem ferramenta de recompressão disponível neste ambiente.
 - `testes/qa_test_mapa_portugues.js` novo (32 checagens). Suíte completa (33 arquivos): mesmo resultado da baseline, `qa_test_nav_tree.js` sem regressão.
 - Planejado via modo de planejamento formal (plano revisado e aprovado pelo Júlio com 3 ajustes antes do código começar). Detalhe completo em `docs/DECISOES.md`.
 
