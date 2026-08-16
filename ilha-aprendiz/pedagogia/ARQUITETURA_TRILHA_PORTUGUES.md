@@ -1,6 +1,6 @@
 # Arquitetura da Trilha de Português — 1º Ano Fundamental (Benjamin)
 
-*Documento de estrutura, gerado a partir do cruzamento entre o currículo original da Ilha Aprendiz (8 módulos) e as 30 sequências da Nova Escola mapeadas em `referencia-nova-escola.md`. Ainda não é implementação — é a planta antes de construir. Nenhum código foi alterado.*
+*Documento de estrutura, gerado a partir do cruzamento entre o currículo original da Ilha Aprendiz (8 módulos) e as 30 sequências da Nova Escola mapeadas em `REFERENCIA_NOVA_ESCOLA.md`. Ainda não é implementação — é a planta antes de construir. Nenhum código foi alterado.*
 
 ---
 

@@ -1,25 +1,43 @@
 # Ilha Aprendiz — pasta do projeto
 
-Tudo que temos até agora, organizado em 3 partes:
+App educacional infantil adaptativo (Benjamin, 6 anos, e Joaquim, 3 anos). Organizado em três camadas: **código**, **documentação viva** e **governança do agente** — a ideia é que nenhuma decisão importante viva só numa conversa; se está registrada aqui, sobrevive à conversa acabar.
+
+**Comece por [`CLAUDE.md`](CLAUDE.md)** — é o ponto de entrada, carregado automaticamente pelo Claude Code a cada sessão nesta pasta. Resume princípios obrigatórios, estado atual e roadmap.
 
 ## `app/`
-- **`ilha_aprendiz.html`** — o app em si. Um único arquivo HTML autocontido (HTML+CSS+JS, sem dependências externas) — basta abrir no navegador. Nenhum progresso é salvo entre sessões ainda (sem localStorage), fechar a aba zera tudo.
+- **`ilha_aprendiz.html`** — o app em si. Um único arquivo HTML autocontido (HTML+CSS+JS, sem dependências externas) — basta abrir no navegador. Nenhum progresso é salvo entre sessões ainda (sem localStorage), fechar a aba zera tudo. Modularização planejada, não iniciada — ver `docs/ARQUITETURA.md`.
 
-## `docs/`
-- **`BRIEFING-ilha-aprendiz.md`** — comece por aqui. Propósito, conteúdo construído, o gargalo de ritmo (o conteúdo dura 3-4 meses numa dose realista, não o ano inteiro) e os próximos passos propostos.
-- **`indice-curriculo-ilha-aprendiz.md`** — índice completo da trilha de Português (8 módulos, BNCC EF01LP, status de cada um, o sistema de Desafio Final).
-- **`indice-curriculo-matematica-ilha-aprendiz.md`** — índice completo da trilha de Matemática (13 módulos, BNCC EF01MA).
-- **`arquitetura-trilha-portugues-1ano.md`** — decisões de arquitetura de conteúdo da trilha de Português.
-- **`curriculo-portugues-benjamin.md`** — levantamento inicial do currículo de Português.
-- **`modulo8-projeto-leitor.md`** — detalhamento do Módulo 8 (Projeto Leitor, fora da tela por design).
-- **`ilha-aprendiz-ecossistema-empresa.md`** — notas sobre o ecossistema/visão maior do projeto.
-- **`referencia-nova-escola.md`** — material de referência usado na curadoria de conteúdo.
+## `docs/` — documentação do projeto (o quê, quando, por quê)
+- **`BRIEFING.md`** — comece por aqui depois do `CLAUDE.md`. Propósito, conteúdo construído, o gargalo de ritmo e os próximos passos.
+- **`ROADMAP.md`** — onde estamos e o que vem depois, em ordem.
+- **`ARQUITETURA.md`** — arquitetura técnica do código (não do currículo — isso fica em `pedagogia/`).
+- **`DECISOES.md`** — registro de decisões, com data e motivo. Append-only.
+- **`CHANGELOG.md`** — histórico de mudanças entregues.
+- **`ECOSSISTEMA.md`** — visão maior/ecossistema do projeto (produto, marca, agentes originais).
+
+## `pedagogia/` — currículo e desenho pedagógico
+- **`CURRICULO_BNCC_PORTUGUES.md`** / **`CURRICULO_BNCC_MATEMATICA.md`** — índice completo das duas trilhas, módulo a módulo, atividade a atividade, com status real.
+- **`ARQUITETURA_TRILHA_PORTUGUES.md`** — decisões de arquitetura de conteúdo da trilha de Português.
+- **`LEVANTAMENTO_INICIAL_PORTUGUES.md`** — levantamento inicial do currículo de Português.
+- **`MODULO8_PROJETO_LEITOR.md`** — detalhamento do Módulo 8 (fora da tela por design).
+- **`MOTOR_DE_ENSINO.md`** — protótipo do fluxo Ensinar → Demonstrar → Praticar → Dominar.
+- **`REFERENCIA_NOVA_ESCOLA.md`** — material de referência usado na curadoria de conteúdo.
+- **`HABILIDADES.md`**, **`PREREQUISITOS.md`**, **`REVISAO_ESPACADA.md`** — stubs, ainda a construir (ver cada um pro porquê).
+
+## `qa/` — qualidade
+- **`CHECKLIST_QA.md`** — checklist antes de marcar algo como pronto.
+- **`CASOS_DE_TESTE.md`** — mapa de qual arquivo em `testes/` cobre o quê.
+- **`auditorias/`** — auditorias pontuais (ex.: `auditoria_53_atividades.md`, fila de transformação do Motor de Ensino).
+
+## `claude/` — como o agente trabalha aqui
+- **`AGENTES.md`** — os 4 papéis atuais (Arquiteto, Desenvolvedor, Especialista Pedagógico, QA).
+- **`REGRAS_PERMANENTES.md`** — regras de processo (git, documentação, testes).
 
 ## `testes/`
-Suíte de testes automatizados (Node + jsdom) que valida o app inteiro — cada módulo, o sistema de Desafio Final, a navegação em árvore, digitação, admin, cobertura de fala, etc. Para rodar qualquer um:
+Suíte de testes automatizados (Node + jsdom) — 28 arquivos, um por módulo/sistema. Mapa completo em `qa/CASOS_DE_TESTE.md`. Para rodar qualquer um:
 
 ```
 node testes/qa_test_nome.js
 ```
 
-(exige o `ilha_aprendiz.html` no caminho `/tmp/ilha_aprendiz.html` — ajuste o `fs.readFileSync` no topo do arquivo de teste se for rodar fora deste ambiente).
+(exige o `ilha_aprendiz.html` no caminho `/tmp/ilha_aprendiz.html` — pendência técnica conhecida, ver `docs/ARQUITETURA.md`.)

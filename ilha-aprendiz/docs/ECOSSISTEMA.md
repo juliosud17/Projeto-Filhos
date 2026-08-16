@@ -102,7 +102,7 @@ A partir de agora, nenhum conteúdo novo é considerado "pronto" sem passar pela
 
 ## 7. Próximos passos práticos
 
-- Ver o [Índice Completo do Currículo](./indice-curriculo-ilha-aprendiz.md) para o status real de cada módulo — hoje 2 de 8 módulos de Português têm conteúdo, e só 1 está refinado.
+- Ver o [Índice Completo do Currículo](../pedagogia/CURRICULO_BNCC_PORTUGUES.md) para o status real de cada módulo — hoje 2 de 8 módulos de Português têm conteúdo, e só 1 está refinado.
 - Prioridade recomendada pelo Agente Pedagógico: **refinar o Módulo 2 antes de criar o Módulo 3** (mesmo padrão de níveis e testes já aplicado ao Módulo 1).
 - Decidir quando acionar o Agente de Web Design (sair do protótipo em arquivo único para um site de verdade, com progresso salvo).
 - Decidir se as skills acima devem ser criadas agora ou só quando o volume de conteúdo justificar.

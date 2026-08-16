@@ -32,7 +32,7 @@
 
 ## Módulo 1 · Alfabeto e Sílabas — 🟡 7 atividades criadas e testadas, faltando validação real com o Benjamin
 
-Habilidades BNCC: EF01LP04, 06, 07, 08, 09, 10, 11 — **agora com as 7 cobertas**, incluindo a EF01LP11 (maiúscula/minúscula, imprensa/cursiva) que tinha ficado de fora até agora. As 4 atividades novas nasceram da pesquisa nas sequências da Nova Escola — ver `referencia-nova-escola.md`.
+Habilidades BNCC: EF01LP04, 06, 07, 08, 09, 10, 11 — **agora com as 7 cobertas**, incluindo a EF01LP11 (maiúscula/minúscula, imprensa/cursiva) que tinha ficado de fora até agora. As 4 atividades novas nasceram da pesquisa nas sequências da Nova Escola — ver `REFERENCIA_NOVA_ESCOLA.md`.
 
 | Atividade | Status | Níveis | Conteúdo por trás |
 |---|---|---|---|
