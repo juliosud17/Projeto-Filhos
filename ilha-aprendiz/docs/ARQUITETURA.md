@@ -18,11 +18,17 @@ app/
 │   ├── registro-modulos.js     (menus e registro das duas trilhas)
 │   ├── portugues-atividades.js (conteúdo + definição das atividades, 7 módulos PT)
 │   ├── matematica-atividades.js(idem, 12 módulos MT)
-│   └── licoes.js                (conteúdo do Motor de Ensino)
+│   ├── licoes.js                (conteúdo do Motor de Ensino)
+│   ├── mapa-portugues.js        (coordenadas dos hotspots da Ilha das Letras — desde 2026-08-16)
+│   └── projeto-leitor.js        (conteúdo do Módulo 8 — livros/roteiro, desde 2026-08-16)
+├── assets/
+│   └── maps/            (imagens de mapa — ver docs/DECISOES.md sobre o asset da Ilha das Letras)
 └── js/
-    ├── mastery.js         (domínio/progressão, MODULE_CONTAINERS, Desafio Final)
+    ├── mastery.js         (domínio/progressão, MODULE_CONTAINERS, Desafio Final, moduleStatus)
     ├── navigation.js       (árvore de telas)
     ├── ritmo-bimestre.js   (sinal de ritmo por bimestre — desde 2026-08-16)
+    ├── mapa-portugues.js   (Ilha das Letras: mapa interativo de Português — desde 2026-08-16)
+    ├── projeto-leitor.js   (tela do Módulo 8, aberta pelo mapa — desde 2026-08-16)
     ├── revisao-espacada.js (revisão espaçada — desde 2026-08-16)
     ├── storage.js          (persistência — localStorage, desde 2026-08-16)
     ├── admin.js            (painel de admin)
@@ -36,6 +42,19 @@ app/
 ## Por que multi-arquivo sem quebrar o duplo-clique
 
 `<script src="...">` **clássico** (sem `type="module"`) e dados como `const` em `.js` (não `.json` via `fetch`) — tudo no mesmo escopo global, carregado na ordem das tags. Isso evita o problema de CORS que `type="module"`/`fetch` teriam sob `file://` (que esta mesma seção do documento sinalizava como pendência antes da modularização) — o app continua abrindo com duplo-clique, sem servidor.
+
+## Ilha das Letras — mapa interativo de Português (2026-08-16)
+
+Substitui a grade de cartões de Módulos (`screen-modulos`), só pra Português — Matemática continua na grade normal ("Ilha dos Números" fica pra depois, mesma arquitetura reaproveitável quando chegar a vez). Fluxo: `screen-materias` → clique em Português → `screen-mapa-portugues` (mapa) → clique numa região → `screen-atividades` (telas existentes, sem mudança nenhuma).
+
+- **Reuso, não duplicação:** `moduleStatus(mod)` (`js/mastery.js`) foi extraída de dentro de `renderModulos()` e passou a ser usada pelas duas telas — o cálculo de bloqueado/progresso/aprovado é feito uma vez só. O clique numa região desbloqueada chama `openAtividades(mod.id)`, a mesma função que a grade sempre usou.
+- **5 estados visuais** (LOCKED/AVAILABLE/LEARNING/MASTERED/DESAFIO_APROVADO), só CSS/overlay por cima da imagem base — nunca regenera a imagem. Ponto de extensão já preparado (não implementado): `regionIsRecommendedToday(moduleId)`, hoje sempre `false`, pra quando a "Aventura de Hoje" existir de verdade.
+- **Módulo 8 (Castelo dos Livros)** não é jogo — abre `screen-projeto-leitor` (`js/projeto-leitor.js`), que reaproveita o conteúdo já existente em `pedagogia/MODULO8_PROJETO_LEITOR.md` (estruturado em `data/projeto-leitor.js`), não uma mecânica nova.
+- **Responsividade:** container de proporção travada (`aspect-ratio`) + hotspots em `%` — escala sem JS. Tratado como hipótese de primeira versão (não decisão definitiva) até validar em desktop/tablet/celular estreito de verdade; zoom por pinça do navegador já funciona hoje (nenhum `user-scalable=no` no viewport). Se a ilha ficar pequena demais num celular, a evolução planejada é um viewport navegável/pan mantendo os mesmos hotspots em `%` — arquitetura já preparada pra isso.
+- **Coordenadas dos hotspots** (`data/mapa-portugues.js`) são estimativa visual de primeira passada, não medição em pixel — calibrar com `?calibrar=1` na URL (clique no mapa imprime a coordenada no console) contra o asset final.
+- **Asset da imagem:** ainda não incorporado ao projeto (ver `docs/DECISOES.md`) — `app/assets/maps/ilha-das-letras.webp` é uma referência reservada, carregada via JS só na primeira vez que a tela abre (quem nunca visita a Ilha das Letras nunca baixa o arquivo).
+
+Testado em `testes/qa_test_mapa_portugues.js`.
 
 ## Como a divisão foi feita (histórico, pra quem for repetir o processo em outro trecho)
 

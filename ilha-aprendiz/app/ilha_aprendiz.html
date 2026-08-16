@@ -61,6 +61,30 @@
     <div class="game-grid" id="materias-grid"></div>
   </section>
 
+  <!-- ILHA DAS LETRAS (mapa interativo de Português — substitui a grade de
+       Módulos só nessa trilha; Matemática continua em screen-modulos) -->
+  <section id="screen-mapa-portugues" class="screen">
+    <div class="menu-header">
+      <button class="back-btn" onclick="backToMaterias()">← Voltar</button>
+    </div>
+    <h2 style="color:var(--purple-dark); margin:0 0 4px 0;">🗺️ Ilha das Letras</h2>
+    <p class="subtitle" style="text-align:left; margin-top:0;">Explore a ilha e escolha uma região pra praticar.</p>
+    <div class="mundo-map" onclick="calibrarCoordenadas(event)">
+      <img class="mundo-map__bg" alt="Mapa ilustrado da Ilha das Letras" id="mapa-portugues-bg">
+      <div id="mapa-portugues-regioes"></div>
+    </div>
+  </section>
+
+  <!-- PROJETO LEITOR (Módulo 8, fora da tela por design — aberto pelo
+       hotspot "Castelo dos Livros" da Ilha das Letras) -->
+  <section id="screen-projeto-leitor" class="screen">
+    <div class="menu-header">
+      <button class="back-btn" onclick="backFromProjetoLeitor()">← Voltar pra ilha</button>
+    </div>
+    <h2 style="color:var(--purple-dark); margin:0 0 4px 0;">🏰 Castelo dos Livros — Projeto Leitor</h2>
+    <div id="projeto-leitor-content"></div>
+  </section>
+
   <!-- MÓDULOS (Benjamin — dentro de uma matéria) -->
   <section id="screen-modulos" class="screen">
     <div class="menu-header">
@@ -162,9 +186,13 @@
 <script src="data/registro-modulos.js"></script>
 <script src="data/portugues-atividades.js"></script>
 <script src="data/matematica-atividades.js"></script>
+<script src="data/mapa-portugues.js"></script>
+<script src="data/projeto-leitor.js"></script>
 <script src="js/mastery.js"></script>
 <script src="js/ritmo-bimestre.js"></script>
 <script src="js/navigation.js"></script>
+<script src="js/mapa-portugues.js"></script>
+<script src="js/projeto-leitor.js"></script>
 <script src="js/revisao-espacada.js"></script>
 <script src="js/storage.js"></script>
 <script src="js/admin.js"></script>

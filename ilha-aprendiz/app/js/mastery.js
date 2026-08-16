@@ -139,4 +139,31 @@ function isModuleUnlocked(mod){
   return masteryPercent(mod.requires) >= mod.unlockAt;
 }
 
+/* Calcula o estado real de um módulo container (bloqueado/progresso/
+   aprovado) a partir do mesmo estado de domínio/prova que o resto do app
+   já usa -- extraído em 2026-08-16 de dentro de renderModulos() pra ser
+   reaproveitado também por renderMapaPortugues() (Ilha das Letras), sem
+   duplicar a conta em dois lugares. Módulo sem container (hoje só
+   "projetoleitor", Módulo 8 -- fora da tela por design, sem atividade
+   digital) não tem os 5 estados normais: só LOCKED/AVAILABLE, seguindo o
+   mesmo pré-requisito de sempre (isModuleUnlocked). */
+function moduleStatus(mod){
+  const unlocked = isModuleUnlocked(mod);
+  const container = containerById(mod.id);
+  if(!container){
+    return { unlocked, container:null, doneCount:0, total:0, allDone:false, passed:false, state: unlocked ? "AVAILABLE" : "LOCKED" };
+  }
+  const doneCount = container.activities.filter(a=>activityLevel[a.id]===5 && masteryPercent(a.id+":5")>=80).length;
+  const total = container.activities.length;
+  const allDone = doneCount === total;
+  const passed = !!provaPassed[mod.id];
+  let state;
+  if(!unlocked) state = "LOCKED";
+  else if(allDone && passed) state = "DESAFIO_APROVADO";
+  else if(allDone) state = "MASTERED";
+  else if(doneCount > 0) state = "LEARNING";
+  else state = "AVAILABLE";
+  return { unlocked, container, doneCount, total, allDone, passed, state };
+}
+
 /* ============ NAVEGAÇÃO ============ */

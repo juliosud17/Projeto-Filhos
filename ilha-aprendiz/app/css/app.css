@@ -138,6 +138,60 @@
   .game-card.locked .tag{background:#b8b4d6;}
   .game-card.locked:hover{transform:none;}
 
+  /* Ilha das Letras (mapa interativo de Português) — 2026-08-16.
+     Estratégia: container de proporção travada (aspect-ratio) + hotspots
+     posicionados em % — escala em qualquer largura sem recálculo em JS.
+     Proporção abaixo é estimativa (imagem real ainda não anexada ao
+     projeto) — ajustar pra bater com o arquivo final em assets/maps/. */
+  .mundo-map{
+    position:relative;
+    width:100%;
+    aspect-ratio: 3 / 2;
+    border-radius:20px;
+    overflow:hidden;
+    background:linear-gradient(160deg, var(--bg2), var(--bg1)); /* placeholder enquanto não há imagem */
+    box-shadow:var(--shadow);
+    margin-top:14px;
+  }
+  .mundo-map__bg{
+    width:100%; height:100%;
+    object-fit:contain;
+    display:block;
+  }
+  .map-hotspot{
+    position:absolute;
+    left:var(--x); top:var(--y);
+    transform:translate(-50%,-50%);
+    min-width:44px; min-height:44px; /* alvo de toque mínimo, mesmo com a ilha pequena numa tela estreita */
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    background:rgba(255,255,255,.92);
+    border:2px solid transparent;
+    border-radius:16px;
+    padding:6px 10px;
+    cursor:pointer;
+    box-shadow:var(--shadow);
+    font-family:inherit;
+    transition:transform .15s ease;
+  }
+  .map-hotspot:hover{transform:translate(-50%,-50%) translateY(-3px);}
+  .map-hotspot:focus-visible{outline:3px solid var(--purple); outline-offset:2px;}
+  .map-hotspot__icon{font-size:26px; line-height:1;}
+  .map-hotspot__nome{font-size:11px; font-weight:800; color:var(--ink); text-align:center; max-width:90px;}
+  .map-hotspot__badge{font-size:13px; font-weight:800;}
+
+  .map-hotspot--locked{background:rgba(200,197,214,.85); filter:grayscale(70%); cursor:default;}
+  .map-hotspot--locked:hover{transform:translate(-50%,-50%);}
+  .map-hotspot--available{border-color:var(--orange); animation:mapPulse 2.2s ease-in-out infinite;}
+  .map-hotspot--learning{border-color:var(--purple);}
+  .map-hotspot--mastered{border-color:var(--green);}
+  .map-hotspot--desafio_aprovado{border-color:#ffd166; box-shadow:0 0 0 4px rgba(255,209,102,.35), var(--shadow);}
+  .map-hotspot--recommended{border-color:var(--orange); animation:mapPulse 1.4s ease-in-out infinite;}
+
+  @keyframes mapPulse{
+    0%, 100%{ box-shadow:0 0 0 0 rgba(255,154,61,.45), var(--shadow); }
+    50%{ box-shadow:0 0 0 8px rgba(255,154,61,0), var(--shadow); }
+  }
+
   /* Game screen */
   .game-topbar{
     display:flex; justify-content:space-between; align-items:center;

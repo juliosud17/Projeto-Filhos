@@ -6,6 +6,27 @@
 
 ---
 
+## 2026-08-16 — Ilha das Letras: mapa interativo substitui a grade de Módulos (só Português)
+
+**Decisão:** navegação de Português (Matérias → Módulos → Atividades) ganha uma camada visual de aventura — a grade de cartões de Módulos vira um mapa de ilha ilustrado ("Ilha das Letras"), com cada módulo virando uma região clicável. Matemática continua na grade de cartões (`Ilha dos Números` fica pra depois). Arquitetura interna (mastery, domínio, Desafio Final, prerequisito entre módulos) não muda em nada — o mapa é estritamente uma camada de apresentação nova por cima do que já existia, sem duplicar lógica (`moduleStatus()` extraída e reaproveitada pelas duas telas).
+
+**Motivo:** pedido do Júlio, com uma imagem conceitual anexada ("Ilha das Letras") — a visão de marca já registrada desde antes em `docs/ECOSSISTEMA.md` ("uma ilha com regiões/trilhas que a criança desbloqueia conforme avança") finalmente ganha uma primeira implementação real, começando só por Português como MVP controlado.
+
+**Processo seguido:** entrei em modo de planejamento (ExitPlanMode) antes de qualquer código — diagnóstico completo do fluxo/arquitetura existente, mapeamento de exatamente 2 pontos de código que precisavam mudar (`renderMaterias()` e `backToModulos()`), plano revisado e aprovado pelo Júlio com 3 ajustes antes da implementação começar (ver abaixo).
+
+**3 ajustes do Júlio ao plano original, incorporados:**
+1. **Módulo 8 (Castelo dos Livros)** não fica só "em construção" — abre uma tela própria (`screen-projeto-leitor`) reaproveitando o conteúdo já existente em `pedagogia/MODULO8_PROJETO_LEITOR.md` (livros + roteiro de perguntas), sem mecânica de jogo nova.
+2. **Ponto de extensão pra "Aventura de Hoje"** preparado desde já: `regionIsRecommendedToday(moduleId)`, hoje sempre `false` — não implementado, mas a estrutura já aceita esse estado visual independente de domínio/desbloqueio quando for construído de verdade.
+3. **Responsividade** (`aspect-ratio` + hotspots em `%`) tratada como **hipótese de primeira versão**, não decisão definitiva — validar em desktop/tablet/celular estreito depois de implementado; se a ilha ficar pequena demais num celular, a evolução already-prevista é um viewport navegável/pan mantendo os mesmos hotspots em `%`.
+
+**O que NÃO foi feito, de propósito (fora do MVP, mas a arquitetura não impede depois):** Ilha dos Números (Matemática), personagem-guia Lia, mecânica completa de "Aventura de Hoje", transformações visuais de progresso (árvore que cresce, ponte que se constrói), pan/zoom customizado.
+
+**Pendência real:** não tenho como extrair o arquivo de imagem anexado no chat e salvá-lo no repositório — `app/assets/maps/ilha-das-letras.webp` é uma referência reservada até o Júlio fornecer o arquivo final. As coordenadas dos 8 hotspots (`data/mapa-portugues.js`) são estimativa visual da prévia vista no chat, não medição em pixel — precisam de calibração contra o asset real (modo `?calibrar=1` já construído pra isso).
+
+**Testado** (`testes/qa_test_mapa_portugues.js`, 32 checagens): 8 hotspots reais e acessíveis (elementos `<button>`, `aria-label`), os 5 estados visuais (fixtures de mastery/prova pra cada um), clique em hotspot bloqueado não navega, clique em hotspot desbloqueado abre Atividades, Módulo 8 abre a tela de Projeto Leitor (não Atividades) com o conteúdo completo, `backToModulos()` retorna pro lugar certo dependendo da trilha (mapa pra Português, grade pra Matemática), Matemática inteiramente inalterada (grade de cartões, zero hotspot). Suíte completa (33 arquivos): mesmo resultado da baseline, incluindo `qa_test_nav_tree.js` sem nenhuma regressão (37/37, inalterado).
+
+---
+
 ## 2026-08-16 — Correção dos 12 achados da auditoria BNCC, via framework de papéis
 
 **O que foi feito:** as 5 divergências reais + 7 achados menores da auditoria (ver entrada anterior e `qa/auditorias/auditoria_bncc_oficial.md`) foram corrigidos no mesmo dia, a pedido explícito do Júlio ("arrume elas, use as investiduras dos agentes que temos pra isso") — usando o framework de papéis do `claude/AGENTES.md`: Especialista Pedagógico decidiu o quê/como corrigir cada achado, Desenvolvedor implementou, QA testou.

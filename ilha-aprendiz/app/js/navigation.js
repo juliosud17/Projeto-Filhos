@@ -136,7 +136,7 @@ function renderMaterias(){
   const ptCard = document.createElement("div");
   ptCard.className = "game-card";
   ptCard.innerHTML = `<span class="tag">${pt.done}/${pt.total} atividades</span><div class="icon">📘</div><h4>Português</h4><p>Sílabas, leitura, escrita, compreensão, narrativas e gramática — ${PT_MODULES_BENJAMIN.length} módulos</p>`;
-  ptCard.onclick = ()=> openModulos("portugues");
+  ptCard.onclick = ()=> openMapaPortugues(); // Ilha das Letras (2026-08-16) -- Matemática segue pra grade normal (openModulos), Português não mais
   grid.appendChild(ptCard);
 
   const mt = trilhaProgress(MATH_MODULES_BENJAMIN);
@@ -184,14 +184,11 @@ function renderModulos(){
       renderSectionTitle(grid, mod.bimestre);
       lastBimestre = mod.bimestre;
     }
-    const unlocked = isModuleUnlocked(mod);
-    const container = containerById(mod.id);
+    const status = moduleStatus(mod);
+    const { unlocked, container, doneCount, allDone, passed } = status;
     const card = document.createElement("div");
 
     if(container){
-      const doneCount = container.activities.filter(a=>activityLevel[a.id]===5 && masteryPercent(a.id+":5")>=80).length;
-      const allDone = doneCount === container.activities.length;
-      const passed = provaPassed[mod.id];
       card.className = "game-card" + (unlocked ? "" : " locked");
       let tag, extraHtml = "";
       if(!unlocked){
@@ -252,8 +249,15 @@ function openAtividades(moduleId){
   showScreen("screen-atividades");
 }
 function backToModulos(){
-  renderModulos();
-  showScreen("screen-modulos");
+  // Botão "← Voltar" fixo dentro de screen-atividades, compartilhado pelas
+  // duas trilhas -- desde a Ilha das Letras (2026-08-16), Português não usa
+  // mais a grade de Módulos, então precisa saber pra qual das duas voltar.
+  if(state.currentTrilha === "portugues"){
+    openMapaPortugues();
+  }else{
+    renderModulos();
+    showScreen("screen-modulos");
+  }
 }
 
 function renderAtividades(){

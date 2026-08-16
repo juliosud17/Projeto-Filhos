@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-08-16 — Ilha das Letras: mapa interativo de Português (MVP)
+
+- Grade de Módulos vira mapa de ilha ilustrado, só pra Português — Matemática inalterada.
+- `data/mapa-portugues.js` + `js/mapa-portugues.js` novos: 8 hotspots (1 por módulo), 5 estados visuais (LOCKED/AVAILABLE/LEARNING/MASTERED/DESAFIO_APROVADO) reaproveitando `moduleStatus()` (extraída de `renderModulos()` pra `js/mastery.js`, usada pelas duas telas agora).
+- Módulo 8 (Castelo dos Livros) ganhou tela própria (`screen-projeto-leitor`, `js/projeto-leitor.js`, `data/projeto-leitor.js`) com o conteúdo de `pedagogia/MODULO8_PROJETO_LEITOR.md` — não é jogo, é leitura em família.
+- Ponto de extensão pra "Aventura de Hoje" preparado (`regionIsRecommendedToday`, hoje sempre `false`, não implementado).
+- CSS novo (`.mundo-map`, `.map-hotspot`) — container de proporção travada + hotspots em `%`, sem `@media` (primeira peça verdadeiramente responsiva/espacial da UI).
+- Asset de imagem ainda não incorporado — `app/assets/maps/` reservado, `?calibrar=1` na URL ajuda a calibrar as coordenadas contra o arquivo real quando chegar.
+- `testes/qa_test_mapa_portugues.js` novo (32 checagens). Suíte completa (33 arquivos): mesmo resultado da baseline, `qa_test_nav_tree.js` sem regressão.
+- Planejado via modo de planejamento formal (plano revisado e aprovado pelo Júlio com 3 ajustes antes do código começar). Detalhe completo em `docs/DECISOES.md`.
+
 ## 2026-08-16 — Correção dos 12 achados da auditoria BNCC
 
 - **EF01MA13** (Formas no Mundo): rótulo corrigido (EF01MA13 real + "além" antecipando EF02MA14), conteúdo mantido.
