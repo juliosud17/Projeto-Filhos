@@ -42,7 +42,7 @@ Especialmente em Matemática — impedir ou desencorajar varrer os 12 módulos d
 O Módulo 1 de Português (7 atividades, 13% do conteúdo do ano sozinho) e o peso geral do 1º bimestre merecem um olhar; pode fazer sentido quebrar o Módulo 1 ou realocar conteúdo pro 3º bimestre, que hoje está raso.
 
 ### 5. Avaliação real com o Benjamin jogando
-A etapa que já estava combinada como prioridade desde antes deste documento existir — ganha um motivo técnico a mais agora: sem persistência (item 1), não dá pra observar ritmo de verdade.
+A etapa que já estava combinada como prioridade desde antes deste documento existir. Agora que a persistência existe (item 1), já dá pra observar ritmo de verdade — mas ainda faz mais sentido depois da revisão espaçada e da trava de ritmo (itens 2-3), senão a observação capturaria o app no formato "sem freio" que já se sabe que não vai durar o ano.
 
 ### ~~Em paralelo: modularização do código~~ — feito em 2026-08-16
 `app/ilha_aprendiz.html` já está separado em `css/`, `data/` e `js/` (ver `docs/ARQUITETURA.md`). Isso não estava bloqueando os itens 1-5, mas reduz o risco de trabalhar neles agora — em especial o item 1 (persistência), que nasce como `js/storage.js` novo, e não mais como código espalhado dentro de um arquivo de 5.600 linhas.
