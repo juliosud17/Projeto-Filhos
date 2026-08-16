@@ -6,6 +6,16 @@
 
 ---
 
+## 2026-08-16 — Modularizar `app/ilha_aprendiz.html` em CSS/dados/JS, sem servidor e sem build
+
+**Decisão:** dividir o arquivo único (~5.600 linhas) em 15 arquivos (`css/`, `data/`, `js/`), usando `<script src="...">` **clássico** (sem `type="module"`) e conteúdo como `const` em `.js` (não `.json` via `fetch`). `app/ilha_aprendiz.html` (mantido com esse nome, não renomeado pra `index.html`) cai pra 175 linhas.
+
+**Motivo:** a alternativa mais "moderna" (ES modules + JSON via `fetch`) quebra o app sob `file://` por CORS — exigiria servidor local pra abrir, mudando a rotina de uso diário sem necessidade real nesta fase. Scripts clássicos multi-arquivo compartilham o mesmo escopo global de sempre, carregam na ordem das tags, e preservam 100% o "abre com duplo-clique" que já era um princípio do produto.
+
+**Como foi verificado (sem quebrar os 28 módulos já testados):** extração por faixa de linha exata (mapeada via grep antes de cortar, não estimada) — nenhuma linha de lógica foi reescrita manualmente. Duas camadas de verificação depois de cada fase: (1) reconstrução via `testes/_util/load_app_html.js` comparada linha a linha e por conjunto contra o arquivo anterior — confirmando zero perda de conteúdo (só uma reordenação segura: 5 funções de atividade de Português que estavam soltas no fim do arquivo viraram vizinhas do resto das atividades de PT); (2) suíte de 29 testes rodada depois de cada fase, mesmo resultado da baseline em todas (28/29 limpos, a mesma falha já conhecida). Detalhe completo em `docs/ARQUITETURA.md`.
+
+---
+
 ## 2026-08-16 — Suíte de testes passa a carregar o app via helper compartilhado, não mais `/tmp`
 
 **Decisão:** `testes/_util/load_app_html.js` substitui o `fs.readFileSync('/tmp/ilha_aprendiz.html', ...)` hardcoded que existia em cada um dos 29 arquivos de teste. `package.json` + `jsdom` como devDependency também foram adicionados (não existiam antes).

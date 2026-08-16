@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-08-16 — Modularização de `app/ilha_aprendiz.html`
+
+- Arquivo único (~5.600 linhas) dividido em `css/app.css`, 7 arquivos em `data/` e 8 em `js/` — `ilha_aprendiz.html` cai pra 175 linhas.
+- `<script src>` clássico (não `type="module"`) + conteúdo como `const` (não JSON via `fetch`) — o app continua abrindo com duplo-clique (`file://`), sem servidor.
+- Verificado em duas camadas: reconstrução byte-a-byte/por-conjunto contra o arquivo anterior (zero perda de conteúdo), e suíte de 29 testes com o mesmo resultado da baseline em cada fase (CSS, depois dados+lógica).
+- Detalhe completo em `docs/ARQUITETURA.md` e `docs/DECISOES.md`.
+
 ## 2026-08-16 — Infraestrutura de teste (groundwork da modularização)
 
 - `package.json` + `jsdom` (devDependency) criados — não existiam antes.

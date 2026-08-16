@@ -5,7 +5,7 @@ App educacional infantil adaptativo (Benjamin, 6 anos, e Joaquim, 3 anos). Organ
 **Comece por [`CLAUDE.md`](CLAUDE.md)** — é o ponto de entrada, carregado automaticamente pelo Claude Code a cada sessão nesta pasta. Resume princípios obrigatórios, estado atual e roadmap.
 
 ## `app/`
-- **`ilha_aprendiz.html`** — o app em si. Um único arquivo HTML autocontido (HTML+CSS+JS, sem dependências externas) — basta abrir no navegador. Nenhum progresso é salvo entre sessões ainda (sem localStorage), fechar a aba zera tudo. Modularização planejada, não iniciada — ver `docs/ARQUITETURA.md`.
+- **`ilha_aprendiz.html`** — o app em si. Basta abrir no navegador, sem servidor. Modularizado em `css/`, `data/` e `js/` (scripts clássicos, sem build step) — mapa completo em `docs/ARQUITETURA.md`. Nenhum progresso é salvo entre sessões ainda (sem localStorage), fechar a aba zera tudo.
 
 ## `docs/` — documentação do projeto (o quê, quando, por quê)
 - **`BRIEFING.md`** — comece por aqui depois do `CLAUDE.md`. Propósito, conteúdo construído, o gargalo de ritmo e os próximos passos.

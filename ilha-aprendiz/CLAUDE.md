@@ -37,7 +37,7 @@ Ver [`pedagogia/MOTOR_DE_ENSINO.md`](pedagogia/MOTOR_DE_ENSINO.md) pro protótip
 - Persistência de progresso: **não existe** — maior lacuna técnica em aberto, pré-requisito de tudo abaixo.
 - Revisão espaçada, trava de ritmo por bimestre: **não existem** — lacunas identificadas, ainda não atacadas.
 - Uso real com o Benjamin jogando: **ainda não começou**.
-- Código: ainda é um único arquivo `app/ilha_aprendiz.html` (~5.600 linhas, HTML+CSS+JS inline). Modularização (separar CSS/JS/dados de conteúdo) é direção acordada, mas é trabalho de infraestrutura ainda não iniciado — ver `docs/ARQUITETURA.md`.
+- Código: modularizado em 2026-08-16 — `app/ilha_aprendiz.html` (175 linhas) + `css/`, `data/`, `js/`. Scripts clássicos (não ES modules), conteúdo como `const` (não JSON via `fetch`) — continua abrindo com duplo-clique, sem servidor. Ver `docs/ARQUITETURA.md`.
 
 ## Ordem atual do roadmap
 
@@ -48,7 +48,8 @@ Ver [`docs/ROADMAP.md`](docs/ROADMAP.md) pra detalhe e justificativa de cada ite
 3. Trava de ritmo por bimestre (especialmente Matemática)
 4. Redistribuir densidade entre bimestres (1º bimestre está sobrecarregado)
 5. Avaliação real com o Benjamin jogando
-6. (Infraestrutura, em paralelo quando fizer sentido) Modularizar o HTML monolítico em `app/js/`, `app/css/`, `app/data/`
+
+(Item de infraestrutura "modularizar o HTML monolítico" já foi feito em 2026-08-16 — ver `docs/ARQUITETURA.md`.)
 
 ## Papéis que o Claude assume nesta sessão
 

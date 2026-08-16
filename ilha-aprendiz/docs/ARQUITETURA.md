@@ -1,68 +1,67 @@
 # Arquitetura Técnica — Ilha Aprendiz
 
-*Arquitetura do **código**, não do currículo (para arquitetura pedagógica/conteúdo, ver `pedagogia/ARQUITETURA_TRILHA_PORTUGUES.md` e `pedagogia/MOTOR_DE_ENSINO.md`). Escrito em 2026-08-16 a partir de inspeção direta do código-fonte, na criação da camada de documentação viva — é o primeiro documento a descrever a arquitetura técnica do app.*
+*Arquitetura do **código**, não do currículo (para arquitetura pedagógica/conteúdo, ver `pedagogia/ARQUITETURA_TRILHA_PORTUGUES.md` e `pedagogia/MOTOR_DE_ENSINO.md`). Escrito em 2026-08-16 a partir de inspeção direta do código-fonte, na criação da camada de documentação viva. Atualizado no mesmo dia depois da modularização (ver `docs/DECISOES.md`) — a seção "Estado atual" abaixo já reflete a estrutura nova; a versão anterior (arquivo único) fica só no histórico do git.*
 
-## Estado atual: arquivo único
+## Estado atual: multi-arquivo, sem build step
 
-`app/ilha_aprendiz.html` — ~5.600 linhas, ~300KB, HTML + CSS + JS inline, zero dependências externas, zero build step. Abre direto no navegador (`file://`), sem servidor.
-
-Estrutura interna (por posição no arquivo, não por pasta):
-- `<style>` — CSS inline, ~490 linhas.
-- `<script>` — JS inline, ~5.000 linhas, contendo:
-  - Bancos de conteúdo como `const` no topo (`WORDS`, `PT_MODULES_BENJAMIN`, `MATH_MODULES_BENJAMIN`, `MODULE1_ACTIVITIES` … `MODULE7_ACTIVITIES`, listas de frases/parlendas/pares/etc.) — dados e código de renderização/lógica misturados no mesmo escopo.
-  - Motores genéricos reaproveitados entre módulos (`isModuleUnlocked`, `activitiesFullyMastered`, `MODULE_CONTAINERS`, `pickWeightedByLevel`) — já existe alguma separação de responsabilidade aqui, é o pedaço mais "modular" do arquivo hoje.
-  - Funções de renderização de tela (`render*`) e de navegação.
-
-**Por que ainda funciona bem assim:** pra um protótipo em fase de construção de conteúdo, um arquivo único é a fricção mínima possível — qualquer um abre e roda sem instalar nada. É uma escolha deliberada de estágio, não um acidente.
-
-**Onde começa a doer:** os próprios documentos de `pedagogia/` já registram pelo menos 2 bugs reais causados por lógica duplicada em várias funções antes de virar `MODULE_CONTAINERS` central (ver `pedagogia/CURRICULO_BNCC_PORTUGUES.md`, Módulo 3). Conforme entram persistência, revisão espaçada e motor de ensino completo (roadmap), a superfície de coisas que podem quebrar sem ninguém perceber cresce.
-
-## Testes
-
-`testes/qa_test_*.js` (Node + jsdom), 29 arquivos. Desde 2026-08-16, todos carregam o app via `testes/_util/load_app_html.js` (`npm install` + `node testes/_run_all.js`, ou `node testes/qa_test_nome.js` individualmente) — não depende mais de copiar o arquivo pra `/tmp` (era uma fragilidade conhecida, corrigida nesta entrega; ver `docs/DECISOES.md`). O helper já foi desenhado pensando na modularização: hoje só faz `readFileSync` do HTML único, mas quando `app/ilha_aprendiz.html` passar a referenciar `css/*.css` e `js/*.js` externos, ele "achata" essas tags de volta pra inline antes de entregar pro jsdom — os 29 arquivos de teste não precisam mudar de novo quando isso acontecer.
-
-**Baseline estabelecida em 2026-08-16** (primeira vez que a suíte roda de fato nesta máquina): 28 de 29 arquivos limpos, 1 falha conhecida (`qa_test_regression.js`, artefato de `setTimeout`/jsdom — ver "Pendências" abaixo). `qa_test_new_activities.js` usa formato de saída próprio (`TOTAL ERRORS: N`), diferente do `RESULT: N passed, M failed` do resto da suíte.
-
-## Direção futura: modularização (planejada, ainda não iniciada)
-
-Direção acordada (não uma migração de framework — continua HTML/CSS/JS puro):
+`app/ilha_aprendiz.html` — hoje **175 linhas**, só HTML (marcação das telas + as tags `<link>`/`<script src>` que carregam o resto). Continua abrindo direto no navegador (`file://`), sem servidor — decisão deliberada, ver "Por que multi-arquivo sem quebrar o duplo-clique" abaixo.
 
 ```
 app/
-├── index.html
+├── ilha_aprendiz.html   (marcação das telas + <link>/<script src>)
 ├── css/
-│   └── app.css
-├── js/
-│   ├── app.js              (bootstrap/orquestração)
-│   ├── navigation.js        (árvore de telas)
-│   ├── mastery.js           (domínio, progressão de nível)
-│   ├── storage.js           (persistência — nasce junto com o item 1 do roadmap)
-│   └── teaching-engine.js   (motor de ensino: Aprender → Ver exemplo → Fazer comigo → Agora é você)
-└── data/
-    ├── portugues/
-    │   └── modulo1.json, modulo2.json, ...
-    └── matematica/
-        └── m01.json, ...
+│   └── app.css           (~340 linhas)
+├── data/
+│   ├── icones.js               (SVGs próprios)
+│   ├── portugues-conteudo.js   (letras, palavras, pares mínimos, rimas, famílias)
+│   ├── emoji-visuais.js        (vocabulário visual compartilhado)
+│   ├── registro-modulos.js     (menus e registro das duas trilhas)
+│   ├── portugues-atividades.js (conteúdo + definição das atividades, 7 módulos PT)
+│   ├── matematica-atividades.js(idem, 12 módulos MT)
+│   └── licoes.js                (conteúdo do Motor de Ensino)
+└── js/
+    ├── mastery.js         (domínio/progressão, MODULE_CONTAINERS, Desafio Final)
+    ├── navigation.js       (árvore de telas)
+    ├── admin.js            (painel de admin)
+    ├── utils.js            (sorteio, fala, som, ícone/emoji)
+    ├── teaching-engine.js  (Motor de Ensino: fluxo da aula)
+    ├── game-loop.js        (iniciar atividade, rodada, resposta, Desafio Final)
+    ├── activities-portugues.js   (~30 funções render*, 7 módulos PT + Joaquim)
+    └── activities-matematica.js  (~30 funções render*, 12 módulos MT)
 ```
 
-Um "conceito" de conteúdo vira dado estruturado em vez de código escrito à mão, por exemplo:
+## Por que multi-arquivo sem quebrar o duplo-clique
 
-```json
-{
-  "id": "EF01MA07",
-  "titulo": "Compor e decompor números",
-  "pre_requisitos": ["contagem", "dezena_unidade"],
-  "ensino": {
-    "introducao": "...",
-    "exemplo": "...",
-    "pratica_guiada": "..."
-  }
-}
-```
+`<script src="...">` **clássico** (sem `type="module"`) e dados como `const` em `.js` (não `.json` via `fetch`) — tudo no mesmo escopo global, carregado na ordem das tags. Isso evita o problema de CORS que `type="module"`/`fetch` teriam sob `file://` (que esta mesma seção do documento sinalizava como pendência antes da modularização) — o app continua abrindo com duplo-clique, sem servidor.
 
-**Por que isso ainda não começou:** é trabalho de infraestrutura, não de conteúdo — o roadmap atual (`docs/ROADMAP.md`) prioriza persistência → revisão espaçada → trava de ritmo → avaliação real primeiro, porque são lacunas que bloqueiam decisões pedagógicas concretas. A modularização não bloqueia nada pedagogicamente; ela reduz risco de manutenção conforme o arquivo cresce. Vale decidir com calma quando começar, não empurrar pra "depois" indefinidamente.
+## Como a divisão foi feita (histórico, pra quem for repetir o processo em outro trecho)
 
-**Consequência técnica a decidir junto (ainda em aberto):** hoje o app abre direto com duplo-clique (`file://`, zero setup). Depois de separar em módulos JS (`<script type="module">`) e conteúdo em JSON carregado via `fetch`, isso deixa de funcionar sem servidor — a maioria dos navegadores bloqueia `fetch`/import de módulo em origem `file://` por CORS. Nesse ponto passa a ser necessário abrir com um servidor local (Live Server do VS Code resolve no início; Vite se o projeto crescer e precisar de build). Isso muda a rotina de quem usa o app no dia a dia — vale confirmar antes de migrar se o uso real (Benjamin jogando) vai rodar sempre via VS Code/servidor, ou se em algum momento precisa gerar um HTML único "compilado" pra continuar funcionando por duplo-clique.
+O corte de ~5.600 linhas em 15 arquivos foi feito por **extração mecânica de faixa de linha exata** (mapeado via grep de todo `const`/`function` de topo antes de cortar, não estimado), não reescrita manual — risco de erro de transcrição praticamente zero, porque nenhuma linha de lógica foi digitada de novo. Verificação em duas camadas depois de cada corte:
+
+1. **Reconstrução:** `testes/_util/load_app_html.js` "achata" os arquivos de volta num HTML só; o resultado foi comparado (`diff`, depois `diff` de conjunto ignorando ordem) contra o arquivo monolítico anterior — confirmando que nenhuma linha de conteúdo real foi perdida ou alterada (só reordenada em 1 ponto: 5 funções de atividade de Português que estavam soltas no fim do arquivo original foram reagrupadas junto do resto das atividades de PT — seguro em script clássico, porque ordem de declaração de função não afeta comportamento).
+2. **Suíte de testes:** os 29 arquivos de `testes/` rodados depois de cada fase (CSS, depois dados+lógica) — mesmo resultado da baseline em toda fase (28/29 limpos, 1 falha já conhecida em `qa_test_regression.js`).
+
+**Onde a separação não é 100% pura, de propósito:** `js/mastery.js` mistura estado (`state`, `mastery`, `activityLevel`) com as funções que operam sobre ele — é o módulo de domínio como um todo, não "dado" isolado de "lógica". `js/activities-portugues.js` inclui as 3 funções da trilha simples do Joaquim (`renderLetras`, `renderNumeros`, `renderContar`) junto das atividades niveladas de Português — não tem trilha própria ainda, não valia a pena um arquivo à parte só pra 3 funções.
+
+**Onde ainda dá pra refinar depois (não feito agora, retorno decrescente pro risco):** `data/portugues-atividades.js` e `data/matematica-atividades.js` agrupam todos os módulos da trilha inteira num arquivo só, em vez de 1 arquivo por módulo (7+12=19 arquivos minúsculos) — decisão consciente de manter no grão de "trilha inteira" por ora.
+
+## Testes
+
+`testes/qa_test_*.js` (Node + jsdom), 29 arquivos. Desde 2026-08-16, todos carregam o app via `testes/_util/load_app_html.js` (`npm install` + `node testes/_run_all.js`, ou `node testes/qa_test_nome.js` individualmente) — não depende mais de copiar o arquivo pra `/tmp` (era uma fragilidade conhecida, corrigida nesta entrega; ver `docs/DECISOES.md`). O helper foi desenhado pensando na modularização e já cumpriu esse papel: acha as tags `<link>`/`<script src>` locais e as substitui pelo conteúdo inline antes de entregar pro jsdom — os 29 arquivos de teste não precisaram mudar de novo quando a modularização aconteceu.
+
+**Baseline estabelecida em 2026-08-16** (primeira vez que a suíte roda de fato nesta máquina), confirmada de novo depois de cada fase da modularização: 28 de 29 arquivos limpos, 1 falha conhecida (`qa_test_regression.js`, artefato de `setTimeout`/jsdom — ver "Pendências" abaixo). `qa_test_new_activities.js` usa formato de saída próprio (`TOTAL ERRORS: N`), diferente do `RESULT: N passed, M failed` do resto da suíte.
+
+## Testes
+
+`testes/qa_test_*.js` (Node + jsdom), 29 arquivos. Desde 2026-08-16, todos carregam o app via `testes/_util/load_app_html.js` (`npm install` + `node testes/_run_all.js`, ou `node testes/qa_test_nome.js` individualmente) — não depende mais de copiar o arquivo pra `/tmp` (era uma fragilidade conhecida, corrigida nesta entrega; ver `docs/DECISOES.md`). O helper foi desenhado pensando na modularização e já cumpriu esse papel: acha as tags `<link>`/`<script src>` locais e as substitui pelo conteúdo inline antes de entregar pro jsdom — os 29 arquivos de teste não precisaram mudar de novo quando a modularização aconteceu.
+
+**Baseline estabelecida em 2026-08-16** (primeira vez que a suíte roda de fato nesta máquina), confirmada de novo depois de cada fase da modularização: 28 de 29 arquivos limpos, 1 falha conhecida (`qa_test_regression.js`, artefato de `setTimeout`/jsdom — ver "Pendências" abaixo). `qa_test_new_activities.js` usa formato de saída próprio (`TOTAL ERRORS: N`), diferente do `RESULT: N passed, M failed` do resto da suíte.
+
+## Próximos refinamentos possíveis (não urgentes, não bloqueiam nada)
+
+- **`js/storage.js`** ainda não existe — nasce junto com o item 1 do `docs/ROADMAP.md` (persistência).
+- **Per-módulo em vez de per-trilha** em `data/portugues-atividades.js`/`matematica-atividades.js` (19 arquivos menores em vez de 2 grandes) — só vale a pena se esses arquivos ficarem difíceis de navegar na prática.
+- **Schema JSON por conceito pedagógico** (`id`, `titulo`, `pre_requisitos`, `ensino: {...}`) — ideia registrada em `pedagogia/PREREQUISITOS.md`, ainda não aplicada aos dados reais; hoje o conteúdo continua como array/objeto JS "achatado", não nesse formato mais rico.
 
 ## Pendências técnicas conhecidas
 
