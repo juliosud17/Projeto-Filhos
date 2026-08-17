@@ -169,6 +169,18 @@ CONTENT:
 
 **Regra crítica de pronúncia:** sílaba nunca é soletrada. `VA` é sempre "vá" /va/ (som da sílaba), nunca "vê-á" (nome das letras). Mesma regra vale pra toda sílaba do banco.
 
+**Alerta — sílaba com consoante dobrada (CAR-RO, FER-RO, OS-SO, MAS-SA):** a divisão oficial de sílabas separa consoante dobrada no meio mesmo quando ela representa 1 som só (ex. RR = 1 som de R forte, SS = 1 som de S) — é a regra da escola, bate com a mecânica do jogo (clicar as duas sílabas pra montar a palavra), então o nome do arquivo continua sendo a sílaba escrita (`car.mp3`+`ro.mp3`, `fer.mp3`+`ro.mp3`, `os.mp3`+`so.mp3`, `mas.mp3`+`sa.mp3`). O que muda é SÓ o jeito de pedir a gravação: a primeira metade (CAR/FER/OS/MAS) não deve soar como uma palavra isolada de dicionário — pedir pra soar como o começo da palavra cortado, pronto pra emendar na sílaba seguinte; e a segunda metade que carrega o R/S "forte" (RO/SO) deve vir com esse som forte/vibrante, do jeito que soa dentro da palavra (não a versão fraca que essas letras têm em outras posições). Exemplo de instrução extra pro `[CONTENT]` desses casos:
+
+```
+CONTENT: CAR
+(pronuncie como o início da palavra "carro" — não como a palavra em inglês "car", nem com R forte de final de palavra. Som curto, pronto pra emendar na próxima sílaba.)
+
+CONTENT: RO
+(pronuncie com o R forte/vibrante, do jeito que soa em "carro", "rato", "rua" — não o R fraco de palavras como "caro".)
+```
+
+Palavras do banco (`BANCO_87_PALAVRAS.md`) que vão precisar dessa atenção quando chegar a vez delas: **CARRO** (Lote A/nível 3), **FERRO** (nível 3), **OSSO** (nível 3), **MASSA** (nível 3).
+
 Exemplo (VACA):
 ```
 va.mp3   → CONTENT: VA
