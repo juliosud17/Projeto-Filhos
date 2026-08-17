@@ -128,8 +128,10 @@ check("a instrução falada é a versão segura (não revela a palavra)", spoken
 optsAfterRender = Array.from(document.querySelectorAll(".option-btn"));
 check("opções são liberadas depois que a instrução termina", optsAfterRender.every(b=>b.disabled === false));
 
-/* ---------- 5) 2º encontro na mesma sessão: pula o vídeo, vai direto pra
-   instrução (não obriga a introdução completa em toda rodada) ---------- */
+/* ---------- 5) 2º encontro na mesma sessão: vídeo completo TAMBÉM toca de
+   novo (decisão do Júlio em 2026-08-17: o vídeo prende a atenção da
+   criança, então nunca deve ser pulado -- revogou a redução original do
+   piloto, que pulava o vídeo em reencontros na mesma sessão) ---------- */
 spokenLog = [];
 const stage2 = document.getElementById("game-stage");
 window.pickWeightedByLevel = function(){ return vacaItem; };
@@ -139,8 +141,9 @@ try{
   console.log("RENDER ERROR (silabas/vaca, 2o encontro): " + e.message);
   fail++;
 }
-check("2º encontro: nenhum elemento de vídeo é criado (introdução reduzida)", document.querySelectorAll("video").length === 0);
-check("2º encontro: a instrução ainda é falada de imediato (sem esperar vídeo)", spokenLog.length >= 1);
+check("2º encontro: o vídeo é criado de novo (nunca pula, prende a atenção da criança)", document.querySelectorAll("video").length === 1);
+await wait(4500); // vídeo falha (stub) -> fallback -> instrução falada
+check("2º encontro: a instrução é falada mesmo depois do vídeo (via fallback)", spokenLog.length >= 1);
 window.pickWeightedByLevel = originalPick;
 
 /* ---------- 6) acerto do piloto: SFX + Lia (personalidade) + fonética

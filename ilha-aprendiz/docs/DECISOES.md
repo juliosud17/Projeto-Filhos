@@ -295,3 +295,14 @@ Mais 7 achados menores (imprecisão de redação, sem gap de conteúdo real) doc
 **Por que subagente e nao so documentacao:** o pedido explicito foi "eu vou pedir um prompt e voce me traz completo" -- um fluxo repetitivo (checar banco, checar reuso de silaba no checklist, montar os 2 prompts) que vale a pena isolar como tarefa deterministica, sem virar um 5o papel de sessao (ver nota em `claude/AGENTES.md`).
 
 **Nao gerado ainda:** nenhum dos 77 prompts restantes (fora o Lote A, que ja tinha GATO/BOLA/VACA resolvidos no briefing) -- ficam pra quando o Julio pedir, palavra por palavra ou lote por lote, seguindo a mesma logica de "nao produzir em massa antes de validar" da arquitetura aprovada em 2026-08-17.
+---
+
+## 2026-08-17 — Piloto VACA: vídeo do personagem SEMPRE completo (reversão da "introdução reduzida")
+
+**Decisão:** o piloto VACA original (aprovação da arquitetura, mesmo dia) tinha o ajuste #3 do Júlio: em reencontros com o mesmo personagem na mesma sessão, pular o vídeo inteiro e ir direto pra instrução falada, pra não obrigar a criança a assistir o vídeo de novo a cada rodada. Testando ao vivo, o Júlio viu esse comportamento acontecer (emoji + fala da Lia no lugar do vídeo, na 2ª vez que VACA apareceu) e pediu a reversão: **"pra mim faz sentido o vídeo aparecer sempre, isso prende a criança"**.
+
+**O que mudou:** `runWordIntro()` (`app/js/activities-portugues.js`) não checa mais `characterIntroSeen` pra decidir se pula o vídeo — o vídeo completo (`playCharacterIntro`) toca em TODA aparição do personagem, mesmo repetindo na mesma sessão. `state.characterIntroSeen` continua sendo preenchido (registro de quem já apareceu), mas hoje não afeta mais o fluxo — mantido só pra eventual uso futuro (ex. analytics, ou se um dia fizer sentido reduzir só depois de N repetições, não na 2ª já).
+
+**Por que a decisão original mudou:** a suposição de que "vídeo repetido cansa" fazia sentido em teoria (evitar fadiga/tédio), mas na prática, pro Benjamin, o vídeo é o que prende a atenção — cortar ele faz o personagem "sumir" no meio da experiência, o que é pior pedagogicamente do que repetir. Fica registrado como aprendizado: nem toda otimização de "ritmo" é uma melhoria real, precisa validar com uso de verdade (é exatamente por isso que o piloto existe antes de escalar pras 87 palavras).
+
+**Teste ajustado:** `testes/qa_test_piloto_vaca.js`, seção 5 — antes checava "nenhum vídeo é criado no 2º encontro", agora checa o oposto ("o vídeo é criado de novo"). Suíte completa rodada depois da mudança: 33/34 arquivos sem falha (a falha em `qa_test_regression.js` é a tolerada/documentada, não relacionada a esta mudança).

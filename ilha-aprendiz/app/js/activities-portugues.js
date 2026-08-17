@@ -183,30 +183,24 @@ function renderSilabas(stage){
    docs/DECISOES.md) --- Ver docs/audio/MEDIA_GUIDELINES.md ("Orquestração
    de cena") e docs/characters/CHARACTER_BIBLE.md. */
 
-/* 1º encontro do personagem na sessão: vídeo completo (com o som dele
-   embutido, ex. "muuu"). Encontros seguintes na mesma sessão: pula direto
-   pro visual estático + instrução -- não obriga replay do vídeo inteiro a
-   cada rodada (ver docs/DECISOES.md, "ritmo da rodada"). Não é persistido
-   entre sessões de propósito (piloto simples; reavaliar se fizer sentido
-   depois de testar com o Benjamin).
-   Escrita como uma sequência await legível -- render -> vídeo/visual ->
-   instrução da Lia -> libera opções -- em vez de callbacks aninhados;
+/* Vídeo completo do personagem TODA vez que ele aparecer, mesmo repetindo
+   na mesma sessão (decisão do Júlio em 2026-08-17, revertendo a redução
+   original do piloto: o vídeo prende a atenção da criança, e por isso não
+   deve ser pulado -- ver docs/DECISOES.md). Fica registrado quem já foi
+   visto (state.characterIntroSeen) só pra eventual uso futuro, mas hoje
+   isso NÃO pula mais o vídeo.
+   Escrita como uma sequência await legível -- render -> vídeo -> instrução
+   da Lia -> libera opções -- em vez de callbacks aninhados;
    playCharacterIntro/AudioManager.queueVoice (js/audio-manager.js) fazem
    todo o trabalho pesado (incl. fallback de autoplay/arquivo ausente),
    aqui só orquestra a ORDEM. */
 async function runWordIntro(stage, item, optionButtons){
   state.characterIntroSeen = state.characterIntroSeen || new Set();
-  const alreadySeen = state.characterIntroSeen.has(item.character);
   state.characterIntroSeen.add(item.character);
 
   const introArea = stage.querySelector("#character-intro-area");
-  const visualArea = stage.querySelector("#silabas-visual");
 
-  if(alreadySeen){
-    visualArea.innerHTML = visual(item);
-  }else{
-    await playCharacterIntro(introArea, item.character, visual(item));
-  }
+  await playCharacterIntro(introArea, item.character, visual(item));
 
   // Instrução da Lia -- nunca cita a palavra-alvo (regra pedagógica
   // fundamental, seção 26 da arquitetura). Só ao terminar (com sucesso OU

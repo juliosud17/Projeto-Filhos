@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-08-17 — Piloto VACA: vídeo do personagem sempre completo (Lote A validado ao vivo)
+
+- Produção do Lote A concluída: 10/10 vídeos de personagem, todas as sílabas fonéticas do Lote A (incluindo `PA`/`PO` que faltavam, mais o P inteiro por bônus), 9/10 áudios de palavra inteira (só faltava confirmar VACA, que já existia), falas fixas da Lia e SFX de acerto/erro — tudo presente em `app/assets/`.
+- Testado ao vivo pela 1ª vez: 1º encontro com VACA funcionou (vídeo, instrução, montagem, sons de acerto na ordem certa). No 2º encontro (mesma sessão), a "introdução reduzida" (pular o vídeo, ajuste original da aprovação da arquitetura) entrou em ação como desenhado — mas o Júlio decidiu reverter: **vídeo completo em toda aparição do personagem**, porque prende mais a atenção da criança do que evita "cansaço".
+- `runWordIntro()` (`app/js/activities-portugues.js`) não pula mais o vídeo em reencontros — `characterIntroSeen` continua registrado mas não afeta mais o fluxo. `testes/qa_test_piloto_vaca.js` ajustado (seção 5 agora espera vídeo no 2º encontro, não a ausência dele). Suíte completa: 33/34 sem falha (mesma baseline conhecida).
+- `producao/CHECKLIST_PRODUCAO.md` atualizado pra refletir Lote A 100% produzido — falta só a validação manual (checklist de 10 itens) antes de decidir escalar pros 77 palavras restantes.
+
 ## 2026-08-17 — Piloto VACA, rodada 2: orquestração audiovisual por Promise/async-await
 
 - `AudioManager.queueVoice()` passa a retornar `Promise` (além de continuar aceitando callback); `playVoice(item)` novo (1 item, retorna `Promise`); `playCharacterIntro()` novo (Promise-wrapper de `mountCharacterIntro`); `pronounceAndHighlight(element, item)` novo — sincroniza destaque visual (`.is-speaking`) com a pronúncia tocando, reutilizável por qualquer atividade audiovisual futura.
