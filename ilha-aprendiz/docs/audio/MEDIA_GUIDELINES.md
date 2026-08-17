@@ -103,22 +103,26 @@ necessidade pedagógica → roteiro de fala → validação da fala (não entreg
 - **WAV/FLAC** (sem perda) geram arquivo bem maior sem ganho perceptível pra voz falada — só valeriam como "master" antes de editar, e a decisão foi não manter master+web separados neste estágio (MP3 exportado direto da ferramenta já é suficiente).
 - **AAC** é comparável em qualidade/tamanho ao MP3, mas MP3 tem compatibilidade mais universal e é o padrão único já adotado — não introduzir um segundo formato no projeto.
 
-## Roteiro de gravação — Piloto VACA (pendente)
+## Roteiro de gravação — Piloto VACA
 
-Nenhum destes arquivos existe no projeto ainda (conferido em 2026-08-17). Frases exatas a gravar — usar EXATAMENTE este texto, porque é o mesmo texto que o app já fala via TTS de fallback quando o MP3 não existe (consistência entre o que a Lia "promete" e o que ela diz de verdade):
+Status em 2026-08-17 (atualizar aqui conforme os assets forem entrando). Frases exatas — usar EXATAMENTE este texto, porque é o mesmo texto que o app já fala via TTS de fallback quando o MP3 não existe (consistência entre o que a Lia "promete" e o que ela diz de verdade):
 
-| Arquivo (caminho final em `app/assets/`) | Tipo | Frase/conteúdo exato |
-|---|---|---|
-| `audio/lia/comuns/monte-o-nome.mp3` | Voz da Lia | "Olha quem chegou por aqui! Observe com atenção... e monte o nome dela!" |
-| `audio/lia/comuns/acerto-01.mp3` | Voz da Lia | "Isso! Muito bem!" |
-| `audio/lia/comuns/dica-vamos-ouvir-o-comeco.mp3` | Voz da Lia | "Quase! Vamos ouvir o começo?" |
-| `audio/fonetica/silabas/va.mp3` | Fonética | "VA" — som da sílaba (tipo /va/), não soletrada letra por letra |
-| `audio/fonetica/silabas/ca.mp3` | Fonética | "CA" — som da sílaba (tipo /ka/) |
-| `audio/fonetica/palavras/vaca.mp3` | Fonética | "VACA" — palavra inteira, pronúncia natural |
-| `audio/sfx/feedback/acerto.mp3` | SFX | Sem voz — som curto de recompensa (chime/sino/sparkle), tom gentil, não agressivo |
-| `video/personagens/vaca/vaca-intro.mp4` | Vídeo (com áudio embutido) | Vaquinha aparece + "Muuu... muu muu!" — o vídeo já gerado no Flow, ainda não colocado no projeto |
+| Arquivo (caminho final em `app/assets/`) | Tipo | Frase/conteúdo exato | Status |
+|---|---|---|---|
+| `audio/lia/comuns/monte-o-nome.mp3` | Voz da Lia | "Olha quem chegou por aqui! Observe com atenção... e monte o nome dela!" | ✅ no projeto |
+| `audio/lia/comuns/acerto-01.mp3` | Voz da Lia | "Isso! Muito bem!" | ✅ no projeto |
+| `audio/lia/comuns/dica-vamos-ouvir-o-comeco.mp3` | Voz da Lia | "Quase! Vamos ouvir o começo?" | ✅ no projeto |
+| `audio/fonetica/silabas/va.mp3` | Fonética | "VA" — som da sílaba (tipo /va/), não soletrada letra por letra | ✅ no projeto |
+| `audio/fonetica/silabas/ca.mp3` | Fonética | "CA" — som da sílaba (tipo /ka/) | 🔴 **falta** — sem isso o piloto VACA não fica completo (só tem VA, falta CA) |
+| `audio/fonetica/palavras/vaca.mp3` | Fonética | "VACA" — palavra inteira, pronúncia natural | ✅ no projeto |
+| `audio/sfx/feedback/acerto.mp3` | SFX | Sem voz — som curto de recompensa (chime/sino/sparkle), tom gentil, não agressivo | ✅ no projeto |
+| `video/personagens/vaca/vaca-intro.mp4` | Vídeo (com áudio embutido) | Vaquinha aparece + "Muuu... muu muu!" | ✅ no projeto |
 
 Todos gerados na voz da Lia (ElevenLabs, Voice ID/prompt em `docs/audio/VOZ_LIA.md`), exceto o SFX (sem voz) e o vídeo (som do próprio animal). Formato de exportação: ver seção acima.
+
+**Extra já produzido, além do piloto:** `audio/fonetica/silabas/{ba,be,bi,bo,bu,ve,vi,vo,vu}.mp3` — família de sílabas B/V completa, não só VA/CA do piloto. Fica registrado aqui porque é conteúdo real de fonética que outras palavras de `WORDS` (`data/portugues-conteudo.js`) já podem reaproveitar quando o piloto escalar — não precisa regravar quando chegar a hora.
+
+**Nota sobre maiúscula/minúscula:** o sistema de arquivos do Windows não diferencia `Lia`/`lia` nem `.MP3`/`.mp3` — os dois "existem" como o mesmo arquivo por baixo, então o app funciona normalmente rodando local no Windows mesmo se a pasta aparecer como `Lia` no Explorer. Mas o **código sempre referencia tudo em minúsculo** (`js/media-catalog.js`), e isso importa se o projeto algum dia for hospedado num servidor Linux (case-sensitive) — manter a convenção em minúsculo desde já evita ter que caçar isso depois.
 
 Se no futuro quiser variações de acerto (`acerto-02.mp3`, `acerto-03.mp3` etc.), o `AudioManager` já suporta sortear entre elas — precisa de um ajuste pequeno no código de `registerAnswerWithCharacterFeedback()` (`js/activities-portugues.js`) pra escolher aleatoriamente entre as variações existentes em vez de sempre `acerto-01`.
 
