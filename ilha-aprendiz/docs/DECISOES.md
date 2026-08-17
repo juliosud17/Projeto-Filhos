@@ -6,6 +6,26 @@
 
 ---
 
+## 2026-08-17 — Piloto VACA, rodada 2: orquestração audiovisual por Promise/async-await
+
+**Decisão:** enquanto o Júlio gera os áudios/vídeos reais das próximas palavras (via `producao/`), pediu uma segunda passada no piloto VACA especificamente pra virar uma **referência arquitetural reutilizável**: fluxo controlado por `Promise`/`async-await` de ponta a ponta (em vez de `setTimeout`s adivinhados pra sincronizar áudio/vídeo/UI) e destaque visual sincronizado com cada sílaba/palavra sendo pronunciada. Ele mandou uma proposta detalhada de como faria; boa parte do motor (`AudioManager.queueVoice`) já era internamente sequencial via `await` dentro de uma IIFE — só faltava expor isso como Promise pra quem chama, em vez de só aceitar callback.
+
+**O que mudou:**
+- `AudioManager.queueVoice()` (`js/audio-manager.js`) passa a **também retornar a Promise** que já existia internamente — mudança de 2 linhas, comportamento anterior 100% preservado.
+- `AudioManager.playVoice(item)` novo — toca 1 item de voz e retorna a Promise (mesma lógica de token/interrupção do `queueVoice`, extraída pra 1 item só).
+- `playCharacterIntro()` novo — Promise-wrapper fino em cima do `mountCharacterIntro` já existente, sem tocar em nenhuma linha da lógica de fallback de autoplay/vídeo ausente que já estava lá.
+- `pronounceAndHighlight(element, item)` novo — adiciona `.is-speaking`, `await AudioManager.playVoice(item)`, remove a classe, pequeno respiro (~180ms). Helper genérico pensado pra qualquer atividade audiovisual futura, não só VACA.
+- `registerAnswerWithCharacterFeedback()` (`js/activities-portugues.js`) virou `async`: no acerto, `await` a Lia + `pronounceAndHighlight` em loop sobre `item.syl` (slot por sílaba) + a palavra inteira (`#slots`) — só DEPOIS chama `registerAnswer(true, null, {nextRoundDelay:700})`. **O `nextRoundDelay` deixou de ser um chute pra "cobrir" a fala (era 4800ms) e virou só o respiro final — a rodada só avança depois que o áudio já terminou de verdade**, não um timeout paralelo torcendo pra dar tempo. No erro, a dica destaca o **botão de opção** com a 1ª sílaba certa (não os slots, que já foram limpos pra não travar a criança esperando o áudio) — continua nunca revelando a 2ª sílaba.
+- `startCharacterIntroRound()` virou `runWordIntro()`, reescrita como sequência `await` legível (vídeo/visual → instrução da Lia → libera opções) em vez de callbacks aninhados.
+
+**Por que não segui o rascunho do Júlio 100% ao pé da letra:** ele sugeriu um objeto `MEDIA`+`phoneticPath()`/`characterVideoPath()` paralelos a `media-catalog.js` — não criei, o arquivo já faz exatamente esse trabalho e o próprio pedido dele foi pra preservá-lo. Sugeriu também um `playVoiceSequence(files, gap)` novo — não dupliquei, é o que `queueVoice()` já faz; só precisava virar awaitable. O `playVoice()` dele reimplementava `<audio>`/eventos do zero — extraí de `playVoiceItem`, que já existia e já é testado.
+
+**Fora de escopo, de propósito:** a escalada de dicas em 3 níveis que o Júlio esboçou foi apresentada como ideia pra "o futuro" na mensagem dele, não fazia parte do pedido concreto final — não implementada agora. Mastery, conteúdo de `WORDS`, e qualquer outra atividade continuam intocados.
+
+**Testado** (`testes/qa_test_piloto_vaca.js`, 39 checagens — 9 novas): as duas chamadas de teste a `registerAnswerWithCharacterFeedback()` passam a `await` a Promise real em vez de `wait()` adivinhado; `pronounceAndHighlight` testado isoladamente (adiciona a classe antes da Promise resolver, remove depois); nenhum elemento fica com `.is-speaking` residual depois de acerto/erro; `playVoice`/`queueVoice`/`playCharacterIntro`/`pronounceAndHighlight` existem com a superfície esperada; **o teste mais importante** — `nextRound` só é chamado depois que as 4 falas (Lia+VA+CA+VACA) já foram registradas, confirmando que a sincronização é real, não um timeout paralelo. Suíte completa: 33/34 arquivos limpos (mesma falha conhecida, `qa_test_regression.js`).
+
+---
+
 ## 2026-08-17 — Ilha das Letras, rodada 3: destino mais claro, popover limpo, texto contextual e mobile de verdade
 
 **Decisão:** terceiro e (por ora) último refinamento de UX sobre a Ilha das Letras — o Júlio confirmou a estrutura visual da rodada 2 como aprovada ("não redesenhe o mapa, não altere a imagem, não mude coordenadas sem necessidade") e pediu só polimento fino antes de tratar a Ilha das Letras como **modelo-base pros futuros mundos do Ilha Aprendiz** (a partir da Ilha dos Números). Mastery, desbloqueio, estrelas, atividades, níveis, Desafio Final, Matemática, Projeto Leitor e persistência continuam intocados.

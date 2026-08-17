@@ -144,25 +144,48 @@ check("2º encontro: a instrução ainda é falada de imediato (sem esperar víd
 window.pickWeightedByLevel = originalPick;
 
 /* ---------- 6) acerto do piloto: SFX + Lia (personalidade) + fonética
-   (pronúncia oficial) como peças SEPARADAS, nunca uma frase só ---------- */
+   (pronúncia oficial) como peças SEPARADAS, nunca uma frase só. Rodada 2 do
+   piloto (orquestração por Promise): a função é async agora -- await direto
+   na Promise real, sem adivinhar quanto tempo o áudio leva. ---------- */
 spokenLog = [];
 beepLog = [];
-registerAnswerWithCharacterFeedback(true, vacaItem);
-await wait(6000);
+let nextRoundSpokenCount = null;
+window.nextRound = function(){ nextRoundSpokenCount = spokenLog.length; };
+await registerAnswerWithCharacterFeedback(true, vacaItem);
 check("acerto: SFX com fallback pro beep('ok') (sfx-acerto.mp3 ainda não existe)", beepLog.includes("ok"));
 check("acerto: fala tem a frase da Lia + as 3 pronúncias oficiais separadas (VA, CA, VACA) -- 4 itens, não 1 frase só", spokenLog.length === 4);
 check("acerto: 1º item falado é a Lia (personalidade), não a fonética", spokenLog[0] && spokenLog[0].toUpperCase().indexOf("ISSO") !== -1);
 check("acerto: fonética de VA falada isoladamente", spokenLog.includes("VA"));
 check("acerto: fonética de CA falada isoladamente", spokenLog.includes("CA"));
 check("acerto: fonética da palavra inteira falada por último", spokenLog[3] === "VACA");
+check("nenhum elemento fica com .is-speaking depois que a sequência de acerto termina (sem vazamento visual)", document.querySelectorAll(".is-speaking").length === 0);
+await wait(1000); // margem pro setTimeout curto de registerAnswer (nextRoundDelay) disparar
+check("nextRound só é chamado DEPOIS que as 4 falas já foram registradas -- sincronização real via Promise, não um timeout adivinhado em paralelo", nextRoundSpokenCount === 4);
+window.nextRound = function(){};
 
 /* ---------- 7) erro do piloto: dica revela só a 1ª sílaba, nunca a palavra ---------- */
 spokenLog = [];
-registerAnswerWithCharacterFeedback(false, vacaItem);
-await wait(3500);
+await registerAnswerWithCharacterFeedback(false, vacaItem);
 check("erro: dica tem 2 itens (frase da Lia + só a 1ª sílaba)", spokenLog.length === 2);
 check("erro: a dica revela só 'VA' (não a palavra inteira)", spokenLog[1] === "VA");
 check("erro: nenhuma fala desta dica é a palavra completa 'VACA'", !spokenLog.some(t=>t.toUpperCase()==="VACA"));
+check("erro: nenhum elemento fica com .is-speaking depois que a dica termina", document.querySelectorAll(".is-speaking").length === 0);
+
+/* ---------- 8) API nova do Audio Manager (rodada 2 do piloto) ---------- */
+check("AudioManager.playVoice existe e retorna uma Promise", typeof AudioManager.playVoice === "function");
+check("AudioManager.queueVoice retorna uma Promise (além de continuar aceitando onDone)", typeof AudioManager.queueVoice([]).then === "function");
+check("playCharacterIntro existe (Promise-wrapper de mountCharacterIntro)", typeof playCharacterIntro === "function");
+check("pronounceAndHighlight existe (helper genérico de destaque sincronizado)", typeof pronounceAndHighlight === "function");
+
+/* pronounceAndHighlight, isolado: contrato determinístico -- adiciona
+   is-speaking ANTES da Promise resolver, remove DEPOIS. Testado à parte da
+   cena inteira porque, no fluxo completo, o momento intermediário passa
+   rápido demais pra flagrar de forma confiável. */
+const fakeEl = document.createElement("div");
+const highlightPromise = pronounceAndHighlight(fakeEl, { fallbackText: "VA" });
+check("pronounceAndHighlight adiciona .is-speaking de imediato (síncrono, antes do áudio resolver)", fakeEl.classList.contains("is-speaking"));
+await highlightPromise;
+check("pronounceAndHighlight remove .is-speaking depois que a Promise resolve", !fakeEl.classList.contains("is-speaking"));
 
 console.log("\\nRESULT: " + ok + " passed, " + fail + " failed");
 })();

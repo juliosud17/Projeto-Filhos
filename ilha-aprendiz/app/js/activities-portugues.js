@@ -172,22 +172,29 @@ function renderSilabas(stage){
   });
 
   if(hasCharacter){
-    startCharacterIntroRound(stage, item, optionButtons);
+    runWordIntro(stage, item, optionButtons);
   }else{
     speak("Monte a palavra " + item.word);
   }
 }
 
-/* --- Piloto VACA: personagem em vídeo + voz da Lia + fonética, 2026-08-17 ---
-   Ver docs/audio/MEDIA_GUIDELINES.md e docs/characters/CHARACTER_BIBLE.md. */
+/* --- Piloto VACA: personagem em vídeo + voz da Lia + fonética, 2026-08-17,
+   orquestração por Promise/async-await desde a rodada 2 (mesmo dia, ver
+   docs/DECISOES.md) --- Ver docs/audio/MEDIA_GUIDELINES.md ("Orquestração
+   de cena") e docs/characters/CHARACTER_BIBLE.md. */
 
 /* 1º encontro do personagem na sessão: vídeo completo (com o som dele
    embutido, ex. "muuu"). Encontros seguintes na mesma sessão: pula direto
    pro visual estático + instrução -- não obriga replay do vídeo inteiro a
    cada rodada (ver docs/DECISOES.md, "ritmo da rodada"). Não é persistido
    entre sessões de propósito (piloto simples; reavaliar se fizer sentido
-   depois de testar com o Benjamin). */
-function startCharacterIntroRound(stage, item, optionButtons){
+   depois de testar com o Benjamin).
+   Escrita como uma sequência await legível -- render -> vídeo/visual ->
+   instrução da Lia -> libera opções -- em vez de callbacks aninhados;
+   playCharacterIntro/AudioManager.queueVoice (js/audio-manager.js) fazem
+   todo o trabalho pesado (incl. fallback de autoplay/arquivo ausente),
+   aqui só orquestra a ORDEM. */
+async function runWordIntro(stage, item, optionButtons){
   state.characterIntroSeen = state.characterIntroSeen || new Set();
   const alreadySeen = state.characterIntroSeen.has(item.character);
   state.characterIntroSeen.add(item.character);
@@ -195,54 +202,55 @@ function startCharacterIntroRound(stage, item, optionButtons){
   const introArea = stage.querySelector("#character-intro-area");
   const visualArea = stage.querySelector("#silabas-visual");
 
-  function afterVisualReady(){
-    // Instrução da Lia -- nunca cita a palavra-alvo (regra pedagógica
-    // fundamental, seção 26 da arquitetura). Só ao terminar (com sucesso
-    // OU via fallback de TTS) é que as opções são liberadas.
-    AudioManager.queueVoice([
-      { url: mediaLiaVoice("comuns", "monte-o-nome"),
-        fallbackText: "Olha quem chegou por aqui! Observe com atenção... e monte o nome dela!" }
-    ], ()=>{
-      optionButtons.forEach(b=> b.disabled = false);
-    });
-  }
-
   if(alreadySeen){
     visualArea.innerHTML = visual(item);
-    afterVisualReady();
-    return;
+  }else{
+    await playCharacterIntro(introArea, item.character, visual(item));
   }
 
-  mountCharacterIntro(introArea, item.character, {
-    visualFallback: visual(item),
-    onEnded: afterVisualReady,
-    onFallback: afterVisualReady
-  });
+  // Instrução da Lia -- nunca cita a palavra-alvo (regra pedagógica
+  // fundamental, seção 26 da arquitetura). Só ao terminar (com sucesso OU
+  // via fallback de TTS) é que as opções são liberadas.
+  await AudioManager.queueVoice([
+    { url: mediaLiaVoice("comuns", "monte-o-nome"),
+      fallbackText: "Olha quem chegou por aqui! Observe com atenção... e monte o nome dela!" }
+  ]);
+  optionButtons.forEach(b=> b.disabled = false);
 }
 
 /* Acerto/erro do piloto: Lia (personalidade/encorajamento) e fonética
    (pronúncia pedagógica oficial) tocam como arquivos SEPARADOS, nunca a
    mesma frase da Lia contendo a pronúncia embutida -- assim dá pra revisar
    ou trocar a pronúncia sem regenerar a fala emocional (ajuste pedido pelo
-   Júlio na aprovação da arquitetura, registrado em docs/DECISOES.md). */
-function registerAnswerWithCharacterFeedback(isCorrect, item){
+   Júlio na aprovação da arquitetura, registrado em docs/DECISOES.md).
+   `async` desde a rodada 2 do piloto: cada trecho de fala é `await`ado (via
+   pronounceAndHighlight, js/audio-manager.js) e sincronizado com um
+   destaque visual no elemento correspondente -- SLOT por sílaba, depois os
+   slots inteiros pra palavra completa. registerAnswer() só é chamado DEPOIS
+   que todo o áudio já tocou de verdade -- nextRoundDelay deixa de ser um
+   chute pra "cobrir" a fala (era 4800ms) e vira só o respiro final. */
+async function registerAnswerWithCharacterFeedback(isCorrect, item){
   if(isCorrect){
+    // Canal de SFX é independente -- dispara e não espera nada, pode
+    // coexistir com o início da voz (regra da arquitetura aprovada).
     AudioManager.playSfx(mediaSfx("feedback", "acerto"), { fallbackBeep: "ok" });
-    const foneticaSilabas = item.syl.map(s => ({ url: mediaFonetica("silaba", s), fallbackText: s }));
-    AudioManager.queueVoice([
-      { url: mediaLiaVoice("comuns", "acerto-01"), fallbackText: "Isso! Muito bem!" },
-      ...foneticaSilabas,
-      { url: mediaFonetica("palavra", item.word), fallbackText: item.word }
-    ]);
-    // nextRoundDelay maior que o padrão (1100ms): dá tempo da Lia + fonética
-    // acima terminarem antes de trocar de rodada -- valor aproximado pro
-    // piloto, calibrar ouvindo os arquivos reais quando existirem.
-    registerAnswer(true, null, { skipBeep: true, nextRoundDelay: 4800 });
+    await AudioManager.playVoice({ url: mediaLiaVoice("comuns", "acerto-01"), fallbackText: "Isso! Muito bem!" });
+    for(let i = 0; i < item.syl.length; i++){
+      await pronounceAndHighlight(document.getElementById("slot" + i),
+        { url: mediaFonetica("silaba", item.syl[i]), fallbackText: item.syl[i] });
+    }
+    await pronounceAndHighlight(document.getElementById("slots"),
+      { url: mediaFonetica("palavra", item.word), fallbackText: item.word });
+    registerAnswer(true, null, { skipBeep: true, nextRoundDelay: 700 });
   }else{
-    AudioManager.queueVoice([
-      { url: mediaLiaVoice("comuns", "dica-vamos-ouvir-o-comeco"), fallbackText: "Quase! Vamos ouvir o começo?" },
-      { url: mediaFonetica("silaba", item.syl[0]), fallbackText: item.syl[0] }
-    ]);
+    // Slots já foram limpos por renderSilabas nesse momento (não espera o
+    // áudio pra deixar a criança tentar de novo -- nunca trava por erro).
+    // O destaque da dica vai no BOTÃO de opção com a 1ª sílaba certa, que
+    // continua visível/clicável na tela.
+    const hintBtn = Array.from(document.querySelectorAll("#opts .option-btn"))
+      .find(b => b.textContent === item.syl[0]);
+    await AudioManager.playVoice({ url: mediaLiaVoice("comuns", "dica-vamos-ouvir-o-comeco"), fallbackText: "Quase! Vamos ouvir o começo?" });
+    await pronounceAndHighlight(hintBtn, { url: mediaFonetica("silaba", item.syl[0]), fallbackText: item.syl[0] });
     registerAnswer(false, null);
   }
 }

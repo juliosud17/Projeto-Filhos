@@ -57,6 +57,36 @@ Sufixo `-01`/`-02` só pra variações intercambiáveis da MESMA fala (nunca pra
 
 Toda chamada de voz tem fallback pra TTS (`speak()`) embutido — se o MP3 não existir/falhar, a narração continua por TTS, nunca fica muda. Toda chamada de SFX tem fallback pro `beep()` sintetizado existente.
 
+## Orquestração de cena (padrão desde a rodada 2 do piloto VACA, 2026-08-17)
+
+A cena de uma atividade audiovisual é escrita como uma sequência `async/await` legível, **nunca `setTimeout` adivinhado pra sincronizar** — cada primitivo abaixo (`js/audio-manager.js`) retorna uma `Promise` que resolve quando aquele passo termina de verdade (áudio real tocou até o fim, ou o fallback de TTS/emoji rodou):
+
+```js
+async function runWordIntro(stage, item, optionButtons){
+  await playCharacterIntro(container, item.character, visualFallback); // vídeo (ou fallback)
+  await AudioManager.queueVoice([instrução da Lia]);                    // Lia
+  optionButtons.forEach(b => b.disabled = false);                       // só então libera
+}
+
+async function onAcerto(item){
+  AudioManager.playSfx(...);                                  // canal independente, não espera
+  await AudioManager.playVoice(fraseDaLia);
+  for(const silaba of item.syl){
+    await pronounceAndHighlight(slotDaSilaba, foneticaDaSilaba); // áudio + destaque juntos
+  }
+  await pronounceAndHighlight(slotsInteiro, foneticaDaPalavra);
+  registerAnswer(true, null, { nextRoundDelay: 700 });          // só depois que tudo já tocou
+}
+```
+
+Primitivos disponíveis:
+- `AudioManager.playVoice(item)` — toca 1 item de voz, retorna `Promise`.
+- `AudioManager.queueVoice(items, onDone?)` — toca uma sequência, retorna `Promise` (continua aceitando `onDone` também, pra compatibilidade).
+- `playCharacterIntro(container, characterId, visualFallback)` — Promise-wrapper de `mountCharacterIntro()`.
+- `pronounceAndHighlight(element, item)` — toca a fala E sincroniza um destaque visual (`.is-speaking`, `app/css/app.css`) no elemento correspondente; genérico, reaproveitável por qualquer atividade futura.
+
+**Regra de ouro:** quem orquestra a cena não adivinha duração — `await` o passo anterior antes de iniciar o próximo. Isso também garante a regra de nunca tocar duas vozes ao mesmo tempo (cada `playVoice`/`queueVoice` cancela qualquer voz anterior via token interno, mas como tudo é sequenciado por `await`, na prática nunca há uma voz "anterior" ainda tocando quando a próxima começa).
+
 ## Volumes relativos
 
 | Canal | Volume |

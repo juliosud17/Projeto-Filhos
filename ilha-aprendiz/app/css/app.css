@@ -401,12 +401,26 @@
     gap:10px;
     font-size:34px;
     font-weight:900;
+    transition:transform .15s ease, box-shadow .15s ease;
   }
   .slot{
     min-width:70px;
     border-bottom:5px solid var(--purple);
     padding:4px 8px;
     color:var(--purple-dark);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  /* Destaque sincronizado com a pronúncia tocando (pronounceAndHighlight,
+     js/audio-manager.js) -- piloto VACA, rodada 2 (2026-08-17). Genérico de
+     propósito: aplica no slot da sílaba, no grupo de slots (palavra
+     inteira) ou no botão de opção certo (dica de erro), sem precisar de
+     regra própria por elemento. */
+  .is-speaking{
+    transform:scale(1.12);
+    box-shadow:0 0 0 5px rgba(124,92,255,.22);
+  }
+  @media (prefers-reduced-motion: reduce){
+    .is-speaking{ transform:none; }
   }
   .type-input{
     font-size:32px;

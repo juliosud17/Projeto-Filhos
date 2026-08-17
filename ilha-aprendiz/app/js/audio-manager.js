@@ -83,18 +83,34 @@ const AudioManager = (function(){
   /* Toca uma sequência de itens de voz, um de cada vez, na ordem. Chamar de
      novo enquanto uma fila está tocando cancela a fila anterior (o token
      muda) -- é assim que "nova fala interrompe a anterior" é garantido sem
-     precisar rastrear/pausar elementos <audio> manualmente. */
+     precisar rastrear/pausar elementos <audio> manualmente.
+     Retorna a Promise da sequência inteira (além de continuar chamando
+     onDone, se passado) -- rodada 2 do piloto VACA (2026-08-17): quem
+     chama pode `await AudioManager.queueVoice([...])` em vez de só receber
+     um callback, pra orquestrar o resto da cena depois que a fala termina
+     de verdade, sem precisar adivinhar quanto tempo isso leva. */
   function queueVoice(items, onDone){
     activeToken++;
     const myToken = activeToken;
     speakStop();
-    (async ()=>{
+    return (async ()=>{
       for(let i = 0; i < items.length; i++){
         if(myToken !== activeToken) return; // fila cancelada por outra chamada
         await playVoiceItem(items[i], myToken);
       }
       if(myToken === activeToken && onDone) onDone();
     })();
+  }
+
+  /* Toca 1 item de voz só e devolve a Promise -- mesma lógica de
+     interrupção/token do queueVoice (útil pra compor sequências fora de um
+     array fixo, ex. pronounceAndHighlight abaixo, sem duplicar a lógica de
+     fallback pra TTS que playVoiceItem já resolve). */
+  function playVoice(item){
+    activeToken++;
+    const myToken = activeToken;
+    speakStop();
+    return playVoiceItem(item, myToken);
   }
 
   /* SFX: canal independente, não cancela nem é cancelado pela voz.
@@ -116,7 +132,7 @@ const AudioManager = (function(){
 
   function stopAll(){ stopVoice(); }
 
-  return { queueVoice, stopVoice, stopAll, playSfx, VOLUMES };
+  return { queueVoice, playVoice, stopVoice, stopAll, playSfx, VOLUMES };
 })();
 
 /* Vídeo de personagem com fallback duplo (fora do objeto AudioManager
@@ -188,4 +204,35 @@ function mountCharacterIntro(container, characterId, opts){
       else{ toFallback(); }
     });
   }
+}
+
+/* Wrapper fino em Promise em cima de mountCharacterIntro -- não muda
+   NENHUMA linha da lógica de fallback acima (autoplay bloqueado/arquivo
+   ausente), só deixa quem chama fazer `await playCharacterIntro(...)` em
+   vez de passar onEnded/onFallback na mão. Resolve nos dois casos (vídeo
+   terminou OU caiu pro fallback) -- pra quem orquestra a cena, "acabou a
+   introdução" é a mesma coisa nos dois casos. */
+function playCharacterIntro(container, characterId, visualFallback){
+  return new Promise(resolve=>{
+    mountCharacterIntro(container, characterId, {
+      visualFallback,
+      onEnded: resolve,
+      onFallback: resolve
+    });
+  });
+}
+
+/* Helper genérico pra sincronizar destaque visual com a pronúncia que está
+   tocando -- pensado pra ser reaproveitado por qualquer atividade
+   audiovisual futura, não só o piloto VACA (rodada 2, 2026-08-17, ver
+   docs/DECISOES.md). Adiciona .is-speaking, espera a fala terminar de
+   verdade (via AudioManager.playVoice -- mesmo fallback pra TTS de
+   sempre), remove a classe e dá um respiro curto antes de resolver, pra
+   sequências de várias chamadas (VA -> CA -> VACA) não ficarem coladas. */
+function pronounceAndHighlight(element, item){
+  if(element) element.classList.add("is-speaking");
+  return AudioManager.playVoice(item).then(()=>{
+    if(element) element.classList.remove("is-speaking");
+    return new Promise(resolve=> setTimeout(resolve, 180));
+  });
 }

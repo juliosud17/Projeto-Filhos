@@ -4,6 +4,15 @@
 
 ---
 
+## 2026-08-17 — Piloto VACA, rodada 2: orquestração audiovisual por Promise/async-await
+
+- `AudioManager.queueVoice()` passa a retornar `Promise` (além de continuar aceitando callback); `playVoice(item)` novo (1 item, retorna `Promise`); `playCharacterIntro()` novo (Promise-wrapper de `mountCharacterIntro`); `pronounceAndHighlight(element, item)` novo — sincroniza destaque visual (`.is-speaking`) com a pronúncia tocando, reutilizável por qualquer atividade audiovisual futura.
+- `registerAnswerWithCharacterFeedback()` e `runWordIntro()` (antes `startCharacterIntroRound()`) viram `async`, sequência `await` legível em vez de `setTimeout`s adivinhados — `nextRoundDelay` do acerto cai de um chute de 4800ms pra 700ms de respiro, porque a rodada só avança depois que o áudio já terminou de verdade.
+- No acerto, cada sílaba (VA → CA → VACA) é destacada visualmente enquanto sua pronúncia toca; no erro, o destaque vai no botão de opção com a sílaba certa (dica, sem revelar a 2ª sílaba).
+- `media-catalog.js` e os fallbacks existentes preservados integralmente — mudança é só de orquestração, não de conteúdo/paths.
+- `docs/audio/MEDIA_GUIDELINES.md` ganha a seção "Orquestração de cena", documentando o padrão pra atividades audiovisuais futuras.
+- `testes/qa_test_piloto_vaca.js`: 39 checagens (9 novas). Suíte completa: mesma baseline conhecida.
+
 ## 2026-08-17 — Arquitetura audiovisual (personagens/voz/fonética/SFX) + piloto VACA
 
 - Frente paralela nova: arquitetura de mídia aprovada (árvore de pastas, nomenclatura, Audio Manager mínimo, separação Lia×fonética, ritmo de introdução) antes de produzir qualquer asset em massa — documento de análise+proposta discutido e aprovado com 3 ajustes.
