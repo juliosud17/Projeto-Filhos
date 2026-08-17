@@ -1,23 +1,25 @@
 # Checklist de Produção — Monte a Sílaba
 
-*Atualizar esta tabela conforme os arquivos forem entrando em `app/assets/`. ✅ = já existe no projeto | 🔴 = falta produzir. Status conferido em 2026-08-17 (3ª verificação — Lote A fechado).*
+*Atualizar esta tabela conforme os arquivos forem entrando em `app/assets/`. ✅ = já existe no projeto | 🔴 = falta produzir/fazer. Status conferido em 2026-08-17 (4ª verificação — Lote A produzido E implementado no jogo, falta só validar manualmente).*
 
-## Lote A — produção 100% concluída ✅
+## Lote A — produção 100% concluída ✅ · implementado no jogo ✅ · validação manual pendente 🔴
 
-| Palavra | Vídeo | Sílaba 1 | Sílaba 2 | Palavra (áudio) | Validado |
-|---|---|---|---|---|---|
-| VACA | ✅ | VA ✅ | CA ✅ | vaca.mp3 ✅ | 🔴 |
-| GATO | ✅ | GA ✅ | TO ✅ | gato.mp3 ✅ | 🔴 |
-| PATO | ✅ | PA ✅ | TO ✅ | pato.mp3 ✅ | 🔴 |
-| SAPO | ✅ | SA ✅ | PO ✅ | sapo.mp3 ✅ | 🔴 |
-| BOLA | ✅ | BO ✅ | LA ✅ | bola.mp3 ✅ | 🔴 |
-| CASA | ✅ | CA ✅ | SA ✅ | casa.mp3 ✅ | 🔴 |
-| GALO | ✅ | GA ✅ | LO ✅ | galo.mp3 ✅ | 🔴 |
-| LOBO | ✅ | LO ✅ | BO ✅ | lobo.mp3 ✅ | 🔴 |
-| SINO | ✅ | SI ✅ | NO ✅ | sino.mp3 ✅ | 🔴 |
-| CARRO | ✅ | CAR ✅ | RO ✅ | carro.mp3 ✅ | 🔴 |
+Todas as 10 palavras já têm `character` em `app/data/portugues-conteudo.js` (ver `docs/DECISOES.md`, "Lote A inteiro escalado") — ou seja, já usam o fluxo completo de personagem+Lia+fonética no jogo de verdade, não só têm o arquivo de mídia parado na pasta.
 
-**Não falta nenhum arquivo de mídia do Lote A.** A única coluna em aberto é a validação manual (não é produção de mídia, é teste no app).
+| Palavra | Vídeo | Sílaba 1 | Sílaba 2 | Palavra (áudio) | Implementado no jogo | Validado manualmente |
+|---|---|---|---|---|---|---|
+| VACA | ✅ | VA ✅ | CA ✅ | vaca.mp3 ✅ | ✅ | ✅ (testada ao vivo — 2 bugs achados e corrigidos: introdução reduzida revertida, vozes sobrepostas corrigidas) |
+| GATO | ✅ | GA ✅ | TO ✅ | gato.mp3 ✅ | ✅ | 🔴 |
+| PATO | ✅ | PA ✅ | TO ✅ | pato.mp3 ✅ | ✅ | 🔴 |
+| SAPO | ✅ | SA ✅ | PO ✅ | sapo.mp3 ✅ | ✅ | 🔴 |
+| BOLA | ✅ | BO ✅ | LA ✅ | bola.mp3 ✅ | ✅ | 🔴 |
+| CASA | ✅ | CA ✅ | SA ✅ | casa.mp3 ✅ | ✅ | 🔴 |
+| GALO | ✅ | GA ✅ | LO ✅ | galo.mp3 ✅ | ✅ | 🔴 |
+| LOBO | ✅ | LO ✅ | BO ✅ | lobo.mp3 ✅ | ✅ | 🔴 |
+| SINO | ✅ | SI ✅ | NO ✅ | sino.mp3 ✅ | ✅ | 🔴 |
+| CARRO | ✅ | CAR ✅ | RO ✅ | carro.mp3 ✅ | ✅ | 🔴 |
+
+**Não falta nenhum arquivo de mídia do Lote A, e não falta nenhuma implementação.** Só falta jogar algumas rodadas de cada uma das 9 palavras novas (GATO, PATO, SAPO, BOLA, CASA, GALO, LOBO, SINO, CARRO) no navegador de verdade, igual foi feito com a VACA.
 
 ## Sílabas fonéticas — cobertura muito além do Lote A
 

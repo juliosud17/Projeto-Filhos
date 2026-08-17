@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-08-17 — Lote A inteiro escalado (9 personagens além da Vaca)
+
+- `app/data/portugues-conteudo.js`: GATO, PATO, SAPO, BOLA, CASA, GALO, LOBO, SINO e CARRO ganharam `character` — entram no mesmo fluxo de personagem+Lia+fonética que só a VACA tinha, sem nenhuma mudança de código (a arquitetura já suportava escalar só com dado novo).
+- `docs/characters/CHARACTER_BIBLE.md`: entrada consolidada pros 8 novos personagens/objetos.
+- `testes/qa_test_piloto_vaca.js`: nova seção de smoke test estrutural pros 9 personagens novos (vídeo, opções, caminhos de mídia) — suíte do piloto foi de 40 pra 95 checagens. Suíte completa: 33/34 sem falha (mesma baseline).
+- Ainda falta: validação manual (checklist de 10 itens) das 9 palavras novas — só a VACA foi validada ao vivo até agora.
+
 ## 2026-08-17 — Piloto VACA: corrige duas vozes sobrepostas (TTS + MP3 real)
 
 - Bug visto ao vivo: no acerto da VACA, o MP3 real da Lia e a leitura por TTS que já existia antes tocavam ao mesmo tempo, audíveis juntas.

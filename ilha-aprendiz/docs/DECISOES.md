@@ -318,3 +318,19 @@ Mais 7 achados menores (imprecisão de redação, sem gap de conteúdo real) doc
 **Trade-off aceito:** em troca de eliminar a sobreposição de vozes no caso comum (áudio existe e funciona), toda fala real ganha uma latência mínima adicional de até 300ms antes de tocar (tempo de tentar o áudio primeiro) — considerado imperceptível/aceitável frente ao ganho de qualidade percebida.
 
 **Teste ajustado:** `testes/qa_test_piloto_vaca.js`, seção 3 — antes checava que o TTS já tinha falado de forma SÍNCRONA logo após chamar `queueVoice`; agora checa o oposto logo após a chamada (TTS ainda não falou) e só depois de uma pequena espera confirma que o TTS assumiu (porque o áudio "real" do teste sempre falha, por design). Suíte completa: 33/34 arquivos sem falha (mesma falha tolerada/documentada de sempre, sem relação com esta mudança).
+
+---
+
+## 2026-08-17 — Lote A inteiro escalado (9 personagens além da Vaca)
+
+**Decisão:** depois de validar o piloto ao vivo com a Vaca (vídeo, voz, fonética, e corrigir os 2 bugs encontrados na validação — introdução reduzida revertida e sobreposição de vozes), o Júlio pediu pra escalar o resto do Lote A, que já estava com toda a mídia produzida (`producao/CHECKLIST_PRODUCAO.md`): "implemente as outras palavras que já temos salvos".
+
+**O que mudou:** `app/data/portugues-conteudo.js` — as 9 palavras restantes do Lote A (GATO, PATO, SAPO, BOLA, CASA, GALO, LOBO, SINO, CARRO) ganharam o campo `character` (mesmo padrão da VACA), entrando automaticamente no fluxo completo de personagem+Lia+fonética já existente em `runWordIntro()`/`registerAnswerWithCharacterFeedback()` — **nenhuma linha nova de lógica**, só dado novo consumindo o motor que já existia (prova de que a arquitetura estava certa: escalar 9 palavras não pediu nenhuma mudança de código, só de dado).
+
+**Documentação:** `docs/characters/CHARACTER_BIBLE.md` ganhou uma entrada consolidada pros 8 novos personagens/objetos (compartilham o mesmo padrão de campos da Vaca — não repetido campo a campo pra não inflar o documento). Campo "Som" ficou genérico de propósito, sem inventar onomatopeia que não foi conferida no vídeo real.
+
+**Teste:** `testes/qa_test_piloto_vaca.js` ganhou uma seção 9 — smoke test estrutural pros 9 personagens novos (vídeo é criado, opções começam desabilitadas, caminhos de mídia resolvem certo pra cada sílaba/palavra), sem repetir as 30+ checagens profundas já feitas com a Vaca (acerto/erro/fallback/reencontro — esses continuam cobertos só pela Vaca, que é o caso mais testado). Suíte completa: 33/34 arquivos sem falha (mesma baseline conhecida) — `qa_test_piloto_vaca.js` sozinho foi de 40 pra 95 checagens.
+
+**Ainda não coberto:** validação manual (a lista de 10 itens) só foi feita com a VACA até agora — vale rodar pelo menos 1-2 rodadas de cada palavra nova no navegador de verdade antes de considerar o Lote A 100% validado, não só testado por jsdom.
+
+**Não escalado ainda (de propósito):** as 77 palavras dos níveis 2-5 fora do Lote A não têm mídia produzida — continuam sem `character`, e não devem ganhar até `producao/CHECKLIST_PRODUCAO.md` mostrar mídia pronta pra elas.

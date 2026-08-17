@@ -40,6 +40,32 @@
 
 ---
 
+## Lote A — restante (2026-08-17, escala do piloto validado com a Vaca)
+
+Depois de validar o piloto ao vivo com a Vaca (vídeo, voz, fonética, fallback), os outros 9 personagens do Lote A entraram com o **mesmo padrão exato** — não repetido campo a campo aqui pra não inflar o documento à toa. Valem pra todos os 9 abaixo, igual à Vaca:
+
+- **Papel pedagógico:** personagem de apoio visual/sonoro pra atividade "Monte a Sílaba" — desperta atenção e vínculo emocional antes da instrução da Lia; **não fala, não entrega a resposta**.
+- **Visual:** vídeo 1:1, personagem/objeto centralizado (ver `docs/audio/MEDIA_GUIDELINES.md`).
+- **Voz:** N/A — não usa a voz da Lia.
+- **Animações disponíveis:** só `intro` (mesma decisão da Vaca, `docs/DECISOES.md`).
+- **Onde pode aparecer:** atividade "Monte a Sílaba" quando a palavra sorteada é a dele; reutilizável em qualquer atividade futura que precise do mesmo personagem/objeto.
+
+| ID | Palavra | Tipo | Som (embutido no vídeo) |
+|---|---|---|---|
+| `gato` | GATO | Animal/mascote | Conferir o vídeo real produzido — não documentado aqui em detalhe pra não inventar o que não foi eu quem gravou |
+| `pato` | PATO | Animal/mascote | Idem |
+| `sapo` | SAPO | Animal/mascote | Idem |
+| `bola` | BOLA | Objeto/mascote | Sem voz de personagem — só som sutil de quique (mesmo prompt de produção, sem fala) |
+| `casa` | CASA | Objeto/mascote | Conferir o vídeo real produzido |
+| `galo` | GALO | Animal/mascote | Idem |
+| `lobo` | LOBO | Animal/mascote | Idem |
+| `sino` | SINO | Objeto/mascote | Idem |
+| `carro` | CARRO | Objeto/mascote | Idem |
+
+*Nota: os campos "Som" acima ficaram genéricos de propósito — quem escreveu este registro (Claude) não ouviu os vídeos reais gerados pelo Flow, só descreveu o prompt pedido. Se algum vídeo tiver um som que vale documentar aqui (ex. pra reuso em outra atividade sem o vídeo), atualizar esta tabela depois de conferir o arquivo real.*
+
+---
+
 ## Como adicionar um personagem novo (checklist)
 
 Antes de criar uma entrada nova aqui, confirmar que o personagem tem pelo menos UMA função real (seção 30 da arquitetura):

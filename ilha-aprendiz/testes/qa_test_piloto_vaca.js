@@ -84,11 +84,20 @@ check("mediaLiaVoice monta categoria/nome", mediaLiaVoice("comuns","monte-o-nome
 check("mediaCharacterVideo monta personagem/personagem-estado", mediaCharacterVideo("vaca","intro") === "assets/video/personagens/vaca/vaca-intro.mp4");
 check("mediaSfx monta grupo/nome", mediaSfx("feedback","acerto") === "assets/audio/sfx/feedback/acerto.mp3");
 
-/* ---------- 2) dado: só VACA ganhou o campo novo (menor mudança possível) ---------- */
+/* ---------- 2) dado: Lote A inteiro tem 'character' (escalado em 2026-08-17,
+   depois de validar o piloto ao vivo com a Vaca) -- palavras fora do Lote A
+   continuam sem 'character' (ainda não produzidas, ver docs/DECISOES.md e
+   producao/CHECKLIST_PRODUCAO.md) ---------- */
 const vacaItem = WORDS.find(w=>w.word==="VACA");
 check("WORDS.VACA tem character:'vaca'", vacaItem && vacaItem.character === "vaca");
-const outrosComCharacter = WORDS.filter(w=>w.word!=="VACA" && w.character);
-check("nenhuma outra palavra de WORDS ganhou 'character' ainda (vertical slice, não escala)", outrosComCharacter.length === 0);
+const LOTE_A = { VACA:"vaca", GATO:"gato", PATO:"pato", SAPO:"sapo", BOLA:"bola", CASA:"casa", GALO:"galo", LOBO:"lobo", SINO:"sino", CARRO:"carro" };
+const loteAFaltando = Object.keys(LOTE_A).filter(w => {
+  const item = WORDS.find(x=>x.word===w);
+  return !item || item.character !== LOTE_A[w];
+});
+check("as 10 palavras do Lote A têm 'character' correto (" + Object.keys(LOTE_A).join(", ") + ")", loteAFaltando.length === 0);
+const outrosComCharacter = WORDS.filter(w => !LOTE_A.hasOwnProperty(w.word) && w.character);
+check("nenhuma palavra FORA do Lote A ganhou 'character' ainda (não escalar antes de produzir a mídia)", outrosComCharacter.length === 0);
 
 /* ---------- 3) AudioManager: fallback pra TTS quando o áudio "real" falha
    (o stub de Audio deste teste SEMPRE falha, simulando arquivo ausente) --
@@ -196,6 +205,35 @@ const highlightPromise = pronounceAndHighlight(fakeEl, { fallbackText: "VA" });
 check("pronounceAndHighlight adiciona .is-speaking de imediato (síncrono, antes do áudio resolver)", fakeEl.classList.contains("is-speaking"));
 await highlightPromise;
 check("pronounceAndHighlight remove .is-speaking depois que a Promise resolve", !fakeEl.classList.contains("is-speaking"));
+
+/* ---------- 9) escala do Lote A (2026-08-17): os outros 9 personagens
+   (além da Vaca, já testada a fundo acima) entram no MESMO fluxo de
+   personagem+Lia+fonética -- smoke test estrutural em todos eles (não
+   repete as 30+ checagens já feitas com a Vaca, só confirma que cada um
+   entra no fluxo certo e produz os caminhos de mídia certos). ---------- */
+const outrasLoteA = Object.keys(LOTE_A).filter(w=>w!=="VACA");
+for(const wordName of outrasLoteA){
+  const item = WORDS.find(w=>w.word===wordName);
+  if(!item){ console.log("LOTE A FALTANDO EM WORDS: " + wordName); fail++; continue; }
+  spokenLog = [];
+  const stageN = document.getElementById("game-stage");
+  window.pickWeightedByLevel = function(){ return item; };
+  try{
+    renderSilabas(stageN);
+  }catch(e){
+    console.log("RENDER ERROR (silabas/" + wordName + "): " + e.message);
+    fail++;
+    continue;
+  }
+  check(wordName + ": vídeo do personagem é criado", document.querySelectorAll("video").length === 1);
+  check(wordName + ": opções começam desabilitadas (mesmo padrão da Vaca)", Array.from(document.querySelectorAll(".option-btn")).every(b=>b.disabled===true));
+  check(wordName + ": mediaCharacterVideo resolve o caminho esperado", mediaCharacterVideo(item.character,"intro") === "assets/video/personagens/" + item.character + "/" + item.character + "-intro.mp4");
+  item.syl.forEach(s=>{
+    check(wordName + ": mediaFonetica('silaba','" + s + "') resolve (sem heurística de tamanho)", mediaFonetica("silaba", s) === "assets/audio/fonetica/silabas/" + s.toLowerCase() + ".mp3");
+  });
+  check(wordName + ": mediaFonetica('palavra',...) resolve", mediaFonetica("palavra", item.word) === "assets/audio/fonetica/palavras/" + item.word.toLowerCase() + ".mp3");
+}
+window.pickWeightedByLevel = originalPick;
 
 console.log("\\nRESULT: " + ok + " passed, " + fail + " failed");
 })();
