@@ -96,6 +96,32 @@ necessidade pedagógica → roteiro de fala → validação da fala (não entreg
   → aprovação
 ```
 
+## Formato de exportação de áudio
+
+**MP3** (128 kbps / 44,1 kHz) é o único formato aceito no projeto — é o que já está definido acima ("Pipeline de produção") e vale tanto pra voz da Lia quanto fonética e SFX. Ao exportar de qualquer ferramenta (ElevenLabs, editor externo etc.), sempre escolher MP3 na caixa de formato, nunca WAV/AAC/FLAC:
+
+- **WAV/FLAC** (sem perda) geram arquivo bem maior sem ganho perceptível pra voz falada — só valeriam como "master" antes de editar, e a decisão foi não manter master+web separados neste estágio (MP3 exportado direto da ferramenta já é suficiente).
+- **AAC** é comparável em qualidade/tamanho ao MP3, mas MP3 tem compatibilidade mais universal e é o padrão único já adotado — não introduzir um segundo formato no projeto.
+
+## Roteiro de gravação — Piloto VACA (pendente)
+
+Nenhum destes arquivos existe no projeto ainda (conferido em 2026-08-17). Frases exatas a gravar — usar EXATAMENTE este texto, porque é o mesmo texto que o app já fala via TTS de fallback quando o MP3 não existe (consistência entre o que a Lia "promete" e o que ela diz de verdade):
+
+| Arquivo (caminho final em `app/assets/`) | Tipo | Frase/conteúdo exato |
+|---|---|---|
+| `audio/lia/comuns/monte-o-nome.mp3` | Voz da Lia | "Olha quem chegou por aqui! Observe com atenção... e monte o nome dela!" |
+| `audio/lia/comuns/acerto-01.mp3` | Voz da Lia | "Isso! Muito bem!" |
+| `audio/lia/comuns/dica-vamos-ouvir-o-comeco.mp3` | Voz da Lia | "Quase! Vamos ouvir o começo?" |
+| `audio/fonetica/silabas/va.mp3` | Fonética | "VA" — som da sílaba (tipo /va/), não soletrada letra por letra |
+| `audio/fonetica/silabas/ca.mp3` | Fonética | "CA" — som da sílaba (tipo /ka/) |
+| `audio/fonetica/palavras/vaca.mp3` | Fonética | "VACA" — palavra inteira, pronúncia natural |
+| `audio/sfx/feedback/acerto.mp3` | SFX | Sem voz — som curto de recompensa (chime/sino/sparkle), tom gentil, não agressivo |
+| `video/personagens/vaca/vaca-intro.mp4` | Vídeo (com áudio embutido) | Vaquinha aparece + "Muuu... muu muu!" — o vídeo já gerado no Flow, ainda não colocado no projeto |
+
+Todos gerados na voz da Lia (ElevenLabs, Voice ID/prompt em `docs/audio/VOZ_LIA.md`), exceto o SFX (sem voz) e o vídeo (som do próprio animal). Formato de exportação: ver seção acima.
+
+Se no futuro quiser variações de acerto (`acerto-02.mp3`, `acerto-03.mp3` etc.), o `AudioManager` já suporta sortear entre elas — precisa de um ajuste pequeno no código de `registerAnswerWithCharacterFeedback()` (`js/activities-portugues.js`) pra escolher aleatoriamente entre as variações existentes em vez de sempre `acerto-01`.
+
 ## Testes
 
 Todo suporte de mídia nova precisa de teste automatizado no padrão jsdom da suíte (`testes/qa_test_*.js`) — ver `testes/qa_test_piloto_vaca.js` como referência: testa os paths do catálogo, o fallback pra TTS/beep quando o arquivo não existe, e que a instrução nunca revela a resposta. `HTMLMediaElement.prototype.play`/`window.Audio` precisam ser stubados no teste (jsdom não implementa reprodução de mídia — chamar `.play()` sem stub trava o processo).

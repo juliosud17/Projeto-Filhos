@@ -39,6 +39,7 @@ Ver [`pedagogia/MOTOR_DE_ENSINO.md`](pedagogia/MOTOR_DE_ENSINO.md) pro protótip
 - Trava de ritmo por bimestre: **existe** desde 2026-08-16 (`js/ritmo-bimestre.js`) — só Matemática, só selo informativo "🗓️ Adiantado", nunca bloqueia. Ver `docs/DECISOES.md`.
 - Uso real com o Benjamin jogando: **ainda não começou**.
 - Código: modularizado em 2026-08-16 — `app/ilha_aprendiz.html` (175 linhas) + `css/`, `data/`, `js/`. Scripts clássicos (não ES modules), conteúdo como `const` (não JSON via `fetch`) — continua abrindo com duplo-clique, sem servidor. Ver `docs/ARQUITETURA.md`.
+- **Frente audiovisual (personagens/voz da Lia/fonética/SFX)**: arquitetura aprovada e piloto VACA implementado em código em 2026-08-17 (`app/js/media-catalog.js`, `app/js/audio-manager.js`) — mas **nenhum arquivo de mídia real (vídeo/áudio) foi adicionado ao projeto ainda**. Ver `docs/audio/MEDIA_GUIDELINES.md` (inclui o roteiro exato de gravação pendente) e `docs/audio/VOZ_LIA.md`/`docs/characters/CHARACTER_BIBLE.md`.
 
 ## Ordem atual do roadmap
 
