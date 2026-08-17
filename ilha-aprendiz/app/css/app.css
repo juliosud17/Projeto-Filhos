@@ -151,9 +151,23 @@
     box-shadow:var(--shadow);
     margin-top:14px;
   }
+  /* Superfície real do mapa -- em telas largas ocupa 100% do "viewport"
+     (.mundo-map) e nada precisa rolar. Só abaixo de 600px de largura ela
+     vira maior que o viewport (ver media query no fim deste bloco), porque
+     nessa faixa marcadores compactos de 44px chegam a se tocar (confirmado
+     por cálculo, não suposição -- ver docs/DECISOES.md, rodada 3): o
+     .mundo-map passa a rolar (overflow:auto, sem lib externa) pra dar mais
+     espaço físico entre eles, sem distorcer a imagem nem mudar os
+     hotspots (continuam em %, só a superfície onde eles vivem cresce). */
+  .mundo-map__canvas{
+    position:relative;
+    width:100%;
+    height:100%;
+  }
   /* overflow:hidden fica só na moldura da imagem, não no container inteiro
      -- assim um popover de região perto da borda pode "vazar" pra fora da
-     moldura sem ser cortado. */
+     moldura sem ser cortado (em telas largas; no modo mobile abaixo isso é
+     uma limitação conhecida e aceita -- ver docs/DECISOES.md). */
   .mundo-map__frame{
     position:absolute; inset:0;
     border-radius:20px;
@@ -164,6 +178,21 @@
     width:100%; height:100%;
     object-fit:contain;
     display:block;
+  }
+  /* Mobile "de verdade" (rodada 3): abaixo de ~600px o mapa vira maior que
+     a tela e passa a rolar -- em vez de espremer 8 marcadores no mesmo
+     espaço apertado. JS centraliza a rolagem no destino atual ao abrir
+     (centralizarMapaNoDestino(), js/mapa-portugues.js). Acima de 600px
+     nada muda: canvas = viewport, sem nada pra rolar. */
+  @media (max-width: 600px){
+    .mundo-map{
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+    }
+    .mundo-map__canvas{
+      width:640px;
+      height:calc(640px * 2 / 3);
+    }
   }
 
   /* Cada região é um grupo (marcador + popover) posicionado em % -- o
@@ -225,6 +254,18 @@
      (não substitui) o efeito do estado normal; propositalmente mais suave
      que o pulso de AVAILABLE pra não competir/piscar demais. */
   .map-hotspot--recommended .map-hotspot__ring{animation:mapGlow 2.6s ease-in-out infinite;}
+  /* Selo "você está aqui" -- estático (não pisca), fica acima do marcador;
+     combinado com o halo pulsante do anel, deixa o destino atual óbvio sem
+     virar HUD. Também é o que continua comunicando "destino atual" quando
+     as animações estão desligadas (prefers-reduced-motion, abaixo). */
+  .map-hotspot--recommended::before{
+    content:"✨";
+    position:absolute;
+    top:-16px; left:50%;
+    transform:translateX(-50%);
+    font-size:14px;
+    pointer-events:none;
+  }
 
   @keyframes mapPulse{
     0%, 100%{ box-shadow:0 0 0 0 rgba(255,154,61,.45), var(--shadow); }
@@ -233,6 +274,18 @@
   @keyframes mapGlow{
     0%, 100%{ box-shadow:0 0 0 3px rgba(124,92,255,.28), var(--shadow); }
     50%{ box-shadow:0 0 0 9px rgba(124,92,255,0), var(--shadow); }
+  }
+  /* Quem prefere menos movimento continua identificando os dois estados
+     animados (disponível/destino atual) -- só perde o piscar. A cor do
+     anel e o selo "✨" estático (acima) já comunicam tudo sem animação. */
+  @media (prefers-reduced-motion: reduce){
+    .map-hotspot--available .map-hotspot__ring,
+    .map-hotspot--recommended .map-hotspot__ring{
+      animation:none;
+    }
+    .map-hotspot--recommended .map-hotspot__ring{
+      box-shadow:0 0 0 4px rgba(124,92,255,.3), var(--shadow);
+    }
   }
 
   /* Popover sob demanda -- nome/status/progresso detalhado só aparecem ao
@@ -255,7 +308,12 @@
     transition:opacity .12s ease, transform .12s ease;
     z-index:5;
   }
-  .map-region:hover .map-popover,
+  /* Só clique/toque (.is-open) ou foco por teclado (:focus-within) abrem o
+     popover inteiro -- :hover NÃO abre mais (rodada 3): o cursor do mouse
+     descansando em cima do marcador em destaque fazia o popover parecer
+     "grudado" aberto sem clique nenhum. Hover no desktop continua dando um
+     feedback leve (o anel sobe 3px, ver .map-hotspot:hover acima), só não
+     expõe mais status/CTA sozinho. */
   .map-region:focus-within .map-popover,
   .map-region.is-open .map-popover{
     opacity:1;

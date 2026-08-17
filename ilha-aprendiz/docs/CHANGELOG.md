@@ -4,6 +4,16 @@
 
 ---
 
+## 2026-08-17 — Ilha das Letras, rodada 3: destino mais claro, popover limpo, mobile de verdade
+
+- Calculado (não suposto) que `contain`+`%` sozinho não aguenta os 3 tamanhos de celular pedidos (360/390/430px) — marcadores mais próximos chegam a se tocar. Abaixo de 600px, o mapa vira maior que a tela num container que rola nativamente (`overflow:auto`, sem lib externa), centralizado no destino atual ao abrir.
+- Popover deixa de abrir em `:hover` (só clique/toque/foco) — corrige o comportamento de "aparecer aberto sozinho" ao entrar na Ilha.
+- Destino atual ganha selo "✨" estático além do halo já existente; `prefers-reduced-motion` desativa as animações sem perder a identificação (primeiras `@media` do projeto, junto com a de 600px).
+- Cabeçalho do mapa e subtítulo da tela de Atividades ficam contextuais conforme o progresso real (1ª aventura / novo destino / aventura em andamento), em vez do texto fixo — só leitura de `moduleStatus()`, sem lógica de mastery nova.
+- Hierarquia do "Voltar" (exercício → Atividades → Mapa → Matérias) conferida — já estava correta, sem mudança de código, só teste novo cobrindo a cadeia inteira.
+- Path/checkpoints da arte e "abrir popover na 1ª visita" avaliados e adiados de propósito (documentado o porquê em `docs/DECISOES.md`).
+- `testes/qa_test_mapa_portugues.js`: 72 checagens (20 novas). Suíte completa: mesma baseline conhecida.
+
 ## 2026-08-17 — Ilha das Letras, rodada 2: marcadores compactos, popover e "próximo destino"
 
 - Hotspots trocam cards grandes (nome+badge sempre visíveis) por marcadores compactos: círculo com ícone da região + anel de progresso (`conic-gradient`) + selo de canto só nos estados extremos (🔒/✓/⭐) — o número "X/Y" some do mapa.

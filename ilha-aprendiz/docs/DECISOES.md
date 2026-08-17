@@ -6,6 +6,37 @@
 
 ---
 
+## 2026-08-17 — Ilha das Letras, rodada 3: destino mais claro, popover limpo, texto contextual e mobile de verdade
+
+**Decisão:** terceiro e (por ora) último refinamento de UX sobre a Ilha das Letras — o Júlio confirmou a estrutura visual da rodada 2 como aprovada ("não redesenhe o mapa, não altere a imagem, não mude coordenadas sem necessidade") e pediu só polimento fino antes de tratar a Ilha das Letras como **modelo-base pros futuros mundos do Ilha Aprendiz** (a partir da Ilha dos Números). Mastery, desbloqueio, estrelas, atividades, níveis, Desafio Final, Matemática, Projeto Leitor e persistência continuam intocados.
+
+**A descoberta que mais importa desta rodada — números reais, não suposição:** o Júlio pediu explicitamente pra não assumir que `contain`+`%` está bom no celular só porque funciona no desktop. Sem navegador, calculei a distância real entre marcadores a partir da mesma matemática que o CSS usa (`aspect-ratio:3/2`, `.app{padding:20px}`, marcador de 44px) — script Node, puro cálculo geométrico, nada especulativo:
+
+| Viewport | Largura útil do mapa | Par mais próximo (Vale das Histórias ↔ Montanha dos Sinais) | Folga entre bordas |
+|---|---|---|---|
+| 360px | 320px | 42,8px | **-1,2px — sobrepõe de verdade** |
+| 390px | 350px | 46,8px | 2,8px — encostando |
+| 430px | 390px | 52,1px | 8,1px — ainda apertado |
+| 768px (tablet) | 728px | 97,3px | 53,3px — confortável |
+| 900px (desktop) | 860px | 115,0px | 71,0px — confortável |
+
+Esse par (Vale das Histórias/`narrativas` e Montanha dos Sinais/`gramatica`) também é visualmente vizinho na própria arte (fogueira com os animais colada nas pedras com "?"/"!") — o cálculo bate com a ilustração, não é só teoria. **Nos 3 tamanhos de celular que o Júlio pediu pra validar (360/390/430px), `contain`+`%` sozinho não é suficiente** — confirmado, não presumido. A partir de ~550px de largura de viewport já fica confortável (por isso o corte em 600px, com folga).
+
+**Solução escolhida — rolagem nativa, não pan/zoom customizado:** abaixo de 600px de largura, o mapa ganha uma superfície interna (`.mundo-map__canvas`) maior que a janela visível (`.mundo-map`, que passa a ter `overflow:auto`) — sem lib externa, sem gesto customizado, é `overflow:auto` do navegador mesmo, arrastável com o dedo normalmente. Acima de 600px nada muda: canvas = viewport, como sempre foi. `centralizarMapaNoDestino()` centraliza a rolagem horizontal no destino atual ao abrir a tela (pedido explícito do Júlio), só tem efeito quando existe algo pra rolar — em telas largas é um no-op natural, não um `if` especial. A matemática da centralização (`calcularScrollCentralizado()`) foi isolada numa função pura justamente pra dar pra testar sem depender de layout real (jsdom não calcula CSS de verdade).
+
+**Outras mudanças da rodada:**
+1. **Popover não abre mais sozinho:** o comportamento "aparece aberto ao entrar" relatado pelo Júlio não era um bug de estado (nada no código força abertura) — era o seletor CSS `:hover` disparando porque o cursor do mouse tende a estar em cima do marcador em destaque (que já chama atenção) no momento da troca de tela. Correção: `:hover` deixou de abrir o popover inteiro; só clique/toque (`.is-open`) ou foco por teclado (`:focus-within`) abrem. Hover no desktop continua com um feedback leve (o anel sobe 3px), só não expõe mais status/CTA sozinho.
+2. **Destino atual mais evidente:** halo (`mapGlow`, já existia) + um selo estático "✨" fixo acima do marcador — o selo não anima, então continua comunicando "você está aqui" mesmo com `prefers-reduced-motion` ativo (novo `@media` desativando `mapPulse`/`mapGlow` pra quem prefere menos movimento — as primeiras duas media queries do projeto, junto com a de 600px acima).
+3. **Cabeçalho contextual** (`mensagemDestinoAtual()`, `js/mapa-portugues.js`): troca o "Próximo destino: X" fixo por 3 mensagens conforme o progresso real (1ª aventura / novo destino recém-desbloqueado / aventura em andamento) — só leitura de `moduleStatus()`, nenhuma regra de mastery nova. Mesma ideia replicada, menor, no subtítulo da tela de Atividades (`renderAtividades()`, `js/navigation.js`).
+4. **Caminho/checkpoints da arte (item 5 do pedido):** avaliado de verdade — abri a imagem de novo e confirmei que o caminho dourado tem marcos/checkpoints visíveis, então o pedido é fisicamente viável. **Adiado de propósito**: calibrar 8 coordenadas novas de checkpoint na mesma rodada em que várias outras coisas mudam é exatamente o tipo de "coordenada frágil" que o próprio Júlio autorizou a adiar. Fica documentado como próximo passo natural, reaproveitando o mesmo fluxo `?calibrar=1`.
+5. **Primeira visita (item 3 do pedido):** só arquitetura, nenhum código novo — `toggleMapaPopover()`/`fecharTodosPopoversMapa()` já são reutilizáveis o bastante pra uma futura "abrir automaticamente uma vez" só precisar de um flag de estado que ainda não existe.
+6. **Nome do mundo centralizado (item 9 do pedido):** já existia desde a rodada 2 (`PT_MAPA_REGIOES`) — nada novo construído, só confirmado que é essa a fonte única que qualquer feature futura (Aventura de Hoje, Lia) deve reaproveitar.
+7. **Hierarquia do "Voltar" (item 11 do pedido):** conferida lendo o código — já estava correta (Exercício → Atividades → Mapa → Matérias, cada nível voltando exatamente um passo). Nenhuma mudança de código, só um teste novo que percorre a cadeia inteira de uma vez.
+
+**Testado** (`testes/qa_test_mapa_portugues.js`, 72 checagens — 20 novas): popover fechado por padrão ao entrar; clique no destino atual abre o popover dele; `computeDestinoAtual()`/`regionIsRecommendedToday()`/`mensagemDestinoAtual()` não alteram mastery/prova (snapshot antes/depois); as 3 mensagens contextuais do cabeçalho do mapa; subtítulo contextual da tela de Atividades (com/sem progresso); cadeia completa "exercício → Atividades → Mapa → Matérias" num fluxo só; `calcularScrollCentralizado()` como função pura (matemática, sem depender de layout real); `centralizarMapaNoDestino()` não quebra quando não há nada pra rolar; confirmação de que a regra `prefers-reduced-motion` existe de verdade no `app.css` (lida como texto, já que jsdom não avalia media query de preferência do sistema). Suíte completa (33 arquivos): mesma baseline conhecida (32/33; `qa_test_regression.js` é o flake documentado; `qa_test_typing.js` falhou uma vez de forma intermitente já catalogada, confirmada não-regressão ao rodar de novo).
+
+---
+
 ## 2026-08-17 — Ilha das Letras, rodada 2: marcadores compactos, popover sob demanda e "próximo destino"
 
 **Decisão:** segunda rodada de UX sobre o MVP da Ilha das Letras (entrada de 2026-08-16 abaixo), a pedido do Júlio depois de ver o resultado — os cards grandes e translúcidos (nome + badge sempre visíveis) cobriam boa parte da ilustração e faziam o mapa parecer "menu com fundo bonito" em vez de mundo pra explorar. Trocado por:

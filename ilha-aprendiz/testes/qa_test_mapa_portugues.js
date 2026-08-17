@@ -1,6 +1,12 @@
 const fs = require('fs');
+const path = require('path');
 const { JSDOM, VirtualConsole } = require('jsdom');
 let html = require('./_util/load_app_html').loadAppHtml();
+
+// jsdom não avalia media queries de preferência do sistema (prefers-reduced-motion)
+// -- a única forma honesta de confirmar que a regra existe é ler o CSS de verdade.
+const appCssContent = fs.readFileSync(path.join(__dirname, '../app/css/app.css'), 'utf8');
+const temReducedMotionCss = appCssContent.includes('prefers-reduced-motion');
 
 const testScript = `
 <script>
@@ -191,6 +197,90 @@ check("dado curricular original continua intacto em PT_MODULES_BENJAMIN", PT_MOD
 openModulos('matematica');
 openAtividades('mm1_numeros');
 check("Matemática continua mostrando o nome curricular normalmente (regressão)", document.getElementById('atividades-title').textContent.includes(ALL_MODULES_BENJAMIN.find(m=>m.id==='mm1_numeros').name));
+
+// ===== 10. popover NÃO abre sozinho ao entrar na Ilha (rodada 3) =====
+resetProgress();
+openMapaPortugues();
+check("nenhum popover começa aberto ao entrar na Ilha das Letras", document.querySelectorAll('.map-region.is-open').length === 0);
+check("nenhum marcador começa com aria-expanded=true", Array.from(document.querySelectorAll('.map-hotspot')).every(b=>b.getAttribute('aria-expanded') === 'false'));
+const destinoRegion10 = clickMarker(computeDestinoAtual());
+check("clicar no marcador do destino atual abre o popover dele", destinoRegion10.classList.contains('is-open'));
+
+// ===== 11. "destino atual" é leitura pura -- não muda mastery/prova =====
+resetProgress();
+openMapaPortugues();
+const snapshotAntes = JSON.stringify({activityLevel, mastery, provaPassed, provaScores});
+computeDestinoAtual();
+regionIsRecommendedToday('silabas');
+regionIsRecommendedToday('leitura');
+mensagemDestinoAtual(computeDestinoAtual());
+const snapshotDepois = JSON.stringify({activityLevel, mastery, provaPassed, provaScores});
+check("computeDestinoAtual/regionIsRecommendedToday/mensagemDestinoAtual não alteram mastery/prova", snapshotAntes === snapshotDepois);
+
+// ===== 12. cabeçalho contextual: 3 mensagens conforme o progresso =====
+resetProgress();
+openMapaPortugues();
+check("1ª aventura (nada começado ainda): mensagem de primeira aventura", document.getElementById('mapa-portugues-subtitle').textContent.includes('primeira aventura') && document.getElementById('mapa-portugues-subtitle').textContent.includes('Floresta do Alfabeto'));
+
+activityLevel.silabas = 5; mastery['silabas:5'] = [true,true,true]; // progresso parcial no destino atual
+openMapaPortugues();
+check("com progresso no destino atual: mensagem de 'aventura continua'", document.getElementById('mapa-portugues-subtitle').textContent === 'Sua aventura continua na Floresta do Alfabeto.');
+
+resetProgress();
+fullyMasterContainer('silabas'); passProva('silabas'); // conclui o 1º -- o 2º acabou de desbloquear, 0 feito nele
+openMapaPortugues();
+check("região recém-desbloqueada (0 feito, não é a 1ª): mensagem de 'novo destino'", document.getElementById('mapa-portugues-subtitle').textContent === '✨ Novo destino: Vila das Palavras!');
+
+resetProgress();
+openMapaPortugues();
+check("ilha inteira concluída continua com a mensagem de conclusão (sem destino)", (()=>{
+  ['silabas','leitura','frases','escrita','compreensao','narrativas','gramatica'].forEach(id=>{ fullyMasterContainer(id); passProva(id); });
+  openMapaPortugues();
+  // Projeto Leitor continua sendo o "destino" remanescente (não tem Desafio Final) -- não há
+  // estado de "tudo mesmo concluído" alcançável de verdade, então testamos a função isoladamente:
+  return mensagemDestinoAtual(null) === "Você já explorou a ilha inteira! 🎉";
+})());
+
+// ===== 13. subtítulo contextual da tela de Atividades (item 7) =====
+resetProgress();
+openMapaPortugues();
+const r13 = clickMarker('silabas');
+clickCta(r13);
+check("sem progresso: subtítulo de Atividades convida a escolher", document.getElementById('atividades-subtitle').textContent === 'Escolha seu próximo desafio');
+
+backToModulos();
+activityLevel.silabas = 5; mastery['silabas:5'] = [true,true,true];
+openMapaPortugues();
+const r13b = clickMarker('silabas');
+clickCta(r13b);
+check("com progresso: subtítulo de Atividades mostra 'continue' + X de Y", document.getElementById('atividades-subtitle').textContent.includes('Continue sua aventura') && document.getElementById('atividades-subtitle').textContent.includes('de'));
+
+// ===== 14. cadeia completa de "Voltar": exercício -> Atividades -> Mapa -> Matérias =====
+resetProgress();
+openMaterias();
+openMapaPortugues();
+const r14 = clickMarker('silabas');
+clickCta(r14);
+check("(setup 1/4) Ilha -> Floresta do Alfabeto (screen-atividades)", active('screen-atividades'));
+state.navBack = "atividades"; // mesma coisa que o card de atividade real seta antes de startGame
+state.game = MODULE1_ACTIVITIES[0].id;
+showScreen('screen-game');
+check("(setup 2/4) dentro de um exercício", active('screen-game'));
+backToMenu();
+check("Voltar do exercício retorna pra Atividades (Floresta do Alfabeto), não pro mapa direto", active('screen-atividades'));
+backToModulos();
+check("Voltar de Atividades retorna pra Ilha das Letras (mapa)", active('screen-mapa-portugues'));
+backToMaterias();
+check("Voltar da Ilha das Letras retorna pra Matérias", active('screen-materias'));
+
+// ===== 15. função pura de rolagem mobile (sem depender de layout real) =====
+check("calcularScrollCentralizado centraliza o alvo dentro da janela visível", calcularScrollCentralizado(300, 100, 800) === 250);
+check("calcularScrollCentralizado não deixa a rolagem passar do início", calcularScrollCentralizado(10, 100, 800) === 0);
+check("calcularScrollCentralizado não deixa a rolagem passar do fim", calcularScrollCentralizado(790, 100, 800) === 700);
+check("centralizarMapaNoDestino não quebra quando não há nada pra rolar (desktop/jsdom)", (()=>{ centralizarMapaNoDestino(); return true; })());
+
+// ===== 16. prefers-reduced-motion: a regra existe no CSS de verdade =====
+check("app.css tem uma regra @media (prefers-reduced-motion: reduce) pro halo do destino atual", ${temReducedMotionCss});
 
 console.log("\\nRESULT: " + ok + " passed, " + fail + " failed");
 <\/script>

@@ -69,11 +69,13 @@
     </div>
     <h2 style="color:var(--purple-dark); margin:0 0 4px 0;">🗺️ Ilha das Letras — sua aventura continua!</h2>
     <p class="subtitle" style="text-align:left; margin-top:0;" id="mapa-portugues-subtitle"></p>
-    <div class="mundo-map" onclick="calibrarCoordenadas(event); fecharTodosPopoversMapa();">
-      <div class="mundo-map__frame">
-        <img class="mundo-map__bg" alt="Mapa ilustrado da Ilha das Letras" id="mapa-portugues-bg">
+    <div class="mundo-map" id="mapa-portugues-map" onclick="calibrarCoordenadas(event); fecharTodosPopoversMapa();">
+      <div class="mundo-map__canvas" id="mapa-portugues-canvas">
+        <div class="mundo-map__frame">
+          <img class="mundo-map__bg" alt="Mapa ilustrado da Ilha das Letras" id="mapa-portugues-bg">
+        </div>
+        <div id="mapa-portugues-regioes"></div>
       </div>
-      <div id="mapa-portugues-regioes"></div>
     </div>
   </section>
 

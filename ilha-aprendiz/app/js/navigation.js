@@ -273,7 +273,13 @@ function renderAtividades(){
   const regiao = (typeof PT_MAPA_REGIOES !== "undefined") ? PT_MAPA_REGIOES.find(r=>r.moduleId === mod.id) : null;
   if(regiao){
     document.getElementById("atividades-title").textContent = `${regiao.icone} ${regiao.nome}`;
-    document.getElementById("atividades-subtitle").textContent = "Escolha seu próximo desafio";
+    // Rodada 3: subtítulo também contextual -- reaproveita moduleStatus()
+    // (já usado pelo mapa, nenhuma lógica de mastery nova aqui) pra saber
+    // se a criança já começou este módulo ou está chegando agora.
+    const status = moduleStatus(mod);
+    document.getElementById("atividades-subtitle").textContent = status.doneCount > 0
+      ? `Continue sua aventura — ${status.doneCount} de ${status.total} desafios concluídos`
+      : "Escolha seu próximo desafio";
   }else{
     document.getElementById("atividades-title").textContent = `${mod.icon} ${mod.name}`;
     document.getElementById("atividades-subtitle").textContent = mod.desc;

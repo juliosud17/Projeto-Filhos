@@ -13,9 +13,34 @@
 // Ponto de extensão preparado, não implementado: um overlay de "posição da
 // Lia" (map-guide) ou de transformação visual do mundo (árvore crescendo
 // etc.) usaria exatamente o mesmo sistema de coordenadas --x/--y já em uso
-// aqui, como mais um filho de .map-region/.mundo-map -- não precisa de
-// nenhuma mudança estrutural além de adicionar o elemento quando o asset
+// aqui, como mais um filho de .map-region/.mundo-map__canvas -- não precisa
+// de nenhuma mudança estrutural além de adicionar o elemento quando o asset
 // da Lia existir.
+//
+// Rodada 3 (2026-08-17, ver docs/DECISOES.md): halo mais evidente pro
+// destino atual + selo "✨" estático; popover não abre mais só com hover
+// (só clique/toque/foco -- ver CSS); cabeçalho contextual conforme o
+// progresso (mensagemDestinoAtual); mapa vira "arrastável" (scroll nativo,
+// sem lib) abaixo de 600px de largura, porque o cálculo de distância real
+// entre marcadores mostrou sobreposição de verdade em 360-430px (não só
+// suposição -- ver a tabela em docs/DECISOES.md).
+//
+// Ponto de extensão preparado, não implementado (item 3 do pedido do
+// Júlio): "abrir o popover automaticamente uma vez, na primeira visita".
+// toggleMapaPopover()/fecharTodosPopoversMapa() já são reutilizáveis pra
+// isso -- bastaria, com um flag futuro (state/localStorage) indicando que
+// é a 1ª visita, chamar algo como
+// `document.querySelector('[data-module="'+destinoAtualId+'"]').closest(".map-region").classList.add("is-open")`
+// logo depois do render. Não implementado agora porque não existe esse
+// flag ainda (nem é objetivo desta rodada).
+//
+// Ponto avaliado, adiado de propósito (item 5 do pedido do Júlio): a arte
+// tem, sim, marcos/checkpoints visíveis ao longo do caminho dourado que
+// liga as regiões -- daria pra destacar o checkpoint do destino atual com
+// um pequeno overlay. Calibrar 8 coordenadas novas (uma por checkpoint) na
+// mesma rodada em que várias outras coisas mudam é o tipo de "coordenada
+// frágil" que vale mais adiar do que arriscar -- fica pro próximo round,
+// reaproveitando o mesmo fluxo de ?calibrar=1 já usado pros hotspots.
 
 function openMapaPortugues(){
   // Mesmo papel que openModulos("portugues") tinha antes -- backToModulos()
@@ -32,6 +57,7 @@ function openMapaPortugues(){
   }
   renderMapaPortugues();
   showScreen("screen-mapa-portugues");
+  centralizarMapaNoDestino();
 }
 
 /* "Próximo destino": primeira região, na ordem pedagógica de
@@ -56,20 +82,58 @@ function regionIsRecommendedToday(moduleId){
   return moduleId === computeDestinoAtual();
 }
 
+/* Cabeçalho contextual do mapa (rodada 3) -- substitui o "Próximo destino:
+   X" fixo por uma mensagem que reflete onde a criança realmente está,
+   sem inventar regra de mastery nova (só leitura de moduleStatus(), que já
+   é a mesma fonte que computeDestinoAtual() usa). Como as regiões
+   desbloqueiam em sequência, "destino sem nenhum progresso e não é a 1ª
+   região" só acontece logo depois de terminar a anterior -- é um jeito
+   simples de detectar "acabou de desbloquear" sem precisar guardar estado
+   extra comparando renders. */
+function mensagemDestinoAtual(destinoAtualId){
+  if(!destinoAtualId) return "Você já explorou a ilha inteira! 🎉";
+  const destino = PT_MAPA_REGIOES.find(r=>r.moduleId === destinoAtualId);
+  const mod = PT_MODULES_BENJAMIN.find(m=>m.id === destinoAtualId);
+  const status = moduleStatus(mod);
+  if(status.doneCount > 0) return "Sua aventura continua na " + destino.nome + ".";
+  const ehPrimeiraRegiao = PT_MAPA_REGIOES[0].moduleId === destinoAtualId;
+  if(ehPrimeiraRegiao) return "✨ Sua primeira aventura começa na " + destino.nome + "!";
+  return "✨ Novo destino: " + destino.nome + "!";
+}
+
+/* Matemática pura por trás da rolagem inicial no mobile -- separada do DOM
+   de propósito, pra dar pra testar sem depender de layout real (jsdom não
+   calcula CSS de verdade). Centraliza alvoPx dentro da janela visível,
+   sem deixar a rolagem passar dos limites válidos. */
+function calcularScrollCentralizado(alvoPx, larguraVisivelPx, larguraTotalPx){
+  const bruto = alvoPx - larguraVisivelPx / 2;
+  return Math.max(0, Math.min(bruto, larguraTotalPx - larguraVisivelPx));
+}
+
+/* Só tem efeito quando o mapa está maior que a área visível (modo mobile
+   "arrastar pra explorar", abaixo de 600px -- ver app.css); em telas
+   largas, canvas e viewport têm o mesmo tamanho, então scrollWidth <=
+   clientWidth e a função não faz nada (inclusive em jsdom, que não calcula
+   layout real e sempre devolve 0 pros dois -- o no-op é seguro por
+   construção, não por sorte). */
+function centralizarMapaNoDestino(){
+  const viewport = document.getElementById("mapa-portugues-map");
+  const canvas = document.getElementById("mapa-portugues-canvas");
+  if(!viewport || !canvas) return;
+  if(viewport.scrollWidth <= viewport.clientWidth) return;
+  const destinoId = computeDestinoAtual();
+  const regiao = (destinoId && PT_MAPA_REGIOES.find(r=>r.moduleId === destinoId)) || PT_MAPA_REGIOES[0];
+  const alvoX = canvas.offsetWidth * (regiao.left / 100);
+  viewport.scrollLeft = calcularScrollCentralizado(alvoX, viewport.clientWidth, viewport.scrollWidth);
+}
+
 function renderMapaPortugues(){
   const container = document.getElementById("mapa-portugues-regioes");
   container.innerHTML = "";
   const destinoAtualId = computeDestinoAtual();
 
   const subtitleEl = document.getElementById("mapa-portugues-subtitle");
-  if(subtitleEl){
-    if(destinoAtualId){
-      const destino = PT_MAPA_REGIOES.find(r=>r.moduleId === destinoAtualId);
-      subtitleEl.textContent = "Próximo destino: " + destino.nome;
-    }else{
-      subtitleEl.textContent = "Você já explorou a ilha inteira! 🎉";
-    }
-  }
+  if(subtitleEl) subtitleEl.textContent = mensagemDestinoAtual(destinoAtualId);
 
   PT_MAPA_REGIOES.forEach(regiao=>{
     const mod = PT_MODULES_BENJAMIN.find(m=>m.id === regiao.moduleId);
