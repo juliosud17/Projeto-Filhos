@@ -263,8 +263,21 @@ function backToModulos(){
 function renderAtividades(){
   const mod = ALL_MODULES_BENJAMIN.find(m=>m.id === state.currentModuloId);
   const container = containerById(mod.id);
-  document.getElementById("atividades-title").textContent = `${mod.icon} ${mod.name}`;
-  document.getElementById("atividades-subtitle").textContent = mod.desc;
+  // Vinda da Ilha das Letras (mapa de Português): título/subtítulo usam a
+  // linguagem de aventura da região ("Floresta do Alfabeto"), não o nome
+  // curricular do módulo ("Módulo 1 · Alfabeto e Sílabas") -- o dado
+  // oficial em PT_MODULES_BENJAMIN/registro-modulos.js continua intocado
+  // (o painel adulto e o admin ainda usam mod.name normalmente), só a
+  // apresentação nesta tela muda. Matemática não tem entrada em
+  // PT_MAPA_REGIOES, então cai direto no comportamento de sempre.
+  const regiao = (typeof PT_MAPA_REGIOES !== "undefined") ? PT_MAPA_REGIOES.find(r=>r.moduleId === mod.id) : null;
+  if(regiao){
+    document.getElementById("atividades-title").textContent = `${regiao.icone} ${regiao.nome}`;
+    document.getElementById("atividades-subtitle").textContent = "Escolha seu próximo desafio";
+  }else{
+    document.getElementById("atividades-title").textContent = `${mod.icon} ${mod.name}`;
+    document.getElementById("atividades-subtitle").textContent = mod.desc;
+  }
 
   const grid = document.getElementById("atividades-grid");
   grid.innerHTML = "";

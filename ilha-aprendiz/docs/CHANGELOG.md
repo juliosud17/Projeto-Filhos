@@ -4,6 +4,15 @@
 
 ---
 
+## 2026-08-17 — Ilha das Letras, rodada 2: marcadores compactos, popover e "próximo destino"
+
+- Hotspots trocam cards grandes (nome+badge sempre visíveis) por marcadores compactos: círculo com ícone da região + anel de progresso (`conic-gradient`) + selo de canto só nos estados extremos (🔒/✓/⭐) — o número "X/Y" some do mapa.
+- Nome, status detalhado e o botão de ação passam pra um popover sob demanda (`:hover`/`:focus-within`/toque) — clicar no marcador abre o popover, não navega mais direto; o CTA dentro dele é quem navega.
+- Novo `computeDestinoAtual()`/`regionIsRecommendedToday()` real (era stub sempre `false`) — destaca a próxima região a explorar, sem tocar em `js/mastery.js`; subtítulo do mapa mostra "Próximo destino: {região}" dinamicamente.
+- `renderAtividades()` mostra o nome da região ("🌳 Floresta do Alfabeto") em vez do nome curricular quando vem do mapa — dado oficial em `registro-modulos.js` intocado, painel/admin inalterados. Matemática sem mudança nenhuma.
+- `testes/qa_test_mapa_portugues.js` reescrito (52 checagens, muitas novas — popover, destino atual, nome amigável). Suíte completa: mesmo resultado da baseline, nenhuma falha nova.
+- Responsividade mobile (390px) segue como hipótese não confirmada com navegador real — decisão de manter `contain`+`%` nesta rodada, documentada em `docs/DECISOES.md`.
+
 ## 2026-08-16 — Ilha das Letras: mapa interativo de Português (MVP)
 
 - Grade de Módulos vira mapa de ilha ilustrado, só pra Português — Matemática inalterada.

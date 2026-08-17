@@ -138,59 +138,146 @@
   .game-card.locked .tag{background:#b8b4d6;}
   .game-card.locked:hover{transform:none;}
 
-  /* Ilha das Letras (mapa interativo de Português) — 2026-08-16.
-     Estratégia: container de proporção travada (aspect-ratio) + hotspots
-     posicionados em % — escala em qualquer largura sem recálculo em JS.
-     Proporção abaixo é estimativa (imagem real ainda não anexada ao
-     projeto) — ajustar pra bater com o arquivo final em assets/maps/. */
+  /* Ilha das Letras (mapa interativo de Português) — 2026-08-16, refinado
+     em 2026-08-17 (rodada 2 de UX: marcadores compactos + popover sob
+     demanda, ver docs/DECISOES.md). Estratégia de container continua a
+     mesma: proporção travada (aspect-ratio) + hotspots em % — escala em
+     qualquer largura sem recálculo em JS. */
   .mundo-map{
     position:relative;
     width:100%;
     aspect-ratio: 3 / 2;
     border-radius:20px;
-    overflow:hidden;
-    background:linear-gradient(160deg, var(--bg2), var(--bg1)); /* placeholder enquanto não há imagem */
     box-shadow:var(--shadow);
     margin-top:14px;
+  }
+  /* overflow:hidden fica só na moldura da imagem, não no container inteiro
+     -- assim um popover de região perto da borda pode "vazar" pra fora da
+     moldura sem ser cortado. */
+  .mundo-map__frame{
+    position:absolute; inset:0;
+    border-radius:20px;
+    overflow:hidden;
+    background:linear-gradient(160deg, var(--bg2), var(--bg1)); /* placeholder enquanto a imagem carrega */
   }
   .mundo-map__bg{
     width:100%; height:100%;
     object-fit:contain;
     display:block;
   }
-  .map-hotspot{
+
+  /* Cada região é um grupo (marcador + popover) posicionado em % -- o
+     grupo precisa existir pra CSS puro (:hover/:focus-within) conseguir
+     revelar o popover sem depender de JS pra mouse/teclado. */
+  .map-region{
     position:absolute;
     left:var(--x); top:var(--y);
     transform:translate(-50%,-50%);
-    min-width:44px; min-height:44px; /* alvo de toque mínimo, mesmo com a ilha pequena numa tela estreita */
-    display:flex; flex-direction:column; align-items:center; gap:2px;
-    background:rgba(255,255,255,.92);
-    border:2px solid transparent;
-    border-radius:16px;
-    padding:6px 10px;
+  }
+  .map-hotspot{
+    position:relative;
+    display:flex; align-items:center; justify-content:center;
+    width:44px; height:44px; /* alvo de toque mínimo, mesmo com a ilha pequena numa tela estreita */
+    background:none;
+    border:none;
+    padding:0;
     cursor:pointer;
-    box-shadow:var(--shadow);
     font-family:inherit;
+  }
+  .map-hotspot__ring{
+    --pct:0;
+    --ring-color: var(--purple);
+    width:44px; height:44px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background: conic-gradient(var(--ring-color) calc(var(--pct) * 3.6deg), rgba(255,255,255,.55) 0deg);
+    box-shadow:var(--shadow);
     transition:transform .15s ease;
   }
-  .map-hotspot:hover{transform:translate(-50%,-50%) translateY(-3px);}
-  .map-hotspot:focus-visible{outline:3px solid var(--purple); outline-offset:2px;}
-  .map-hotspot__icon{font-size:26px; line-height:1;}
-  .map-hotspot__nome{font-size:11px; font-weight:800; color:var(--ink); text-align:center; max-width:90px;}
-  .map-hotspot__badge{font-size:13px; font-weight:800;}
+  .map-hotspot__pin{
+    width:34px; height:34px;
+    border-radius:50%;
+    background:var(--card);
+    display:flex; align-items:center; justify-content:center;
+    font-size:19px; line-height:1;
+  }
+  .map-hotspot__seal{
+    position:absolute; top:-4px; right:-4px;
+    width:20px; height:20px;
+    border-radius:50%;
+    background:var(--card);
+    box-shadow:var(--shadow);
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px;
+  }
+  .map-hotspot:hover .map-hotspot__ring{transform:translateY(-3px);}
+  .map-hotspot:focus-visible{outline:3px solid var(--purple); outline-offset:3px; border-radius:50%;}
 
-  .map-hotspot--locked{background:rgba(200,197,214,.85); filter:grayscale(70%); cursor:default;}
-  .map-hotspot--locked:hover{transform:translate(-50%,-50%);}
-  .map-hotspot--available{border-color:var(--orange); animation:mapPulse 2.2s ease-in-out infinite;}
-  .map-hotspot--learning{border-color:var(--purple);}
-  .map-hotspot--mastered{border-color:var(--green);}
-  .map-hotspot--desafio_aprovado{border-color:#ffd166; box-shadow:0 0 0 4px rgba(255,209,102,.35), var(--shadow);}
-  .map-hotspot--recommended{border-color:var(--orange); animation:mapPulse 1.4s ease-in-out infinite;}
+  .map-hotspot--locked .map-hotspot__ring{filter:grayscale(85%); opacity:.75;}
+  .map-hotspot--locked{cursor:default;}
+  .map-hotspot--locked:hover .map-hotspot__ring{transform:none;}
+  .map-hotspot--available .map-hotspot__ring{--ring-color: var(--orange); animation:mapPulse 2.2s ease-in-out infinite;}
+  .map-hotspot--learning .map-hotspot__ring{--ring-color: var(--purple);}
+  .map-hotspot--mastered .map-hotspot__ring{--ring-color: var(--green);}
+  .map-hotspot--desafio_aprovado .map-hotspot__ring{--ring-color: #ffd166; box-shadow:0 0 0 4px rgba(255,209,102,.35), var(--shadow);}
+  /* "Próximo destino" (item de extensão pra futura Aventura de Hoje) -- flag
+     visual independente do estado de mastery, por isso o brilho sobrepõe
+     (não substitui) o efeito do estado normal; propositalmente mais suave
+     que o pulso de AVAILABLE pra não competir/piscar demais. */
+  .map-hotspot--recommended .map-hotspot__ring{animation:mapGlow 2.6s ease-in-out infinite;}
 
   @keyframes mapPulse{
     0%, 100%{ box-shadow:0 0 0 0 rgba(255,154,61,.45), var(--shadow); }
     50%{ box-shadow:0 0 0 8px rgba(255,154,61,0), var(--shadow); }
   }
+  @keyframes mapGlow{
+    0%, 100%{ box-shadow:0 0 0 3px rgba(124,92,255,.28), var(--shadow); }
+    50%{ box-shadow:0 0 0 9px rgba(124,92,255,0), var(--shadow); }
+  }
+
+  /* Popover sob demanda -- nome/status/progresso detalhado só aparecem ao
+     passar o mouse, focar via teclado ou tocar o marcador (mobile); o
+     mapa em si fica livre pra mostrar a ilustração. */
+  .map-popover{
+    position:absolute;
+    bottom:calc(100% + 10px);
+    left:50%;
+    transform:translate(-50%, 6px);
+    width:max-content;
+    max-width:200px;
+    background:var(--card);
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    padding:12px 14px;
+    text-align:center;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .12s ease, transform .12s ease;
+    z-index:5;
+  }
+  .map-region:hover .map-popover,
+  .map-region:focus-within .map-popover,
+  .map-region.is-open .map-popover{
+    opacity:1;
+    pointer-events:auto;
+    transform:translate(-50%, 0);
+  }
+  .map-popover__title{margin:0 0 4px 0; font-size:14px; font-weight:800; color:var(--ink);}
+  .map-popover__status{margin:0; font-size:12px; font-weight:700; color:#5b5780;}
+  .map-popover__detail{margin:2px 0 0 0; font-size:11px; color:#8480a3;}
+  .map-popover__cta{
+    margin-top:8px;
+    background:var(--purple);
+    color:white;
+    border:none;
+    border-radius:10px;
+    padding:7px 14px;
+    font-size:12px;
+    font-weight:800;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .map-popover__cta:hover{background:var(--purple-dark);}
 
   /* Game screen */
   .game-topbar{
