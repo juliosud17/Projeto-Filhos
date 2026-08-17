@@ -7,13 +7,17 @@
 // preload sofisticado, sem mute persistente (REGRAS_PERMANENTES.md: não
 // construir arquitetura maior que a necessidade atual).
 //
-// FALLBACK É PARTE DO DESENHO, NÃO EXCEÇÃO: como nenhum arquivo de áudio
-// real existe ainda no projeto (só os caminhos calculados por
-// media-catalog.js), toda chamada de voz já nasce falando por TTS
-// (speak(), de utils.js) e só "sobe de qualidade" pro MP3 se ele existir e
-// tocar com sucesso. Isso garante que qa_test_speak_coverage.js continua
-// passando (toda atividade narra automaticamente) mesmo sem nenhum MP3 no
-// projeto, e que o exercício nunca fica mudo por causa de mídia ausente.
+// FALLBACK É PARTE DO DESENHO, NÃO EXCEÇÃO: toda chamada de voz tenta o MP3
+// real primeiro (mediaLiaVoice/mediaFonetica); se ele não existir, falhar
+// ou demorar mais que ~300ms pra confirmar que começou a tocar, cai pro
+// TTS (speak(), de utils.js) -- nunca fica mudo por causa de mídia
+// ausente. NÃO fala por TTS e MP3 ao mesmo tempo por padrão (ajuste de
+// 2026-08-17: a versão anterior sempre começava os dois juntos e só
+// cortava o TTS depois -- com os MP3s do Lote A prontos isso virou duas
+// vozes sobrepostas audíveis; agora o TTS só entra se o áudio real não
+// confirmar rápido o suficiente). Isso garante que qa_test_speak_coverage.js
+// continua passando (toda atividade narra automaticamente) mesmo sem
+// nenhum MP3 no projeto.
 
 const AudioManager = (function(){
   const VOLUMES = { voice: 1.0, sfx: 0.6 };
@@ -28,41 +32,59 @@ const AudioManager = (function(){
   }
 
   /* Toca 1 item de voz: { url, fallbackText, volume }.
-     Sempre começa a falar por TTS na hora (fallback otimista) -- se o MP3
-     existir e conseguir tocar, corta o TTS quase na hora e deixa o MP3
-     seguir. Se o MP3 não existir/falhar/autoplay for bloqueado, o TTS que
-     já começou simplesmente continua -- não há "silêncio no meio". */
+     Espera até GRACE_MS o MP3 real confirmar que começou a tocar antes de
+     cair pro TTS -- evita as DUAS vozes audíveis ao mesmo tempo (bug visto
+     ao vivo em 2026-08-17: com os MP3s reais do Lote A prontos, o TTS
+     "otimista" de antes começava sempre junto, sobrepondo a voz real da
+     Lia com a leitura robótica). Só se o áudio real não confirmar
+     `playing` dentro da folga (arquivo ausente, falhou, autoplay bloqueado,
+     ou demorou demais) é que o TTS entra -- continua garantindo que nunca
+     fica mudo, só sem sobrepor quando o áudio real funciona (o caso comum
+     agora que a mídia existe). */
   function playVoiceItem(item, token){
     return new Promise((resolve)=>{
+      const GRACE_MS = 300;
       let done = false;
       let audioTookOver = false;
+      let ttsStarted = false;
       const finish = ()=>{ if(!done){ done = true; resolve(); } };
 
-      if(item.fallbackText) speak(item.fallbackText);
+      const startTts = ()=>{
+        if(ttsStarted || audioTookOver) return;
+        ttsStarted = true;
+        if(item.fallbackText) speak(item.fallbackText);
+      };
 
       if(!item.url){
+        startTts();
         const ms = item.fallbackText ? Math.min(4000, 600 + item.fallbackText.length * 55) : 200;
-        setTimeout(()=>{ if(token === activeToken) finish(); else finish(); }, ms);
+        setTimeout(finish, ms);
         return;
       }
 
       let audio;
       try{ audio = new Audio(item.url); }
       catch(e){
+        startTts();
         const ms = item.fallbackText ? Math.min(4000, 600 + item.fallbackText.length * 55) : 200;
         setTimeout(finish, ms);
         return;
       }
       audio.volume = item.volume != null ? item.volume : VOLUMES.voice;
 
+      const graceTimer = setTimeout(startTts, GRACE_MS);
+
       const onPlaying = ()=>{
         if(!audioTookOver && token === activeToken){
           audioTookOver = true;
-          speakStop(); // o MP3 assumiu -- corta o TTS otimista
+          clearTimeout(graceTimer);
+          if(ttsStarted) speakStop(); // só sobrepôs em casos raros (áudio demorou) -- corta o TTS assim que o MP3 assume
         }
       };
       const giveUpToTts = ()=>{
         if(audioTookOver) return;
+        clearTimeout(graceTimer);
+        startTts();
         const ms = item.fallbackText ? Math.min(4000, 600 + item.fallbackText.length * 55) : 200;
         setTimeout(finish, ms);
       };

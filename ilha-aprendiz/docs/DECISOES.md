@@ -306,3 +306,15 @@ Mais 7 achados menores (imprecisão de redação, sem gap de conteúdo real) doc
 **Por que a decisão original mudou:** a suposição de que "vídeo repetido cansa" fazia sentido em teoria (evitar fadiga/tédio), mas na prática, pro Benjamin, o vídeo é o que prende a atenção — cortar ele faz o personagem "sumir" no meio da experiência, o que é pior pedagogicamente do que repetir. Fica registrado como aprendizado: nem toda otimização de "ritmo" é uma melhoria real, precisa validar com uso de verdade (é exatamente por isso que o piloto existe antes de escalar pras 87 palavras).
 
 **Teste ajustado:** `testes/qa_test_piloto_vaca.js`, seção 5 — antes checava "nenhum vídeo é criado no 2º encontro", agora checa o oposto ("o vídeo é criado de novo"). Suíte completa rodada depois da mudança: 33/34 arquivos sem falha (a falha em `qa_test_regression.js` é a tolerada/documentada, não relacionada a esta mudança).
+
+---
+
+## 2026-08-17 — Piloto VACA: TTS não fala mais junto com o MP3 real (bug de duas vozes sobrepostas)
+
+**Decisão:** testando ao vivo o acerto da VACA, o Júlio ouviu duas vozes ao mesmo tempo: a MP3 real (o que produzimos) e a leitura por TTS que o app já fazia antes do piloto — "saiu o que fizemos, e o padrão que estava antes do leitor". Causa raiz: o design original do `AudioManager` (aprovação da arquitetura + rodada 2, ambos 2026-08-17) sempre começava a falar por TTS **imediatamente**, em paralelo à tentativa do MP3 real, e só cortava o TTS quando o MP3 confirmava que tinha começado a tocar (evento `playing`). Isso fazia sentido enquanto nenhum MP3 existia (nunca ficar mudo), mas agora que o Lote A está com áudio real gravado, os dois ficam audíveis ao mesmo tempo por uma fração de segundo toda vez.
+
+**O que mudou:** `playVoiceItem()` (`app/js/audio-manager.js`) agora espera até 300ms (`GRACE_MS`) o MP3 real confirmar `playing` antes de sequer iniciar o TTS. Se o áudio real assumir dentro desse tempo, o TTS nunca chega a ser chamado — zero sobreposição. Só se o áudio real falhar, não existir, ou demorar mais que 300ms pra confirmar é que o TTS entra como fallback (mantendo a garantia de nunca ficar mudo).
+
+**Trade-off aceito:** em troca de eliminar a sobreposição de vozes no caso comum (áudio existe e funciona), toda fala real ganha uma latência mínima adicional de até 300ms antes de tocar (tempo de tentar o áudio primeiro) — considerado imperceptível/aceitável frente ao ganho de qualidade percebida.
+
+**Teste ajustado:** `testes/qa_test_piloto_vaca.js`, seção 3 — antes checava que o TTS já tinha falado de forma SÍNCRONA logo após chamar `queueVoice`; agora checa o oposto logo após a chamada (TTS ainda não falou) e só depois de uma pequena espera confirma que o TTS assumiu (porque o áudio "real" do teste sempre falha, por design). Suíte completa: 33/34 arquivos sem falha (mesma falha tolerada/documentada de sempre, sem relação com esta mudança).

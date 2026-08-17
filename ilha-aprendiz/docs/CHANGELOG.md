@@ -4,6 +4,12 @@
 
 ---
 
+## 2026-08-17 — Piloto VACA: corrige duas vozes sobrepostas (TTS + MP3 real)
+
+- Bug visto ao vivo: no acerto da VACA, o MP3 real da Lia e a leitura por TTS que já existia antes tocavam ao mesmo tempo, audíveis juntas.
+- `playVoiceItem()` (`app/js/audio-manager.js`) não fala mais por TTS imediatamente em paralelo ao MP3 — espera até 300ms o áudio real confirmar que começou a tocar antes de considerar o TTS. Continua garantindo que nunca fica mudo (arquivo ausente/erro/demora cai pro TTS), só não sobrepõe mais quando o áudio real funciona.
+- `testes/qa_test_piloto_vaca.js` ajustado pra checar o novo comportamento assíncrono. Suíte completa: 33/34 sem falha (mesma baseline conhecida).
+
 ## 2026-08-17 — Piloto VACA: vídeo do personagem sempre completo (Lote A validado ao vivo)
 
 - Produção do Lote A concluída: 10/10 vídeos de personagem, todas as sílabas fonéticas do Lote A (incluindo `PA`/`PO` que faltavam, mais o P inteiro por bônus), 9/10 áudios de palavra inteira (só faltava confirmar VACA, que já existia), falas fixas da Lia e SFX de acerto/erro — tudo presente em `app/assets/`.

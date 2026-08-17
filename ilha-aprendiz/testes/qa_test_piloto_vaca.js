@@ -91,13 +91,20 @@ const outrosComCharacter = WORDS.filter(w=>w.word!=="VACA" && w.character);
 check("nenhuma outra palavra de WORDS ganhou 'character' ainda (vertical slice, não escala)", outrosComCharacter.length === 0);
 
 /* ---------- 3) AudioManager: fallback pra TTS quando o áudio "real" falha
-   (cenário de hoje -- nenhum mp3/mp4 existe ainda no projeto) ---------- */
+   (o stub de Audio deste teste SEMPRE falha, simulando arquivo ausente) --
+   ajuste de 2026-08-17: o TTS não fala mais junto/imediato por padrão (isso
+   causava DUAS vozes sobrepostas quando o MP3 real existe e funciona) --
+   só entra depois que o áudio real não confirma que tocou (aqui, via
+   erro), então o teste espera um pouco antes de checar, em vez de checar
+   de forma síncrona. ---------- */
 spokenLog = [];
 let queueDone = false;
 AudioManager.queueVoice([
   { url: mediaLiaVoice("comuns","monte-o-nome"), fallbackText: "Olha quem chegou por aqui! Observe com atenção... e monte o nome dela!" }
 ], ()=>{ queueDone = true; });
-check("queueVoice já chamou speak() de forma SÍNCRONA (garante narração automática mesmo sem MP3)", spokenLog.length === 1);
+check("logo após chamar queueVoice, o TTS AINDA NÃO falou (dá chance do áudio real, evita sobrepor vozes)", spokenLog.length === 0);
+await wait(500); // o áudio "real" (stub) já falhou por microtask; passado esse tempo o TTS deve ter assumido
+check("depois da folga, o TTS assumiu porque o áudio real falhou (nunca fica mudo)", spokenLog.length === 1);
 check("o texto de fallback da instrução NUNCA cita a palavra-alvo (regra pedagógica)", spokenLog[0].toUpperCase().indexOf("VACA") === -1);
 await wait(4500);
 check("a fila de voz eventualmente termina (mesmo só com fallback de TTS)", queueDone === true);
