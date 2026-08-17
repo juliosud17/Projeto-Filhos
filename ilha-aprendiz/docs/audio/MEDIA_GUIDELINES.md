@@ -113,12 +113,14 @@ Status em 2026-08-17 (atualizar aqui conforme os assets forem entrando). Frases 
 | `audio/lia/comuns/acerto-01.mp3` | Voz da Lia | "Isso! Muito bem!" | ✅ no projeto |
 | `audio/lia/comuns/dica-vamos-ouvir-o-comeco.mp3` | Voz da Lia | "Quase! Vamos ouvir o começo?" | ✅ no projeto |
 | `audio/fonetica/silabas/va.mp3` | Fonética | "VA" — som da sílaba (tipo /va/), não soletrada letra por letra | ✅ no projeto |
-| `audio/fonetica/silabas/ca.mp3` | Fonética | "CA" — som da sílaba (tipo /ka/) | 🔴 **falta** — sem isso o piloto VACA não fica completo (só tem VA, falta CA) |
+| `audio/fonetica/silabas/ca.mp3` | Fonética | "CA" — som da sílaba (tipo /ka/) | ✅ no projeto |
 | `audio/fonetica/palavras/vaca.mp3` | Fonética | "VACA" — palavra inteira, pronúncia natural | ✅ no projeto |
 | `audio/sfx/feedback/acerto.mp3` | SFX | Sem voz — som curto de recompensa (chime/sino/sparkle), tom gentil, não agressivo | ✅ no projeto |
 | `video/personagens/vaca/vaca-intro.mp4` | Vídeo (com áudio embutido) | Vaquinha aparece + "Muuu... muu muu!" | ✅ no projeto |
 
 Todos gerados na voz da Lia (ElevenLabs, Voice ID/prompt em `docs/audio/VOZ_LIA.md`), exceto o SFX (sem voz) e o vídeo (som do próprio animal). Formato de exportação: ver seção acima.
+
+**Piloto VACA completo** (todas as 8 linhas da tabela ✅) — os 7 arquivos essenciais (3 falas da Lia, VA/CA/VACA em fonética, SFX de acerto, vídeo da vaca) estão todos no projeto. Confirmado em `app/assets/` e coberto por `testes/qa_test_piloto_vaca.js` (30 checagens, suíte completa 33/34 arquivos limpos — mesma falha conhecida de sempre).
 
 **Extra já produzido, além do piloto:** `audio/fonetica/silabas/{ba,be,bi,bo,bu,ve,vi,vo,vu}.mp3` — família de sílabas B/V completa, não só VA/CA do piloto. Fica registrado aqui porque é conteúdo real de fonética que outras palavras de `WORDS` (`data/portugues-conteudo.js`) já podem reaproveitar quando o piloto escalar — não precisa regravar quando chegar a hora.
 
