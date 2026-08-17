@@ -122,12 +122,8 @@ VACA, GATO, PATO, SAPO, BOLA, CASA, GALO, LOBO, SINO, CARRO — cobrem: animal c
 | FUMAÇA | FU-MA-ÇA | pequena nuvem de fumaça clara sobe e se dissipa |
 | JIBOIA | JI-BOI-A | jiboia amigável desliza/enrola suavemente |
 
-## Prompts já completos (Lote A resolvido)
+## Prompts — status
 
-**GATO** — `SUBJECT = A cute small domestic cat.` / `ACTION = The cat walks two small steps into frame, sits down, looks toward the viewer, moves its ears and tail, blinks and tilts its head curiously.` / `SOUND = One short natural cute "miau" synchronized with the cat opening its mouth.`
+**Lote A (10 palavras): produzido e no ar no jogo.** VACA, GATO, PATO, SAPO, BOLA, CASA, GALO, LOBO, SINO, CARRO — todos os vídeos já existem em `app/assets/video/personagens/`.
 
-**BOLA** — `SUBJECT = A colorful children's play ball.` / `ACTION = The ball gently rolls into the center, makes one small playful bounce and settles completely still.` / `SOUND = No voice. A very subtle soft bounce sound is acceptable.`
-
-**VACA** — já produzido (`app/assets/video/personagens/vaca/vaca-intro.mp4`).
-
-Os outros 7 do Lote A (PATO, SAPO, CASA, GALO, LOBO, SINO, CARRO) ainda precisam ter o SUBJECT/ACTION/SOUND em inglês gerados a partir da ação em português acima — pedir "me dá o prompt de PATO" (etc.) quando for produzir.
+**As outras 77 palavras: prompt de vídeo já resolvido (SUBJECT/ACTION/SOUND em inglês), mídia ainda não produzida.** Ver `producao/PROMPTS_VIDEO_TODAS_PALAVRAS.md` (gerado em 2026-08-17) — e `producao/CHECKLIST_PRODUCAO.md` pro que falta de sílaba/palavra em áudio (inclui um alerta sobre a sílaba ÇA de FUMAÇA, que precisa de uma decisão antes de gravar).

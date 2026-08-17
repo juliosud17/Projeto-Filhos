@@ -1,62 +1,85 @@
-# Checklist de Produção — Monte a Sílaba
+# Checklist de Produção — Monte a Sílaba (banco completo, 87 palavras)
 
-*Atualizar esta tabela conforme os arquivos forem entrando em `app/assets/`. ✅ = já existe no projeto | 🔴 = falta produzir/fazer. Status conferido em 2026-08-17 (4ª verificação — Lote A produzido E implementado no jogo, falta só validar manualmente).*
+*Atualizar esta tabela conforme os arquivos forem entrando em `app/assets/`. ✅ = já existe no projeto | 🔴 = falta produzir/gravar | ♻️ = sílaba já existe (produzida por outra palavra), só reusar. Status conferido em 2026-08-17 (escala do banco inteiro, depois do Lote A validado ao vivo).*
 
-## Lote A — produção 100% concluída ✅ · implementado no jogo ✅ · validação manual pendente 🔴
+## ⚠️ Achado durante esta checagem — decisão necessária antes de gravar FUMAÇA
 
-Todas as 10 palavras já têm `character` em `app/data/portugues-conteudo.js` (ver `docs/DECISOES.md`, "Lote A inteiro escalado") — ou seja, já usam o fluxo completo de personagem+Lia+fonética no jogo de verdade, não só têm o arquivo de mídia parado na pasta.
+`mediaFileName()` (`app/js/media-catalog.js`) normaliza acento tirando qualquer marca combinante Unicode — isso é correto pra acento comum (ex. `"LÁ"` → `"la"`, mesmo som, só sem o acento tônico). **Mas `Ç` não é só uma letra acentuada — é uma letra com som diferente de `C`** (Ç soa /s/, C antes de A/O/U soa /k/). A normalização atual reduz `Ç` a `C`, então a sílaba `ÇA` de FUMAÇA calcularia o mesmo arquivo que `CA` (`ca.mp3`) — **isso tocaria o som errado** (kah em vez de sah). Antes de gravar FUMAÇA, preciso de uma decisão sua:
+- (a) ajustar `mediaFileName()` pra tratar `Ç` como consoante própria (ex. gerar `ssa` ou manter `ça` como token distinto), ou
+- (b) outra forma que você prefira.
+Não vou gravar/nomear o áudio de FUMAÇA até isso ficar decidido — as outras 76 palavras não têm esse problema.
 
-| Palavra | Vídeo | Sílaba 1 | Sílaba 2 | Palavra (áudio) | Implementado no jogo | Validado manualmente |
-|---|---|---|---|---|---|---|
-| VACA | ✅ | VA ✅ | CA ✅ | vaca.mp3 ✅ | ✅ | ✅ (testada ao vivo — 2 bugs achados e corrigidos: introdução reduzida revertida, vozes sobrepostas corrigidas) |
-| GATO | ✅ | GA ✅ | TO ✅ | gato.mp3 ✅ | ✅ | 🔴 |
-| PATO | ✅ | PA ✅ | TO ✅ | pato.mp3 ✅ | ✅ | 🔴 |
-| SAPO | ✅ | SA ✅ | PO ✅ | sapo.mp3 ✅ | ✅ | 🔴 |
-| BOLA | ✅ | BO ✅ | LA ✅ | bola.mp3 ✅ | ✅ | 🔴 |
-| CASA | ✅ | CA ✅ | SA ✅ | casa.mp3 ✅ | ✅ | 🔴 |
-| GALO | ✅ | GA ✅ | LO ✅ | galo.mp3 ✅ | ✅ | 🔴 |
-| LOBO | ✅ | LO ✅ | BO ✅ | lobo.mp3 ✅ | ✅ | 🔴 |
-| SINO | ✅ | SI ✅ | NO ✅ | sino.mp3 ✅ | ✅ | 🔴 |
-| CARRO | ✅ | CAR ✅ | RO ✅ | carro.mp3 ✅ | ✅ | 🔴 |
+## Legenda de reuso — sílabas que JÁ EXISTEM cobrem a maioria do banco
 
-**Não falta nenhum arquivo de mídia do Lote A, e não falta nenhuma implementação.** Só falta jogar algumas rodadas de cada uma das 9 palavras novas (GATO, PATO, SAPO, BOLA, CASA, GALO, LOBO, SINO, CARRO) no navegador de verdade, igual foi feito com a VACA.
+Praticamente todo o alfabeto (consoante + A/E/I/O/U) já está gravado — ver lista completa nas rodadas anteriores. Isso já resolve a maior parte das sílabas simples de 2 letras do banco inteiro (ex. `BO`, `TO`, `SA`, `RA`, `MA`...). O que falta são só sílabas de **3+ letras (clusters/dígrafos)** e as **5 vogais sozinhas** (A/E/I/O/U, usadas quando uma palavra tem sílaba de 1 letra só, ex. RU-**A**, L-**U**-A, C-**O**-ELHO).
 
-## Sílabas fonéticas — cobertura muito além do Lote A
+## Sílabas que FALTAM gravar (33 no total — cobre o banco inteiro)
 
-`app/assets/audio/fonetica/silabas/` tem praticamente o alfabeto inteiro gravado (todos os consoantes de A a Z, incluindo o P completo agora): `ba·be·bi·bo·bu` `ca·ce·ci·co·cu·car` `da·de·di·do·du` `fa·fe·fi·fo·fu` `ga·ge·gi·go·gu` `ha·he·hi·ho·hu` `ja·je·ji·jo·ju` `ka·ke·ki·ko·ku` `la·le·li·lo·lu` `ma·me·mi·mo·mu` `na·ne·ni·no·nu` `pa·pe·pi·po·pu` `qua·quao·que·qui·quo` `ra·re·ri·ro·ru` `sa·se·si·so·su` `ta·te·ti·to·tu` `va·ve·vi·vo·vu` `wa·we·wi·wo·wu` `xa·xe·xi·xo·xu` `za·ze·zi·zo·zu`.
+### Vogais sozinhas (5) — usadas em várias palavras, gravar uma vez só
 
-Isso já destrava várias palavras de níveis futuros sem gravar nada novo (ex.: BICO, VELA, NOVE, UVA, PIA, PATA, etc. — conferir letra a letra quando cada uma entrar em produção).
-
-Nota técnica (não bloqueia nada, só registro): parte dos arquivos está com extensão `.MP3` maiúscula e parte `.mp3` minúscula — funciona igual no Windows (case-insensitive), mas pode gerar inconsistência se o projeto for versionado/rodado num sistema case-sensitive no futuro. Ver `docs/audio/MEDIA_GUIDELINES.md`.
-
-## Vídeos de personagem/objeto
-
-| Arquivo | Status |
+| Sílaba | Usada em |
 |---|---|
-| Lote A completo (vaca, gato, pato, sapo, bola, casa, galo, lobo, sino, carro) | ✅ 10/10 |
-| Níveis 2-5 (77 palavras) | 🔴 — não produzir ainda, esperar validação do Lote A |
+| `a` 🔴 | RUA, DIA, LUA, ANEL, ILHA, AGULHA, JIBOIA |
+| `e` 🔴 | COELHO |
+| `i` 🔴 | ILHA |
+| `o` 🔴 | OVO, RIO, NAVIO |
+| `u` 🔴 | UVA |
 
-## Falas da Lia (fixas, reutilizadas por qualquer palavra)
+### Clusters/dígrafos de 3+ letras (28) — cada um é único, sem reuso possível fora do indicado
 
-`monte-o-nome.mp3` ✅ · `acerto-01.mp3` ✅ · `dica-vamos-ouvir-o-comeco.mp3` ✅
+| Sílaba | Usada em | Sílaba | Usada em |
+|---|---|---|---|
+| `ar` 🔴 | ARCO | `nel` 🔴 | ANEL |
+| `bar` 🔴 | BARCO | `nho` 🔴 | NINHO |
+| `boi` 🔴 | JIBOIA | `os` 🔴 | OSSO |
+| `bra` 🔴 | ZEBRA, COBRA ♻️ | `pis` 🔴 | LÁPIS |
+| `cao` 🔴 | VULCÃO | `por` 🔴 | PORCO |
+| `cha` 🔴 | CHAVE | `quei` 🔴 | QUEIJO |
+| `den` 🔴 | DENTE | `sor` 🔴 | SORVETE |
+| `dim` 🔴 | PUDIM | `ur` 🔴 | URSO |
+| `drez` 🔴 | XADREZ | `vem` 🔴 | NUVEM |
+| `fer` 🔴 | FERRO (mesma pegadinha de pronúncia do CAR-RO, ver `TEMPLATES_PROMPTS.md`) | `vro` 🔴 | LIVRO |
+| `fes` 🔴 | FESTA | `vul` 🔴 | VULCÃO |
+| `gar` 🔴 | GARRAFA | `lha` 🔴 | ILHA, AGULHA ♻️ |
+| `gre` 🔴 | TIGRE | `lho` 🔴 | MILHO, JULHO ♻️, COELHO ♻️ |
+| `lei` 🔴 | LEITE | `mas` 🔴 | MASSA |
+
+*(`ça` de FUMAÇA fica de fora desta lista até a decisão acima.)*
+
+## Áudio de palavra inteira — só as 10 do Lote A existem
+
+`fonetica/palavras/{vaca,gato,pato,sapo,bola,casa,galo,lobo,sino,carro}.mp3` ✅. As outras 77 faltam — gravar sob demanda, mesma lógica de sempre (1 arquivo por palavra, pronúncia oficial, nunca junto com a voz da Lia).
+
+## Vídeos de personagem — status por nível
+
+| Nível | Total | Produzidos | Faltam |
+|---|---|---|---|
+| 1 | 16 | 7 (BOLA, CASA, GATO, PATO, VACA, SAPO, GALO) | 9 (RATO, MALA, ROSA, DEDO, MESA, RUA, SETE, PERA, DIA) |
+| 2 | 22 | 2 (LOBO, SINO) | 20 |
+| 3 | 22 | 1 (CARRO) | 21 |
+| 4 | 11 | 0 | 11 |
+| 5 | 16 | 0 | 16 |
+| **Total** | **87** | **10** | **77** |
+
+Prompts de vídeo pras 77 palavras que faltam: `producao/PROMPTS_VIDEO_TODAS_PALAVRAS.md` (gerado em 2026-08-17, a partir das ações em português já registradas em `BANCO_87_PALAVRAS.md`).
+
+## Palavras que precisam de atenção extra na pronúncia (consoante dobrada, mesma regra do CAR-RO)
+
+`FERRO` (FER-RO), `OSSO` (OS-SO), `MASSA` (MAS-SA) — ver instrução extra em `TEMPLATES_PROMPTS.md`, seção "Alerta — sílaba com consoante dobrada".
+
+## Falas da Lia (fixas, já prontas — cobrem qualquer palavra, inclusive gênero)
+
+`monte-o-nome.mp3` ✅ (feminino) · `monte-o-nome-genero-masculino.mp3` ✅ (masculino) · `acerto-01.mp3` ✅ · `dica-vamos-ouvir-o-comeco.mp3` ✅. Nenhuma fala nova precisa ser gravada pras próximas palavras — só decidir o campo `genero` de cada uma quando forem implementadas no jogo (mesma regra da escala do Lote A: nunca inferir da palavra, sempre explícito).
 
 ## SFX
 
-`sfx/feedback/acerto.mp3` ✅ · `sfx/feedback/erro.mp3` ✅
+`sfx/feedback/acerto.mp3` ✅ · `sfx/feedback/erro.mp3` ✅ — prontos, não precisam de nada novo.
 
-## Próximo passo — não é mais produção, é validação
+## Ordem sugerida pra fechar o banco com menos trabalho
 
-Toda a mídia do Lote A está pronta. O que falta agora é rodar o checklist de 10 itens combinado antes de decidir escalar pros próximos níveis:
-
-1. Chrome desktop
-2. Chrome Android
-3. Safari/iPhone
-4. Comportamento de autoplay (com e sem gesto do usuário)
-5. Fallback funcionando (desligar/remover um arquivo de propósito e ver se cai pro TTS/beep/emoji sem quebrar)
-6. Troca rápida entre telas/atividades
-7. Cliques múltiplos rápidos nas opções
-8. Sem sobreposição de áudio (voz nova sempre corta a anterior)
-9. App funcional mesmo sem nenhuma mídia (teste em pasta vazia/renomeada)
-10. Ritmo das rodadas não cansativo (1º encontro vs. repetição)
-
-Só depois dessa validação decidir se escala pros 77 palavras restantes (níveis 2-5) — combinado desde o início: não escalar antes de validar o piloto.
+1. Gravar as 5 vogais sozinhas (A/E/I/O/U) — destrava várias palavras de uma vez (RUA, DIA, LUA, OVO, UVA, RIO, ANEL, ILHA, NAVIO, COELHO, AGULHA, JIBOIA).
+2. Gravar os 28 clusters — cada um destrava só a(s) palavra(s) indicada(s) na tabela.
+3. Decidir o caso do `Ç` (FUMAÇA) antes de gravar essa palavra especificamente.
+4. Produzir os 77 vídeos (prompts prontos em `PROMPTS_VIDEO_TODAS_PALAVRAS.md`).
+5. Gravar as 77 palavras inteiras.
+6. Implementar no jogo (`character` + `genero` em `portugues-conteudo.js`) só depois de cada leva de mídia estar pronta — mesmo padrão usado pro Lote A (não registrar `character` de uma palavra sem a mídia real dela existir).
