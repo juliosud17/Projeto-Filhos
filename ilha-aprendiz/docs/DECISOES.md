@@ -236,3 +236,27 @@ Mais 7 achados menores (imprecisão de redação, sem gap de conteúdo real) doc
 **Decisão:** manter as duas atividades no Módulo 1, cada uma testando uma coisa diferente — Som Inicial compara a primeira *letra*; Pares Mínimos compara o *fonema* real via TTS.
 
 **Motivo:** a dúvida inicial era se "Som Inicial" deveria virar "Letra Inicial" (renomear) ou ser substituída por um jogo de fonema de verdade. A pesquisa nas sequências da Nova Escola (`pedagogia/REFERENCIA_NOVA_ESCOLA.md`) confirmou que letra inicial é conteúdo legítimo do currículo por si só (sequência "Um pomar de A a Z"), não um erro de design — então as duas atividades ficaram, cobrindo aspectos diferentes da mesma habilidade.
+
+---
+
+## 2026-08-17 — Arquitetura audiovisual (personagens, vozes, fonética, SFX) e piloto VACA
+
+**Decisão:** abrir uma frente paralela de mídia (personagens, animações, voz da Lia, fonética, SFX), com arquitetura aprovada ANTES de produzir qualquer asset em massa, e implementar um único vertical slice de validação (atividade "Monte a Sílaba", palavra VACA) antes de escalar pra outras palavras/personagens.
+
+**Motivo:** o app usava TTS genérico do navegador pra tudo, incluindo um bug pedagógico real: `renderSilabas()` falava "Monte a palavra VACA" antes da criança montar VA+CA, entregando a resposta. Corrigido junto com a arquitetura nova.
+
+**Decisões de arquitetura (resumo — árvore completa em `docs/audio/MEDIA_GUIDELINES.md`):**
+- Separação de camadas: personagem (vídeo, com som embutido quando faz sentido) + voz da Lia (personalidade/instrução/encorajamento) + fonética (pronúncia pedagógica oficial) + SFX + lógica (JS decide quando cada um toca) — nunca tudo dentro de um MP4 só.
+- **Lia e fonética são SEMPRE arquivos separados**, mesmo no acerto — nunca a Lia falando a pronúncia embutida na mesma frase de celebração. Permite revisar a pronúncia sem regravar a fala emocional (pedido do Júlio na aprovação).
+- Fonética resolvida por `js/media-catalog.js` com **tipo explícito** (`letra`/`silaba`/`palavra`/`numero`), nunca por heurística de tamanho de texto (`texto.length <= 2`) — quebraria com sílabas de 3 letras (CHA/NHA/QUE). Ajuste pedido pelo Júlio na aprovação.
+- `WORDS` (dado existente) ganha só um campo novo, `character`, e só nos itens que realmente têm personagem — hoje só VACA. Nenhum objeto `media` paralelo — os caminhos são derivados por convenção a partir de `word`/`syl` via `media-catalog.js`.
+- Audio Manager mínimo (`js/audio-manager.js`): canal de voz (Lia+fonética, só 1 fala por vez) e canal de SFX (independente), com fallback pra TTS/`beep()` já existentes sempre que o arquivo real não existir ou falhar — narração automática nunca fica muda.
+- Vídeo do MVP: só `<personagem>-intro.mp4`, sem estados de erro em vídeo (erro é conduzido pela Lia, não pelo personagem "reagindo mal" — bate com a regra de não punir erro) e sem `idle`/`success` em vídeo por ora (CSS/emoji resolvem).
+- Ritmo da rodada: vídeo completo só no 1º encontro do personagem na sessão (`state.characterIntroSeen`); encontros seguintes pulam pro visual estático + instrução direto — evita 6-7s de introdução obrigatória em toda rodada. Pedido do Júlio na aprovação.
+- `registerAnswer()` (`js/game-loop.js`) ganhou um 3º parâmetro opcional `opts` (`skipBeep`, `nextRoundDelay`) — 100% retrocompatível, todo call-site existente continua passando só 2 argumentos.
+
+**Assets do piloto ainda não existem no projeto** (nem o vídeo `vaca-intro.mp4` que o Júlio mencionou já ter gerado — não encontrado na pasta conectada `D:\10_PROJETO_FILHOS` nesta sessão). Todo o suporte de código já trata a ausência de mídia como caso normal (fallback pra TTS/`beep()`/emoji), então o exercício funciona hoje exatamente como antes pra qualquer criança jogando — só passa a usar a mídia real assim que os arquivos forem adicionados nos caminhos documentados em `docs/audio/MEDIA_GUIDELINES.md`.
+
+**Documentos novos:** `docs/audio/VOZ_LIA.md`, `docs/characters/CHARACTER_BIBLE.md` (só Lia + Vaca), `docs/audio/MEDIA_GUIDELINES.md`.
+
+**Teste:** `testes/qa_test_piloto_vaca.js` (30 checagens) — paths do catálogo, campo `character` só em VACA, fallback de voz/SFX quando mídia não existe, instrução nunca revela a resposta, ritmo reduzido no 2º encontro, separação Lia×fonética no acerto/erro. Suíte completa rodada depois: mesma baseline conhecida (33/34 arquivos limpos, falha já documentada em `qa_test_regression.js`), nenhuma falha nova.

@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-08-17 — Arquitetura audiovisual (personagens/voz/fonética/SFX) + piloto VACA
+
+- Frente paralela nova: arquitetura de mídia aprovada (árvore de pastas, nomenclatura, Audio Manager mínimo, separação Lia×fonética, ritmo de introdução) antes de produzir qualquer asset em massa — documento de análise+proposta discutido e aprovado com 3 ajustes.
+- `app/js/media-catalog.js` (novo): caminhos de mídia derivados por convenção a partir dos dados existentes, com `mediaFonetica(tipo, texto)` de tipo **explícito** (letra/silaba/palavra/numero) — nunca heurística de tamanho de texto.
+- `app/js/audio-manager.js` (novo): canal de voz (Lia+fonética, 1 fala por vez) e canal de SFX, com fallback pra TTS/`beep()` sempre que o arquivo real não existir/falhar — `mountCharacterIntro()` cuida do vídeo do personagem com fallback de autoplay bloqueado (toque pra começar) e arquivo ausente (cai pro emoji).
+- `data/portugues-conteudo.js`: `WORDS.VACA` ganha o único campo novo, `character:"vaca"` — nenhuma outra palavra muda.
+- `js/activities-portugues.js` (`renderSilabas`): quando o item tem `character`, corrige o bug real de TTS que entregava a resposta (`speak("Monte a palavra " + item.word)`) — instrução da Lia nunca cita a palavra; opções ficam desabilitadas até a instrução terminar; 1º encontro do personagem na sessão mostra o vídeo completo, encontros seguintes pulam pro visual estático (não obriga introdução longa toda rodada); acerto toca Lia + fonética (VA, CA, VACA) como arquivos separados, erro revela só a 1ª sílaba como dica.
+- `js/game-loop.js` (`registerAnswer`): 3º parâmetro opcional `opts` (`skipBeep`, `nextRoundDelay`), 100% retrocompatível — usado só pelo piloto.
+- Documentos novos: `docs/audio/VOZ_LIA.md`, `docs/characters/CHARACTER_BIBLE.md` (só Lia + Vaca), `docs/audio/MEDIA_GUIDELINES.md`.
+- **Nenhum asset real (vídeo/áudio) entrou no projeto ainda** — nem o `vaca-intro.mp4` mencionado como já existente foi encontrado na pasta conectada. Todo o suporte de fallback já está pronto pra quando os arquivos forem adicionados (caminhos exatos documentados em `docs/audio/MEDIA_GUIDELINES.md`).
+- `testes/qa_test_piloto_vaca.js` novo (30 checagens). Suíte completa: 33/34 arquivos limpos, mesma falha já conhecida e documentada (`qa_test_regression.js`), nenhuma falha nova.
+
 ## 2026-08-17 — Ilha das Letras, rodada 3: destino mais claro, popover limpo, mobile de verdade
 
 - Calculado (não suposto) que `contain`+`%` sozinho não aguenta os 3 tamanhos de celular pedidos (360/390/430px) — marcadores mais próximos chegam a se tocar. Abaixo de 600px, o mapa vira maior que a tela num container que rola nativamente (`overflow:auto`, sem lib externa), centralizado no destino atual ao abrir.

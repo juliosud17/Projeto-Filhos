@@ -535,3 +535,40 @@
     font-size:12px;
     color:#a19dc2;
   }
+
+  /* --- Piloto VACA: personagem em vídeo (2026-08-17) --- */
+  .option-btn:disabled{
+    opacity:0.35;
+    cursor:default;
+  }
+  .option-btn:disabled:hover{transform:none; background:var(--bg2);}
+  .character-intro{
+    position:relative;
+    width:100%;
+    max-width:320px;
+    display:flex;
+    justify-content:center;
+  }
+  .character-video{
+    width:100%;
+    max-width:280px;
+    aspect-ratio:1/1;
+    border-radius:20px;
+    background:#fff;
+    object-fit:contain;
+  }
+  .video-tap-overlay{
+    position:absolute;
+    inset:0;
+    margin:auto;
+    width:70%;
+    height:46px;
+    align-self:center;
+    background:var(--purple);
+    color:#fff;
+    border:none;
+    border-radius:14px;
+    font-weight:800;
+    font-size:15px;
+    cursor:pointer;
+  }

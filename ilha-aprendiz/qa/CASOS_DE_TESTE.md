@@ -37,6 +37,7 @@
 | `qa_test_svg.js` | Ícones SVG próprios (TATU, COLA, GOLA, COLEIRA, GOLEIRA) renderizam sem colisão visual |
 | `qa_test_regression.js` | Suíte de regressão ampla — força atividades a nível 5/90% mastery e simula fim de sessão/level-up; conhecida por um artefato de `setTimeout` no harness (não é bug real) |
 | `qa_test_new_activities.js` | Atividades adicionadas fora do lote original de cada módulo |
+| `qa_test_piloto_vaca.js` | Piloto audiovisual VACA (`js/media-catalog.js`, `js/audio-manager.js`): paths do catálogo (fonética por tipo explícito, não por tamanho), campo `character` só em VACA, fallback pra TTS/beep quando mídia não existe, instrução nunca revela a resposta, opções desabilitadas até a instrução terminar, 2º encontro pula o vídeo, separação Lia×fonética no acerto (4 itens) e dica no erro (só 1ª sílaba) |
 
 ## O que falta neste mapa
 

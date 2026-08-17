@@ -234,7 +234,15 @@ function endSession(){
   showScreen("screen-end");
 }
 
-function registerAnswer(isCorrect, btnEl){
+/* opts (opcional, 100% retrocompatível -- todo call-site existente passa
+   só 2 argumentos e mantém o comportamento de sempre):
+   - skipBeep: não toca o beep() sintetizado (quem chamou já tocou um SFX
+     próprio, ex. piloto VACA com mediaSfx + fallback pro próprio beep).
+   - nextRoundDelay: troca o 1100ms padrão antes da próxima rodada (ex.
+     piloto VACA precisa de mais tempo pra a Lia + fonética terminarem de
+     falar antes de trocar de tela). */
+function registerAnswer(isCorrect, btnEl, opts){
+  opts = opts || {};
   if(!state.roundFirstTryUsed){
     state.roundFirstTryUsed = true;
     if(state.provaMode){
@@ -263,7 +271,7 @@ function registerAnswer(isCorrect, btnEl){
     }
   }
   if(isCorrect){
-    beep("ok");
+    if(!opts.skipBeep) beep("ok");
     state.sessionStars++;
     document.getElementById("session-stars").textContent = state.sessionStars;
     const fb = document.getElementById("feedback-msg");
@@ -271,9 +279,9 @@ function registerAnswer(isCorrect, btnEl){
     fb.className = "feedback-msg ok";
     if(btnEl) btnEl.classList.add("correct-flash");
     disableOptions();
-    setTimeout(nextRound, 1100);
+    setTimeout(nextRound, opts.nextRoundDelay || 1100);
   }else{
-    beep("no");
+    if(!opts.skipBeep) beep("no");
     const fb = document.getElementById("feedback-msg");
     // Errou 3+ vezes seguidas nesta atividade e ela tem Aula da Ilha: em vez
     // de só "tenta de novo", oferece um jeito fácil de rever a explicação —

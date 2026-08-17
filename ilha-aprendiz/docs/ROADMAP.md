@@ -16,6 +16,7 @@
 | Trava de ritmo por bimestre | 🟢 Existe desde 2026-08-16 (`js/ritmo-bimestre.js`, referência informativa) |
 | Estrutura de documentação viva (este conjunto de arquivos) | 🟢 Criada em 2026-08-16 |
 | Modularização do código (`app/ilha_aprendiz.html` → `js/`, `css/`, `data/`) | 🟢 Feita em 2026-08-16 — ver `docs/ARQUITETURA.md` |
+| Arquitetura audiovisual (personagens, voz da Lia, fonética, SFX) | 🟡 Aprovada e piloto VACA implementado em 2026-08-17 (`app/js/media-catalog.js`, `app/js/audio-manager.js`) — assets reais (vídeo/áudio) ainda não adicionados ao projeto, ver `docs/DECISOES.md` |
 
 ## Por que essa ordem (o gargalo)
 
@@ -46,6 +47,14 @@ A etapa que já estava combinada como prioridade desde antes deste documento exi
 
 ### ~~Em paralelo: modularização do código~~ — feito em 2026-08-16
 `app/ilha_aprendiz.html` já está separado em `css/`, `data/` e `js/` (ver `docs/ARQUITETURA.md`). Isso não estava bloqueando os itens 1-5, mas reduz o risco de trabalhar neles agora — em especial o item 1 (persistência), que nasce como `js/storage.js` novo, e não mais como código espalhado dentro de um arquivo de 5.600 linhas.
+
+## Frente paralela: piloto audiovisual (não bloqueia os itens 1-5 acima)
+
+Arquitetura aprovada e piloto VACA (`ilha-aprendiz`, Módulo 1 → Monte a Sílaba) implementado em código em 2026-08-17 — ver `docs/DECISOES.md` e `docs/audio/MEDIA_GUIDELINES.md`. **Falta pro piloto virar experiência real:**
+
+1. Adicionar os assets reais no projeto (vídeo `vaca-intro.mp4` + os áudios de voz/fonética/SFX listados na aprovação) — hoje o código já roda com fallback de TTS/beep/emoji, sem quebrar nada.
+2. Validação manual (Chrome desktop, Chrome Android, Safari/iPhone, autoplay, fallback, troca rápida de tela, cliques repetidos, sem áudio sobreposto, funciona sem mídia, tempo da rodada não cansa).
+3. Só depois de validar o vertical slice: decidir se/como escalar pra outras palavras/personagens.
 
 ## Fora do roadmap (decisão já tomada, não revisitar sem motivo novo)
 

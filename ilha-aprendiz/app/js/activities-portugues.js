@@ -109,9 +109,16 @@ function renderSilabas(stage){
   const tiles = shuffle([...correctTiles, ...distractors]);
 
   const filled = new Array(correctTiles.length).fill(null);
+  /* Piloto VACA (2026-08-17): só entra no fluxo de personagem+Lia+fonética
+     quando o item sorteado tem `character` (hoje só VACA, de propósito --
+     vertical slice, ver docs/DECISOES.md) e o Audio Manager está carregado.
+     Qualquer outra palavra de WORDS continua exatamente no fluxo de TTS
+     genérico de sempre, sem nenhuma mudança de comportamento. */
+  const hasCharacter = !!(item.character && typeof AudioManager !== "undefined");
 
-  stage.innerHTML = `<div class="prompt">Monte a palavra:</div>
-    <div style="font-size:60px;">${visual(item)}</div>
+  stage.innerHTML = `${hasCharacter ? '<div id="character-intro-area"></div>' : ''}
+    <div class="prompt">Monte a palavra:</div>
+    <div style="font-size:60px;" id="silabas-visual">${hasCharacter ? '' : visual(item)}</div>
     <div class="syll-slots" id="slots"></div>
     <div class="options-row" id="opts"></div>`;
 
@@ -125,10 +132,16 @@ function renderSilabas(stage){
   });
 
   const opts = stage.querySelector("#opts");
+  const optionButtons = [];
   tiles.forEach(tile=>{
     const b = document.createElement("button");
     b.className = "option-btn";
     b.textContent = tile;
+    // Com personagem: opções ficam visíveis mas desabilitadas até a
+    // instrução da Lia terminar (seção 17 da arquitetura) -- evita clique
+    // de reflexo antes da criança entender o que fazer. Sem personagem:
+    // comportamento de sempre, habilitado desde já.
+    if(hasCharacter) b.disabled = true;
     b.onclick = ()=>{
       const nextIdx = filled.findIndex(x=>x===null);
       if(nextIdx === -1) return;
@@ -139,10 +152,14 @@ function renderSilabas(stage){
       if(filled.every(x=>x!==null)){
         const isCorrect = filled.join("") === correctTiles.join("");
         setTimeout(()=>{
-          if(isCorrect){
+          if(hasCharacter){
+            registerAnswerWithCharacterFeedback(isCorrect, item);
+          }else if(isCorrect){
             registerAnswer(true, null);
           }else{
             registerAnswer(false, null);
+          }
+          if(!isCorrect){
             filled.fill(null);
             correctTiles.forEach((_,i)=> document.getElementById("slot"+i).textContent = "");
             opts.querySelectorAll("button").forEach(bb=>{ bb.disabled=false; bb.style.visibility="visible"; });
@@ -151,8 +168,83 @@ function renderSilabas(stage){
       }
     };
     opts.appendChild(b);
+    optionButtons.push(b);
   });
-  speak("Monte a palavra " + item.word);
+
+  if(hasCharacter){
+    startCharacterIntroRound(stage, item, optionButtons);
+  }else{
+    speak("Monte a palavra " + item.word);
+  }
+}
+
+/* --- Piloto VACA: personagem em vídeo + voz da Lia + fonética, 2026-08-17 ---
+   Ver docs/audio/MEDIA_GUIDELINES.md e docs/characters/CHARACTER_BIBLE.md. */
+
+/* 1º encontro do personagem na sessão: vídeo completo (com o som dele
+   embutido, ex. "muuu"). Encontros seguintes na mesma sessão: pula direto
+   pro visual estático + instrução -- não obriga replay do vídeo inteiro a
+   cada rodada (ver docs/DECISOES.md, "ritmo da rodada"). Não é persistido
+   entre sessões de propósito (piloto simples; reavaliar se fizer sentido
+   depois de testar com o Benjamin). */
+function startCharacterIntroRound(stage, item, optionButtons){
+  state.characterIntroSeen = state.characterIntroSeen || new Set();
+  const alreadySeen = state.characterIntroSeen.has(item.character);
+  state.characterIntroSeen.add(item.character);
+
+  const introArea = stage.querySelector("#character-intro-area");
+  const visualArea = stage.querySelector("#silabas-visual");
+
+  function afterVisualReady(){
+    // Instrução da Lia -- nunca cita a palavra-alvo (regra pedagógica
+    // fundamental, seção 26 da arquitetura). Só ao terminar (com sucesso
+    // OU via fallback de TTS) é que as opções são liberadas.
+    AudioManager.queueVoice([
+      { url: mediaLiaVoice("comuns", "monte-o-nome"),
+        fallbackText: "Olha quem chegou por aqui! Observe com atenção... e monte o nome dela!" }
+    ], ()=>{
+      optionButtons.forEach(b=> b.disabled = false);
+    });
+  }
+
+  if(alreadySeen){
+    visualArea.innerHTML = visual(item);
+    afterVisualReady();
+    return;
+  }
+
+  mountCharacterIntro(introArea, item.character, {
+    visualFallback: visual(item),
+    onEnded: afterVisualReady,
+    onFallback: afterVisualReady
+  });
+}
+
+/* Acerto/erro do piloto: Lia (personalidade/encorajamento) e fonética
+   (pronúncia pedagógica oficial) tocam como arquivos SEPARADOS, nunca a
+   mesma frase da Lia contendo a pronúncia embutida -- assim dá pra revisar
+   ou trocar a pronúncia sem regenerar a fala emocional (ajuste pedido pelo
+   Júlio na aprovação da arquitetura, registrado em docs/DECISOES.md). */
+function registerAnswerWithCharacterFeedback(isCorrect, item){
+  if(isCorrect){
+    AudioManager.playSfx(mediaSfx("feedback", "acerto"), { fallbackBeep: "ok" });
+    const foneticaSilabas = item.syl.map(s => ({ url: mediaFonetica("silaba", s), fallbackText: s }));
+    AudioManager.queueVoice([
+      { url: mediaLiaVoice("comuns", "acerto-01"), fallbackText: "Isso! Muito bem!" },
+      ...foneticaSilabas,
+      { url: mediaFonetica("palavra", item.word), fallbackText: item.word }
+    ]);
+    // nextRoundDelay maior que o padrão (1100ms): dá tempo da Lia + fonética
+    // acima terminarem antes de trocar de rodada -- valor aproximado pro
+    // piloto, calibrar ouvindo os arquivos reais quando existirem.
+    registerAnswer(true, null, { skipBeep: true, nextRoundDelay: 4800 });
+  }else{
+    AudioManager.queueVoice([
+      { url: mediaLiaVoice("comuns", "dica-vamos-ouvir-o-comeco"), fallbackText: "Quase! Vamos ouvir o começo?" },
+      { url: mediaFonetica("silaba", item.syl[0]), fallbackText: item.syl[0] }
+    ]);
+    registerAnswer(false, null);
+  }
 }
 
 function renderDigitePalavra(stage, item){

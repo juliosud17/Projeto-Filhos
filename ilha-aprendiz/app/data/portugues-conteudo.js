@@ -10,7 +10,7 @@ const WORDS = [
   {word:"CASA", syl:["CA","SA"], emoji:"🏠", level:1},
   {word:"GATO", syl:["GA","TO"], emoji:"🐱", level:1},
   {word:"PATO", syl:["PA","TO"], emoji:"🦆", level:1},
-  {word:"VACA", syl:["VA","CA"], emoji:"🐮", level:1},
+  {word:"VACA", syl:["VA","CA"], emoji:"🐮", level:1, character:"vaca"}, // character: único campo novo -- piloto audiovisual (docs/DECISOES.md, 2026-08-17)
   {word:"SAPO", syl:["SA","PO"], emoji:"🐸", level:1},
   {word:"RATO", syl:["RA","TO"], emoji:"🐭", level:1},
   {word:"GALO", syl:["GA","LO"], emoji:"🐓", level:1},
