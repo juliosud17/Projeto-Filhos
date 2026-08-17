@@ -81,6 +81,7 @@ check("mediaFonetica('letra','A') usa a pasta letras", mediaFonetica("letra","A"
 check("mediaFonetica('numero','10') usa a pasta numeros", mediaFonetica("numero","10") === "assets/audio/fonetica/numeros/10.mp3");
 check("mediaFonetica com tipo desconhecido devolve null (não path errado)", mediaFonetica("silabao","VA") === null);
 check("mediaLiaVoice monta categoria/nome", mediaLiaVoice("comuns","monte-o-nome") === "assets/audio/lia/comuns/monte-o-nome.mp3");
+check("mediaLiaVoice monta a variante de gênero masculino", mediaLiaVoice("comuns","monte-o-nome-genero-masculino") === "assets/audio/lia/comuns/monte-o-nome-genero-masculino.mp3");
 check("mediaCharacterVideo monta personagem/personagem-estado", mediaCharacterVideo("vaca","intro") === "assets/video/personagens/vaca/vaca-intro.mp4");
 check("mediaSfx monta grupo/nome", mediaSfx("feedback","acerto") === "assets/audio/sfx/feedback/acerto.mp3");
 
@@ -232,8 +233,26 @@ for(const wordName of outrasLoteA){
     check(wordName + ": mediaFonetica('silaba','" + s + "') resolve (sem heurística de tamanho)", mediaFonetica("silaba", s) === "assets/audio/fonetica/silabas/" + s.toLowerCase() + ".mp3");
   });
   check(wordName + ": mediaFonetica('palavra',...) resolve", mediaFonetica("palavra", item.word) === "assets/audio/fonetica/palavras/" + item.word.toLowerCase() + ".mp3");
+
+  /* Concordância de gênero (2026-08-17): 'genero' é SEMPRE explícito no
+     dado (nunca inferido da palavra) -- ver comentário em
+     montaFalaIntroPersonagem, activities-portugues.js. Testado direto na
+     função (sem esperar o fluxo de áudio inteiro), rápido e determinístico. */
+  check(wordName + ": tem 'genero' explícito ('m' ou 'f'), nunca inferido da palavra", item.genero === "m" || item.genero === "f");
+  const falaIntro = montaFalaIntroPersonagem(item);
+  const generoEsperado = item.genero === "m" ? "dele" : "dela";
+  const arquivoEsperado = item.genero === "m" ? "monte-o-nome-genero-masculino" : "monte-o-nome";
+  check(wordName + ": fala de intro concorda em gênero ('" + generoEsperado + "')", falaIntro.fallbackText.indexOf(generoEsperado) !== -1);
+  check(wordName + ": usa o arquivo de Lia certo pro gênero (" + arquivoEsperado + ".mp3)", falaIntro.url === "assets/audio/lia/comuns/" + arquivoEsperado + ".mp3");
 }
 window.pickWeightedByLevel = originalPick;
+
+/* Concordância de gênero, caso de borda: item SEM 'genero' -- não deve
+   quebrar (cai pro feminino como fallback de segurança + avisa no
+   console), mas o certo é sempre corrigir o dado, nunca depender disso. */
+const semGeneroFake = { word:"TESTE", character:"x" };
+const falaSemGenero = montaFalaIntroPersonagem(semGeneroFake);
+check("item sem 'genero' não quebra (fallback de segurança pro feminino, com aviso)", falaSemGenero.fallbackText.indexOf("dela") !== -1);
 
 console.log("\\nRESULT: " + ok + " passed, " + fail + " failed");
 })();

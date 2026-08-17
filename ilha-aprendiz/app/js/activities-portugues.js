@@ -205,11 +205,29 @@ async function runWordIntro(stage, item, optionButtons){
   // Instrução da Lia -- nunca cita a palavra-alvo (regra pedagógica
   // fundamental, seção 26 da arquitetura). Só ao terminar (com sucesso OU
   // via fallback de TTS) é que as opções são liberadas.
-  await AudioManager.queueVoice([
-    { url: mediaLiaVoice("comuns", "monte-o-nome"),
-      fallbackText: "Olha quem chegou por aqui! Observe com atenção... e monte o nome dela!" }
-  ]);
+  //
+  // Concordância de gênero (2026-08-17): "monte o nome dela/dele" muda
+  // conforme o gênero gramatical da palavra/personagem (ex. "o gato" ->
+  // dele, "a vaca" -> dela). `item.genero` é SEMPRE explícito no dado
+  // ("m"|"f") -- NUNCA inferido da palavra por heurística (mesma regra do
+  // ajuste #1 da arquitetura: heurística de texto quebra com exceções reais
+  // do português, ex. "o mapa"/"a foto" fogem do padrão -a=feminino/
+  // -o=masculino). Falta `item.genero` == erro de dado a corrigir, não
+  // "adivinhar" — por isso não há fallback silencioso pro feminino aqui.
+  await AudioManager.queueVoice([ montaFalaIntroPersonagem(item) ]);
   optionButtons.forEach(b=> b.disabled = false);
+}
+
+function montaFalaIntroPersonagem(item){
+  if(item.genero !== "m" && item.genero !== "f"){
+    console.warn("runWordIntro: item.character='" + item.character + "' (palavra " + item.word + ") sem 'genero' explícito (\"m\"|\"f\") -- usando arquivo/fala feminina como fallback de segurança, mas isso é um dado faltando, corrigir em portugues-conteudo.js");
+  }
+  if(item.genero === "m"){
+    return { url: mediaLiaVoice("comuns", "monte-o-nome-genero-masculino"),
+      fallbackText: "Olha quem chegou por aqui! Observe com atenção... e monte o nome dele!" };
+  }
+  return { url: mediaLiaVoice("comuns", "monte-o-nome"),
+    fallbackText: "Olha quem chegou por aqui! Observe com atenção... e monte o nome dela!" };
 }
 
 /* Acerto/erro do piloto: Lia (personalidade/encorajamento) e fonética

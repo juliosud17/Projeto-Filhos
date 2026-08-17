@@ -334,3 +334,20 @@ Mais 7 achados menores (imprecisão de redação, sem gap de conteúdo real) doc
 **Ainda não coberto:** validação manual (a lista de 10 itens) só foi feita com a VACA até agora — vale rodar pelo menos 1-2 rodadas de cada palavra nova no navegador de verdade antes de considerar o Lote A 100% validado, não só testado por jsdom.
 
 **Não escalado ainda (de propósito):** as 77 palavras dos níveis 2-5 fora do Lote A não têm mídia produzida — continuam sem `character`, e não devem ganhar até `producao/CHECKLIST_PRODUCAO.md` mostrar mídia pronta pra elas.
+
+---
+
+## 2026-08-17 — Concordância de gênero na fala de instrução da Lia ("dela"/"dele")
+
+**Decisão:** o Júlio notou que a instrução fixa da Lia ("...e monte o nome **dela**!") ficava errada pra palavras de gênero masculino (GATO, PATO, SAPO, GALO, LOBO, SINO, CARRO) — "o gato" pede "dele", não "dela". Ele já tinha gravado o arquivo `monte-o-nome-genero-masculino.mp3` (mesma pasta, `audio/lia/comuns/`) e pediu pra identificar automaticamente qual arquivo usar por palavra.
+
+**Decisão de design (consistente com o ajuste #1 da arquitetura original):** `genero` é um campo **explícito** em cada item de `WORDS` (`"m"|"f"`), igual à regra já estabelecida pra `mediaFonetica(tipo, texto)` — **nunca inferido da palavra por heurística**. Inferir por terminação (-a=feminino, -o=masculino) pareceria razoável mas quebra com exceções reais do português (“o mapa”, “a foto”, “o dia”) — o mesmo tipo de armadilha que motivou a regra original.
+
+**O que mudou:**
+- `app/data/portugues-conteudo.js`: as 10 palavras do Lote A ganharam `genero` ("f" pra BOLA/CASA/VACA, "m" pra GATO/PATO/SAPO/GALO/LOBO/SINO/CARRO).
+- `app/js/activities-portugues.js`: nova função `montaFalaIntroPersonagem(item)` — escolhe entre `monte-o-nome.mp3`/"dela" e `monte-o-nome-genero-masculino.mp3`/"dele" com base em `item.genero`. Se `genero` estiver faltando, cai pro feminino (mesmo arquivo de sempre) COM aviso no console — nunca quebra, mas também nunca finge que "adivinhou" certo.
+- `testes/qa_test_piloto_vaca.js`: novas checagens por palavra (concordância de gênero + arquivo certo) e um caso de borda (item sem `genero`).
+
+**Efeito colateral corrigido nesta mesma rodada:** ao rodar a suíte completa depois da mudança, `qa_test_speak_coverage.js` e `qa_test_svg.js` começaram a falhar de forma intermitente — não por causa do gênero, mas porque agora que várias palavras de nível 1-3 têm `character` (Lote A inteiro), esses dois testes genéricos (que rodam TODAS as atividades, incluindo "silabas", sem os stubs de mídia que só existiam em `qa_test_piloto_vaca.js`) às vezes sorteavam uma palavra com personagem e travavam a narração esperando um `<video>` real que o jsdom não sabe tocar. Os dois ganharam os mesmos stubs de `HTMLMediaElement`/`Audio`, e `qa_test_speak_coverage.js` passou a esperar um pouco antes de checar a fala no caso "silabas" (mesma razão do ajuste "duas vozes sobrepostas"). De brinde, achei e corrigi um flake estatístico pré-existente e não relacionado em `qa_test_svg.js` (100 tentativas tinha ~1% de chance de nunca sortear TATU por acaso — subiu pra 400).
+
+Suíte completa rodada várias vezes seguidas depois de todos os ajustes: 33/34 sem falha, de forma estável (mesma baseline conhecida).

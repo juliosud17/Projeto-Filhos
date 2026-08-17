@@ -4,6 +4,12 @@
 
 ---
 
+## 2026-08-17 — Concordância de gênero na fala de instrução da Lia
+
+- "...e monte o nome dela!" estava errado pra palavras masculinas (GATO, PATO, SAPO, GALO, LOBO, SINO, CARRO). Novo campo explícito `genero` ("m"|"f") em cada palavra do Lote A escolhe entre `monte-o-nome.mp3`/"dela" e `monte-o-nome-genero-masculino.mp3`/"dele" — nunca inferido por heurística de terminação (quebra com exceções do português).
+- `montaFalaIntroPersonagem(item)` novo em `app/js/activities-portugues.js`.
+- De quebra, corrigido: `qa_test_speak_coverage.js` e `qa_test_svg.js` ganharam os stubs de mídia que faltavam (agora várias palavras têm `character`, e esses testes genéricos não tinham o stub) — e um flake estatístico pré-existente em `qa_test_svg.js` (100 → 400 tentativas). Suíte completa: 33/34 sem falha, estável em várias rodadas seguidas.
+
 ## 2026-08-17 — Lote A inteiro escalado (9 personagens além da Vaca)
 
 - `app/data/portugues-conteudo.js`: GATO, PATO, SAPO, BOLA, CASA, GALO, LOBO, SINO e CARRO ganharam `character` — entram no mesmo fluxo de personagem+Lia+fonética que só a VACA tinha, sem nenhuma mudança de código (a arquitetura já suportava escalar só com dado novo).

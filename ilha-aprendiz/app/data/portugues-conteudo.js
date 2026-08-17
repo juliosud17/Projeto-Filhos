@@ -6,19 +6,19 @@ const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
    Nível 5: introduz palavras de 3 sílabas ("ir além" da BNCC do 1º ano). */
 const WORDS = [
   // Nível 1 — sílabas simples abertas
-  {word:"BOLA", syl:["BO","LA"], emoji:"⚽", level:1, character:"bola"},
-  {word:"CASA", syl:["CA","SA"], emoji:"🏠", level:1, character:"casa"},
-  {word:"GATO", syl:["GA","TO"], emoji:"🐱", level:1, character:"gato"},
-  {word:"PATO", syl:["PA","TO"], emoji:"🦆", level:1, character:"pato"},
-  {word:"VACA", syl:["VA","CA"], emoji:"🐮", level:1, character:"vaca"}, // character: piloto audiovisual (docs/DECISOES.md, 2026-08-17) -- Lote A inteiro escalado em 2026-08-17 (BOLA/CASA/GATO/PATO/SAPO/GALO/LOBO/SINO/CARRO), ver docs/characters/CHARACTER_BIBLE.md
-  {word:"SAPO", syl:["SA","PO"], emoji:"🐸", level:1, character:"sapo"},
+  {word:"BOLA", syl:["BO","LA"], emoji:"⚽", level:1, character:"bola", genero:"f"},
+  {word:"CASA", syl:["CA","SA"], emoji:"🏠", level:1, character:"casa", genero:"f"},
+  {word:"GATO", syl:["GA","TO"], emoji:"🐱", level:1, character:"gato", genero:"m"},
+  {word:"PATO", syl:["PA","TO"], emoji:"🦆", level:1, character:"pato", genero:"m"},
+  {word:"VACA", syl:["VA","CA"], emoji:"🐮", level:1, character:"vaca", genero:"f"}, // character/genero: piloto audiovisual (docs/DECISOES.md, 2026-08-17) -- Lote A inteiro escalado em 2026-08-17 (BOLA/CASA/GATO/PATO/SAPO/GALO/LOBO/SINO/CARRO), ver docs/characters/CHARACTER_BIBLE.md. genero SEMPRE explícito, nunca inferido da palavra (heurística de terminação -a/-o quebra com exceções do português)
+  {word:"SAPO", syl:["SA","PO"], emoji:"🐸", level:1, character:"sapo", genero:"m"},
   {word:"RATO", syl:["RA","TO"], emoji:"🐭", level:1},
-  {word:"GALO", syl:["GA","LO"], emoji:"🐓", level:1, character:"galo"},
+  {word:"GALO", syl:["GA","LO"], emoji:"🐓", level:1, character:"galo", genero:"m"},
   {word:"MALA", syl:["MA","LA"], emoji:"🧳", level:1},
   {word:"ROSA", syl:["RO","SA"], emoji:"🌹", level:1},
   // Nível 2 — ainda simples, sílaba final fechada ou menos frequente
   {word:"CAMA", syl:["CA","MA"], emoji:"🛏️", level:2},
-  {word:"LOBO", syl:["LO","BO"], emoji:"🐺", level:2, character:"lobo"},
+  {word:"LOBO", syl:["LO","BO"], emoji:"🐺", level:2, character:"lobo", genero:"m"},
   {word:"LUA",  syl:["LU","A"],  emoji:"🌙", level:2},
   {word:"OVO",  syl:["O","VO"],  emoji:"🥚", level:2},
   {word:"UVA",  syl:["U","VA"],  emoji:"🍇", level:2},
@@ -86,7 +86,7 @@ const WORDS = [
   {word:"PERA",   syl:["PE","RA"],   emoji:"🍐", level:1},
   {word:"DIA",    syl:["DI","A"],    emoji:"🌤️", level:1},
   {word:"RIO",    syl:["RI","O"],    emoji:"🌊", level:2},
-  {word:"SINO",   syl:["SI","NO"],   emoji:"🔔", level:2, character:"sino"},
+  {word:"SINO",   syl:["SI","NO"],   emoji:"🔔", level:2, character:"sino", genero:"m"},
   {word:"LEITE",  syl:["LEI","TE"],  emoji:"🥛", level:2},
   {word:"NEVE",   syl:["NE","VE"],   emoji:"❄️", level:2},
   {word:"MOLA",   syl:["MO","LA"],   emoji:"🪤", level:2},
@@ -99,7 +99,7 @@ const WORDS = [
   {word:"FESTA",  syl:["FES","TA"],  emoji:"🎉", level:3},
   {word:"PUDIM",  syl:["PU","DIM"],  emoji:"🍮", level:3},
   {word:"NINHO",  syl:["NI","NHO"],  emoji:"🪺", level:3},
-  {word:"CARRO",  syl:["CAR","RO"],  emoji:"🚗", level:3, character:"carro"},
+  {word:"CARRO",  syl:["CAR","RO"],  emoji:"🚗", level:3, character:"carro", genero:"m"},
   {word:"FERRO",  syl:["FER","RO"],  emoji:"🔧", level:3},
   {word:"OSSO",   syl:["OS","SO"],   emoji:"🦴", level:3},
   {word:"MASSA",  syl:["MAS","SA"],  emoji:"🍝", level:3},
