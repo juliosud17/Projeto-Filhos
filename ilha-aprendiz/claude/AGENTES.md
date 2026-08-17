@@ -30,6 +30,10 @@
 
 **Quando assumir:** antes de qualquer entrega ser marcada como pronta/refinada.
 
+## Ferramenta de produção (não é um dos 4 papéis de sessão)
+
+**`gerador-prompts-av`** (`.claude/agents/gerador-prompts-av.md`, criado em 2026-08-17) — subagente pontual que gera prompts de vídeo (Flow) e fonética (ElevenLabs) pra qualquer palavra do banco "Monte a Sílaba", a partir de `producao/TEMPLATES_PROMPTS.md`/`BANCO_87_PALAVRAS.md`/`CHECKLIST_PRODUCAO.md`. Diferente dos 4 papéis acima (que são lentes de responsabilidade dentro da mesma conversa), este é uma tarefa isolada e determinística ("me dá o prompt de X") — não decide arquitetura, não escreve código, não participa da produção pedagógica. Não conta como quebra da regra "não criar novos papéis sem necessidade concreta" porque resolve um problema de produção real e específico (economia de prompts pra 87 palavras), não é um papel genérico novo.
+
 ## Se o projeto crescer: papéis futuros (não criar ainda)
 
 Registrados aqui só pra não perder a ideia, não como trabalho atual:

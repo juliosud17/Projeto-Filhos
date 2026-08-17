@@ -262,3 +262,16 @@ Mais 7 achados menores (imprecisão de redação, sem gap de conteúdo real) doc
 **Teste:** `testes/qa_test_piloto_vaca.js` (30 checagens) — paths do catálogo, campo `character` só em VACA, fallback de voz/SFX quando mídia não existe, instrução nunca revela a resposta, ritmo reduzido no 2º encontro, separação Lia×fonética no acerto/erro. Suíte completa rodada depois: mesma baseline conhecida (33/34 arquivos limpos, falha já documentada em `qa_test_regression.js`), nenhuma falha nova.
 
 **Atualização (mesmo dia) — assets reais chegaram, piloto completo:** o Júlio adicionou os 7 arquivos essenciais do piloto direto em `app/assets/` (fora desta conversa): 3 falas da Lia (`monte-o-nome`, `acerto-01`, `dica-vamos-ouvir-o-comeco`), fonética VA/CA/VACA + a família B/V inteira como bônus (`ba,be,bi,bo,bu,ve,vi,vo,vu`), o SFX de acerto e `vaca-intro.mp4`. Rodei a suíte de novo pra confirmar: `qa_test_piloto_vaca.js` 30/30, suíte completa 33/34 (mesma falha conhecida). Corrigi duas menções desatualizadas que ainda diziam "nenhum asset real ainda" — `docs/audio/MEDIA_GUIDELINES.md` (tabela do roteiro, linha do `ca.mp3` que estava marcada 🔴 apesar do arquivo já existir) e `CLAUDE.md` ("Estado atual"). **Nota de estrutura:** esta entrada ficou fora de ordem no arquivo (deveria estar no topo, mais recente primeiro) — não reordenei pra não mexer em conteúdo alheio sem necessidade, só registrando aqui pra quem for procurar.
+
+
+---
+
+## 2026-08-17 — Pasta `producao/` + subagente gerador de prompts (video/fonetica)
+
+**Decisao:** criar `producao/` (templates de prompt Flow/ElevenLabs, banco das 87 palavras de "Monte a Silaba", checklist de producao) e um subagente pontual `.claude/agents/gerador-prompts-av.md`, a partir de um briefing detalhado do Julio sobre como evitar reproducao desnecessaria de midia.
+
+**Motivo:** produzir video/audio pra 87 palavras sem reuso geraria centenas de arquivos desnecessarios (87 videos + 87x falas da Lia repetidas). O pipeline correto, definido pelo Julio: 1 video por palavra/objeto quando fizer sentido visualmente + 1 audio por silaba UNICA (reutilizavel entre palavras, ex. `TO.mp3` serve GATO/PATO/RATO) + 1 audio por palavra inteira + falas da Lia genericas e fixas (nao mudam por palavra). Producao dividida em lotes (Lote A = 10 palavras primeiro) pra validar o padrao visual antes de escalar pras 87.
+
+**Por que subagente e nao so documentacao:** o pedido explicito foi "eu vou pedir um prompt e voce me traz completo" -- um fluxo repetitivo (checar banco, checar reuso de silaba no checklist, montar os 2 prompts) que vale a pena isolar como tarefa deterministica, sem virar um 5o papel de sessao (ver nota em `claude/AGENTES.md`).
+
+**Nao gerado ainda:** nenhum dos 77 prompts restantes (fora o Lote A, que ja tinha GATO/BOLA/VACA resolvidos no briefing) -- ficam pra quando o Julio pedir, palavra por palavra ou lote por lote, seguindo a mesma logica de "nao produzir em massa antes de validar" da arquitetura aprovada em 2026-08-17.
