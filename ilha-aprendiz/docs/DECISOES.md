@@ -380,3 +380,23 @@ Suíte completa rodada várias vezes seguidas depois de todos os ajustes: 33/34 
 **Pendência que já era conhecida e continua:** DIA usa cena contextual (sol nascendo), não personagem — a fala fixa da Lia ("Olha quem chegou...") ainda não bate com esse tipo de vídeo (ver decisão acima, "Nem toda palavra..."). Implementei DIA no jogo mesmo assim, a pedido do Júlio, com esse descompasso explicitamente sinalizado a ele — não é regressão nova, é a mesma pendência já registrada, agora exposta em produção.
 
 Suíte completa rodada após a mudança: 34/34 arquivos, exceto o mesmo `qa_test_regression.js` com a falha-baseline conhecida ("session ended on end screen", não relacionada) — 33/34 sem falha nova, estável.
+
+---
+
+## 2026-08-18 — Banco quase 100%: 86 das 87 palavras ganham `character`/`genero` de uma vez
+
+**Contexto:** o Júlio gravou e soltou (flat, sem pasta própria) os vídeos de praticamente TODO o banco de 87 palavras numa única rodada. Pediu pra organizar cada um na pasta certa e "fazer o que falta pra deixar tudo 100% pras 5 rodadas de monte a sílaba".
+
+**O que mudou:**
+- Reorganizei 68 vídeos soltos em `personagens/<palavra>/<palavra>-intro.mp4` (mesma convenção de sempre).
+- `app/data/portugues-conteudo.js`: as 68 palavras receberam `character`+`genero`, junto com as que já tinham (Lote A + 8 do nível 1) — total 86 de 87 palavras do banco agora com vídeo real implementado. Gênero de cada uma decidido manualmente (nunca inferido por heurística de terminação, mesma regra desde a decisão original) — ex. exceções reais conferidas: "o mapa"-like não se aplicam aqui, mas casos como OVO(m)/UVA(f), LEITE(m)/NEVE(f), JULHO(m, meses são masculinos), NOVE/SETE(m, números são masculinos) foram checados um a um.
+- `testes/qa_test_piloto_vaca.js` e `testes/qa_test_svg.js`: as checagens hardcoded por lista de palavras (Lote A, "8 novas de nível 1"...) foram trocadas por checagens ESTRUTURAIS sobre `WORDS` inteiro — insustentável manter uma lista fixa a cada rodada de escala. Agora valida: toda palavra com `character` tem `genero` válido e `character === lowercase(word)`; a única exceção sem `character` é a esperada (MURO). O smoke test da seção 9 passou a rodar em TODAS as palavras com `character`, não uma lista fixa — escala automaticamente com o banco.
+- `qa_test_svg.js`: o teste "TATU's SVG aparece em modo tile" ficou estruturalmente impossível de continuar passando — TATU ganhou vídeo de personagem real, então `hasCharacter` (`activities-portugues.js`) sempre desvia pro fluxo de vídeo, nunca mais renderiza o SVG solto em modo tile. Não é regressão: é o caminho antigo (mídia não existia) virando inatingível de propósito porque a mídia real passou a existir. Teste reescrito pra validar o fluxo de vídeo em vez do caminho morto.
+
+**Achados durante a organização, não resolvidos silenciosamente:**
+1. A pasta `personagens/muro/` ficou vazia — não veio vídeo de MURO. Apareceu um `parede.mp4` solto, sem pasta correspondente ("parede" não é palavra do banco) — pode ser o vídeo do MURO com nome trocado. Movido pra `personagens/_a_revisar/parede.mp4` sem renomear/decidir nada, aguardando confirmação do Júlio.
+2. `MURO` continua sem `character` no banco — única palavra das 87 ainda sem vídeo, por não ter mídia real (mesma regra desde o início: nunca registrar `character` sem a mídia existir de verdade).
+
+**Efeito no "100%":** as 5 rodadas de "Monte a Sílaba" (níveis 1-5) já são totalmente jogáveis agora — 86/87 palavras com vídeo real, e a que falta (MURO) e o áudio de sílaba/palavra que ainda não foi gravado (a maioria) caem no fallback de TTS já garantido desde o piloto da Vaca, então nada fica mudo ou quebrado. "100%" no sentido de "sem áudio sintético nenhum" ainda depende de gravar as 33 sílabas e as 77 palavras inteiras que faltam (ver `producao/CHECKLIST_PRODUCAO.md`).
+
+Suíte completa rodada após todas as mudanças: 33/34 arquivos sem falha (mesma baseline conhecida em `qa_test_regression.js`), estável em múltiplas rodadas.

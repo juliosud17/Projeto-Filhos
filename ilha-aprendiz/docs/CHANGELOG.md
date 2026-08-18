@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-08-18 — Banco quase 100%: 86 das 87 palavras com vídeo de personagem
+
+- 68 vídeos soltos reorganizados em `personagens/<palavra>/<palavra>-intro.mp4`. `app/data/portugues-conteudo.js`: as 68 ganharam `character`+`genero` — total 86/87 do banco jogável com vídeo real (só falta MURO).
+- `testes/qa_test_piloto_vaca.js` e `testes/qa_test_svg.js`: checagens hardcoded por lista de palavras trocadas por checagens estruturais sobre `WORDS` inteiro (escalam sozinhas). `qa_test_svg.js`: teste do SVG do TATU em modo tile reescrito — ficou inatingível de propósito (TATU agora sempre vai pro vídeo).
+- Achado, não resolvido: pasta `personagens/muro/` vazia + um `parede.mp4` sem palavra correspondente movido pra `personagens/_a_revisar/` — aguardando confirmação do Júlio se é o vídeo do MURO.
+- Suíte completa: 826 checagens em `qa_test_piloto_vaca.js` (era 125), 33/34 arquivos sem falha (mesma baseline conhecida).
+- As 5 rodadas de "Monte a Sílaba" já são 100% jogáveis (vídeo real + fallback TTS onde falta áudio de sílaba/palavra — a maioria ainda não gravada, ver `producao/CHECKLIST_PRODUCAO.md`).
+
 ## 2026-08-18 — Nível 1 quase completo: mais 8 palavras jogáveis com personagem
 
 - `app/data/portugues-conteudo.js`: RATO, MALA, ROSA, DEDO, MESA, RUA e PERA ganharam `character`+`genero`; DIA também (cena contextual, sol nascendo) — só SETE do nível 1 segue sem vídeo (por design, não vira personagem). Mesmo padrão do Lote A, zero lógica nova.

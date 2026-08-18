@@ -49,21 +49,26 @@ for(let i=0;i<200;i++){
 }
 check("Troca-Letra rendered an SVG option at least once in 200 tries (family _OLA)", sawSvgInManip);
 
-// Monte a Sílaba / Digite a Palavra with TATU (level 2 word). 100 tries
-// tinha ~1% de chance de nunca sortear TATU por acaso (pool de nível 2 tem
-// ~22 palavras) -- flake estatístico pré-existente, não causado pelo Lote A
-// (aumentado pra 400 tentativas em 2026-08-17 pra deixar a chance de falso
-// negativo desprezível, < 0.001%).
-let sawTatuSvg = false;
-for(let i=0;i<400;i++){
+// Monte a Sílaba / Digite a Palavra com TATU (level 2, único item de WORDS
+// com 'svg'): ATÉ 2026-08-17 este teste confirmava que o ícone SVG do TATU
+// aparecia em modo "tile" (sem vídeo/personagem). Em 2026-08-18 o TATU ganhou
+// 'character'+'genero' (vídeo real de personagem produzido, escala do banco
+// pra quase 100%) -- então agora ele SEMPRE entra no fluxo de vídeo
+// (hasCharacter em runWordIntro, activities-portugues.js), nunca mais no modo
+// "tile" com o SVG solto. Isso não é regressão: é o caminho antigo (mídia
+// ainda não existia) virando inatingível de propósito, porque a mídia real
+// passou a existir. O SVG do TATU continua existindo e sendo usado dentro do
+// vídeo de personagem (visual(item) em runWordIntro) -- só não aparece mais
+// isolado em modo tile. Ver docs/DECISOES.md, 2026-08-18.
+let sawTatuVideo = false;
+for(let i=0;i<20;i++){
   activityLevel.silabas = 2;
   state.game="silabas"; state.subgames=["silabas"]; state.round=1; state.totalRounds=1;
   state.pools={}; state.roundPlan=["silabas"]; state.currentRender="silabas";
   renderRound();
-  const emojiDiv = document.querySelector('.game-stage > div[style]');
-  if(emojiDiv && emojiDiv.innerHTML.includes('<svg')) sawTatuSvg = true;
+  if(document.querySelectorAll("video").length > 0) sawTatuVideo = true;
 }
-check("Monte a Sílaba (tile mode) rendered TATU's SVG at least once in 400 tries", sawTatuSvg);
+check("pool de nível 2 eventualmente sorteia alguma palavra com vídeo de personagem em 20 tentativas (confirma que o fluxo de vídeo está de fato ativo, não quebrado)", sawTatuVideo);
 
 console.log("\\nRESULT: " + ok + " passed, " + fail + " failed");
 <\/script>

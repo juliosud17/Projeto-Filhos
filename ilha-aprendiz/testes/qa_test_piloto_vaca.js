@@ -85,32 +85,24 @@ check("mediaLiaVoice monta a variante de gênero masculino", mediaLiaVoice("comu
 check("mediaCharacterVideo monta personagem/personagem-estado", mediaCharacterVideo("vaca","intro") === "assets/video/personagens/vaca/vaca-intro.mp4");
 check("mediaSfx monta grupo/nome", mediaSfx("feedback","acerto") === "assets/audio/sfx/feedback/acerto.mp3");
 
-/* ---------- 2) dado: Lote A inteiro tem 'character' (escalado em 2026-08-17,
-   depois de validar o piloto ao vivo com a Vaca) -- palavras fora do Lote A
-   continuam sem 'character' (ainda não produzidas, ver docs/DECISOES.md e
-   producao/CHECKLIST_PRODUCAO.md) ---------- */
+/* ---------- 2) dado: banco quase inteiro tem 'character' agora (2026-08-18,
+   depois de escalar Lote A -> nível 1 -> banco quase completo, conforme a
+   mídia real foi sendo produzida). Em vez de manter uma lista hardcoded de
+   nomes (ficou insustentável em 87 palavras), a checagem virou ESTRUTURAL:
+   toda palavra com 'character' tem que ter 'genero' válido e 'character'
+   igual ao lowercase de 'word' (mesma convenção de pasta em
+   app/assets/video/personagens/), e a única exceção conhecida sem mídia
+   ainda é MURO (ver producao/CHECKLIST_PRODUCAO.md). ---------- */
 const vacaItem = WORDS.find(w=>w.word==="VACA");
 check("WORDS.VACA tem character:'vaca'", vacaItem && vacaItem.character === "vaca");
-const LOTE_A = { VACA:"vaca", GATO:"gato", PATO:"pato", SAPO:"sapo", BOLA:"bola", CASA:"casa", GALO:"galo", LOBO:"lobo", SINO:"sino", CARRO:"carro" };
-const loteAFaltando = Object.keys(LOTE_A).filter(w => {
-  const item = WORDS.find(x=>x.word===w);
-  return !item || item.character !== LOTE_A[w];
-});
-check("as 10 palavras do Lote A têm 'character' correto (" + Object.keys(LOTE_A).join(", ") + ")", loteAFaltando.length === 0);
-/* 2026-08-18: nível 1 quase todo escalado (8 palavras a mais, vídeo já
-   produzido) -- PALAVRAS_COM_CHARACTER é a lista completa (Lote A + essas 8)
-   de tudo que JÁ TEM mídia real; qualquer 'character' fora dessa lista
-   significa escalar antes da mídia existir, o que não deve acontecer. */
-const PALAVRAS_COM_CHARACTER = Object.assign({}, LOTE_A, {
-  RATO:"rato", MALA:"mala", ROSA:"rosa", DEDO:"dedo", MESA:"mesa", RUA:"rua", PERA:"pera", DIA:"dia"
-});
-const outrosComCharacter = WORDS.filter(w => !PALAVRAS_COM_CHARACTER.hasOwnProperty(w.word) && w.character);
-check("nenhuma palavra FORA de PALAVRAS_COM_CHARACTER ganhou 'character' ainda (não escalar antes de produzir a mídia)", outrosComCharacter.length === 0);
-const nivel1Faltando = Object.keys(PALAVRAS_COM_CHARACTER).filter(w => w !== "VACA" && !LOTE_A.hasOwnProperty(w)).filter(w => {
-  const item = WORDS.find(x=>x.word===w);
-  return !item || item.character !== PALAVRAS_COM_CHARACTER[w];
-});
-check("as 8 novas palavras de nível 1 (RATO/MALA/ROSA/DEDO/MESA/RUA/PERA/DIA) têm 'character' correto", nivel1Faltando.length === 0);
+const comCharacter = WORDS.filter(w=>w.character);
+check("banco tem pelo menos 80 palavras com 'character' já produzido (2026-08-18: quase o banco inteiro)", comCharacter.length >= 80);
+const characterErrado = comCharacter.filter(w => w.character !== w.word.toLowerCase());
+check("todo 'character' bate com lowercase(word) (mesma convenção da pasta de vídeo)", characterErrado.length === 0);
+const generoInvalido = comCharacter.filter(w => w.genero !== "m" && w.genero !== "f");
+check("toda palavra com 'character' tem 'genero' explícito e válido ('m'|'f')", generoInvalido.length === 0);
+const semCharacterAindaEsperado = WORDS.filter(w => !w.character).map(w=>w.word);
+check("a única palavra do banco ainda sem 'character' é MURO (falta vídeo -- ver CHECKLIST_PRODUCAO.md)", semCharacterAindaEsperado.length === 1 && semCharacterAindaEsperado[0] === "MURO");
 
 /* ---------- 3) AudioManager: fallback pra TTS quando o áudio "real" falha
    (o stub de Audio deste teste SEMPRE falha, simulando arquivo ausente) --
@@ -219,15 +211,17 @@ check("pronounceAndHighlight adiciona .is-speaking de imediato (síncrono, antes
 await highlightPromise;
 check("pronounceAndHighlight remove .is-speaking depois que a Promise resolve", !fakeEl.classList.contains("is-speaking"));
 
-/* ---------- 9) escala do Lote A (2026-08-17): os outros 9 personagens
-   (além da Vaca, já testada a fundo acima) entram no MESMO fluxo de
-   personagem+Lia+fonética -- smoke test estrutural em todos eles (não
-   repete as 30+ checagens já feitas com a Vaca, só confirma que cada um
-   entra no fluxo certo e produz os caminhos de mídia certos). ---------- */
-const outrasLoteA = Object.keys(LOTE_A).filter(w=>w!=="VACA");
-for(const wordName of outrasLoteA){
+/* ---------- 9) escala do banco inteiro (2026-08-17 Lote A -> 2026-08-18
+   banco quase completo): todos os outros personagens (além da Vaca, já
+   testada a fundo acima) entram no MESMO fluxo de personagem+Lia+fonética
+   -- smoke test estrutural em todos eles (não repete as 30+ checagens já
+   feitas com a Vaca, só confirma que cada um entra no fluxo certo e produz
+   os caminhos de mídia certos). Roda em TODAS as palavras com 'character'
+   (não mais uma lista fixa) -- generaliza junto com o banco. ---------- */
+const outrasComCharacter = comCharacter.filter(w=>w.word!=="VACA").map(w=>w.word);
+for(const wordName of outrasComCharacter){
   const item = WORDS.find(w=>w.word===wordName);
-  if(!item){ console.log("LOTE A FALTANDO EM WORDS: " + wordName); fail++; continue; }
+  if(!item){ console.log("PALAVRA COM CHARACTER FALTANDO EM WORDS: " + wordName); fail++; continue; }
   spokenLog = [];
   const stageN = document.getElementById("game-stage");
   window.pickWeightedByLevel = function(){ return item; };
