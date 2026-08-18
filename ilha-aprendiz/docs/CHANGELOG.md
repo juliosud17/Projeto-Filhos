@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-08-18 — Nível 1 quase completo: mais 8 palavras jogáveis com personagem
+
+- `app/data/portugues-conteudo.js`: RATO, MALA, ROSA, DEDO, MESA, RUA e PERA ganharam `character`+`genero`; DIA também (cena contextual, sol nascendo) — só SETE do nível 1 segue sem vídeo (por design, não vira personagem). Mesmo padrão do Lote A, zero lógica nova.
+- 8 vídeos reorganizados pra `personagens/<palavra>/<palavra>-intro.mp4`; as 87 pastas do banco inteiro pré-criadas vazias pra evitar a mesma dúvida de novo.
+- `testes/qa_test_piloto_vaca.js`: checagem "fora do Lote A não tem character" trocada por `PALAVRAS_COM_CHARACTER` (Lote A + as 8 novas), com checagem específica pros 8 itens. Suíte: 125 checagens no arquivo (era 124), 33/34 arquivos sem falha na suíte completa (mesma baseline conhecida em `qa_test_regression.js`).
+- Pendência conhecida e não resolvida: DIA usa fala fixa de "personagem chegou" que não bate com o vídeo de cena — falta a variante "cena" da fala da Lia (ver `docs/DECISOES.md`, 2026-08-18).
+
 ## 2026-08-17 — Concordância de gênero na fala de instrução da Lia
 
 - "...e monte o nome dela!" estava errado pra palavras masculinas (GATO, PATO, SAPO, GALO, LOBO, SINO, CARRO). Novo campo explícito `genero` ("m"|"f") em cada palavra do Lote A escolhe entre `monte-o-nome.mp3`/"dela" e `monte-o-nome-genero-masculino.mp3`/"dele" — nunca inferido por heurística de terminação (quebra com exceções do português).

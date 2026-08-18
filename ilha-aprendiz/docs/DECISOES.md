@@ -365,3 +365,18 @@ Suíte completa rodada várias vezes seguidas depois de todos os ajustes: 33/34 
 **Pendência real, não resolvida ainda:** a fala fixa da Lia ("Olha quem **chegou** por aqui!...") pressupõe um personagem chegando — não faz sentido pras 4 palavras abstratas (cena, não personagem). Vai precisar de uma 2ª variante fixa da fala (por categoria "personagem" vs. "cena", não por palavra — mesmo padrão do campo `genero`) antes de implementar DIA/JULHO/FESTA/CIDADE no jogo. Não gravada, não implementada — só a mídia de vídeo foi endereçada nesta rodada.
 
 **Validação necessária antes de confiar nesse padrão:** testar os vídeos das 4 abstratas com o Benjamin de verdade antes de usar essa técnica (cena contextual) pra outras palavras abstratas que possam aparecer nos níveis futuros — não assumir que "deu certo pro DIA" generaliza sem checar.
+
+---
+
+## 2026-08-18 — Nível 1 quase completo: 8 palavras a mais ganham `character`/`genero`
+
+**Contexto:** o Júlio gravou os vídeos de personagem de 8 das 9 palavras restantes do nível 1 (faltando só SETE, que por design não tem vídeo de personagem — ver `BANCO_87_PALAVRAS.md`), mas soltou os arquivos direto em `personagens/` em vez de uma pasta por palavra, e perguntou se já dava pra testar no jogo.
+
+**O que mudou:**
+- Reorganizei os 8 vídeos pra dentro das pastas certas (`personagens/<palavra>/<palavra>-intro.mp4`) e pré-criei as 87 pastas vazias (uma por palavra do banco inteiro) pra evitar essa mesma dúvida se repetir — só falta soltar o arquivo na pasta certa daqui pra frente.
+- `app/data/portugues-conteudo.js`: RATO(m), MALA(f), ROSA(f), DEDO(m), MESA(f), RUA(f), PERA(f), DIA(m) ganharam `character` + `genero`, seguindo exatamente o mesmo padrão do Lote A (nada de lógica nova — validação de que a arquitetura escala).
+- `testes/qa_test_piloto_vaca.js`: a checagem "nenhuma palavra fora do Lote A tem character" foi trocada por `PALAVRAS_COM_CHARACTER` (Lote A + essas 8), com uma checagem nova conferindo os 8 itens específicos.
+
+**Pendência que já era conhecida e continua:** DIA usa cena contextual (sol nascendo), não personagem — a fala fixa da Lia ("Olha quem chegou...") ainda não bate com esse tipo de vídeo (ver decisão acima, "Nem toda palavra..."). Implementei DIA no jogo mesmo assim, a pedido do Júlio, com esse descompasso explicitamente sinalizado a ele — não é regressão nova, é a mesma pendência já registrada, agora exposta em produção.
+
+Suíte completa rodada após a mudança: 34/34 arquivos, exceto o mesmo `qa_test_regression.js` com a falha-baseline conhecida ("session ended on end screen", não relacionada) — 33/34 sem falha nova, estável.

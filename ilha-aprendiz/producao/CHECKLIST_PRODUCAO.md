@@ -65,7 +65,7 @@ Praticamente todo o alfabeto (consoante + A/E/I/O/U) já está gravado — ver l
 | 5 | 16 | 0 | 16 |
 | **Total** | **87** | **18** | **69** |
 
-Nível 1 quase fechado (2026-08-18) — só falta o vídeo de **SETE** (pasta `personagens/sete/` já criada, esperando `sete-intro.mp4`).
+Nível 1 quase fechado (2026-08-18) — só falta o vídeo de **SETE** (pasta `personagens/sete/` já criada, esperando `sete-intro.mp4`). As outras 15 palavras do nível 1 já estão implementadas no jogo (`character`+`genero` em `portugues-conteudo.js`), incluindo DIA (cena contextual — ver `docs/DECISOES.md` pra pendência da fala da Lia).
 
 Prompts de vídeo pras 77 palavras que faltam: `producao/PROMPTS_VIDEO_TODAS_PALAVRAS.md` (gerado em 2026-08-17, a partir das ações em português já registradas em `BANCO_87_PALAVRAS.md`).
 

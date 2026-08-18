@@ -97,8 +97,20 @@ const loteAFaltando = Object.keys(LOTE_A).filter(w => {
   return !item || item.character !== LOTE_A[w];
 });
 check("as 10 palavras do Lote A têm 'character' correto (" + Object.keys(LOTE_A).join(", ") + ")", loteAFaltando.length === 0);
-const outrosComCharacter = WORDS.filter(w => !LOTE_A.hasOwnProperty(w.word) && w.character);
-check("nenhuma palavra FORA do Lote A ganhou 'character' ainda (não escalar antes de produzir a mídia)", outrosComCharacter.length === 0);
+/* 2026-08-18: nível 1 quase todo escalado (8 palavras a mais, vídeo já
+   produzido) -- PALAVRAS_COM_CHARACTER é a lista completa (Lote A + essas 8)
+   de tudo que JÁ TEM mídia real; qualquer 'character' fora dessa lista
+   significa escalar antes da mídia existir, o que não deve acontecer. */
+const PALAVRAS_COM_CHARACTER = Object.assign({}, LOTE_A, {
+  RATO:"rato", MALA:"mala", ROSA:"rosa", DEDO:"dedo", MESA:"mesa", RUA:"rua", PERA:"pera", DIA:"dia"
+});
+const outrosComCharacter = WORDS.filter(w => !PALAVRAS_COM_CHARACTER.hasOwnProperty(w.word) && w.character);
+check("nenhuma palavra FORA de PALAVRAS_COM_CHARACTER ganhou 'character' ainda (não escalar antes de produzir a mídia)", outrosComCharacter.length === 0);
+const nivel1Faltando = Object.keys(PALAVRAS_COM_CHARACTER).filter(w => w !== "VACA" && !LOTE_A.hasOwnProperty(w)).filter(w => {
+  const item = WORDS.find(x=>x.word===w);
+  return !item || item.character !== PALAVRAS_COM_CHARACTER[w];
+});
+check("as 8 novas palavras de nível 1 (RATO/MALA/ROSA/DEDO/MESA/RUA/PERA/DIA) têm 'character' correto", nivel1Faltando.length === 0);
 
 /* ---------- 3) AudioManager: fallback pra TTS quando o áudio "real" falha
    (o stub de Audio deste teste SEMPRE falha, simulando arquivo ausente) --

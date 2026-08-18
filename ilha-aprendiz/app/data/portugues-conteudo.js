@@ -12,10 +12,10 @@ const WORDS = [
   {word:"PATO", syl:["PA","TO"], emoji:"🦆", level:1, character:"pato", genero:"m"},
   {word:"VACA", syl:["VA","CA"], emoji:"🐮", level:1, character:"vaca", genero:"f"}, // character/genero: piloto audiovisual (docs/DECISOES.md, 2026-08-17) -- Lote A inteiro escalado em 2026-08-17 (BOLA/CASA/GATO/PATO/SAPO/GALO/LOBO/SINO/CARRO), ver docs/characters/CHARACTER_BIBLE.md. genero SEMPRE explícito, nunca inferido da palavra (heurística de terminação -a/-o quebra com exceções do português)
   {word:"SAPO", syl:["SA","PO"], emoji:"🐸", level:1, character:"sapo", genero:"m"},
-  {word:"RATO", syl:["RA","TO"], emoji:"🐭", level:1},
+  {word:"RATO", syl:["RA","TO"], emoji:"🐭", level:1, character:"rato", genero:"m"},
   {word:"GALO", syl:["GA","LO"], emoji:"🐓", level:1, character:"galo", genero:"m"},
-  {word:"MALA", syl:["MA","LA"], emoji:"🧳", level:1},
-  {word:"ROSA", syl:["RO","SA"], emoji:"🌹", level:1},
+  {word:"MALA", syl:["MA","LA"], emoji:"🧳", level:1, character:"mala", genero:"f"},
+  {word:"ROSA", syl:["RO","SA"], emoji:"🌹", level:1, character:"rosa", genero:"f"},
   // Nível 2 — ainda simples, sílaba final fechada ou menos frequente
   {word:"CAMA", syl:["CA","MA"], emoji:"🛏️", level:2},
   {word:"LOBO", syl:["LO","BO"], emoji:"🐺", level:2, character:"lobo", genero:"m"},
@@ -79,12 +79,12 @@ const WORDS = [
   // concretas de criança pequena, não falta de curadoria (documentado no
   // índice). X, Z, K, W, Y seguem como limitação conhecida (letras raras).
   // ======================================================================
-  {word:"DEDO",   syl:["DE","DO"],   emoji:"👆", level:1},
-  {word:"MESA",   syl:["ME","SA"],   emoji:"🪑", level:1},
-  {word:"RUA",    syl:["RU","A"],    emoji:"🛣️", level:1},
-  {word:"SETE",   syl:["SE","TE"],   emoji:"7️⃣", level:1},
-  {word:"PERA",   syl:["PE","RA"],   emoji:"🍐", level:1},
-  {word:"DIA",    syl:["DI","A"],    emoji:"🌤️", level:1},
+  {word:"DEDO",   syl:["DE","DO"],   emoji:"👆", level:1, character:"dedo", genero:"m"},
+  {word:"MESA",   syl:["ME","SA"],   emoji:"🪑", level:1, character:"mesa", genero:"f"},
+  {word:"RUA",    syl:["RU","A"],    emoji:"🛣️", level:1, character:"rua", genero:"f"},
+  {word:"SETE",   syl:["SE","TE"],   emoji:"7️⃣", level:1}, // sem vídeo de personagem por design (banco: "sete objetos aparecem", não personagem) — ver BANCO_87_PALAVRAS.md
+  {word:"PERA",   syl:["PE","RA"],   emoji:"🍐", level:1, character:"pera", genero:"f"},
+  {word:"DIA",    syl:["DI","A"],    emoji:"🌤️", level:1, character:"dia", genero:"m"}, // cena contextual (sol nasce atrás de nuvem) — Lia ainda usa fala padrão "personagem chegou", fala tipo "cena" pendente (ver docs/DECISOES.md 2026-08-18)
   {word:"RIO",    syl:["RI","O"],    emoji:"🌊", level:2},
   {word:"SINO",   syl:["SI","NO"],   emoji:"🔔", level:2, character:"sino", genero:"m"},
   {word:"LEITE",  syl:["LEI","TE"],  emoji:"🥛", level:2},
