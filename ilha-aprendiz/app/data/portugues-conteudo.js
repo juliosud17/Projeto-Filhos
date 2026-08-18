@@ -90,7 +90,7 @@ const WORDS = [
   {word:"LEITE",  syl:["LEI","TE"],  emoji:"🥛", level:2, character:"leite", genero:"m"},
   {word:"NEVE",   syl:["NE","VE"],   emoji:"❄️", level:2, character:"neve", genero:"f"},
   {word:"MOLA",   syl:["MO","LA"],   emoji:"🪤", level:2, character:"mola", genero:"f"},
-  {word:"MURO",   syl:["MU","RO"],   emoji:"🧱", level:2}, // sem vídeo ainda — falta mídia (ver producao/CHECKLIST_PRODUCAO.md, 2026-08-18: pasta personagens/muro/ vazia, e apareceu um parede.mp4 sem pasta/palavra correspondente no banco, movido pra personagens/_a_revisar/ até confirmar se é o vídeo do MURO)
+  {word:"MURO",   syl:["MU","RO"],   emoji:"🧱", level:2, character:"muro", genero:"m"}, // confirmado pelo Júlio em 2026-08-18: o parede.mp4 (sem pasta/palavra correspondente) era o vídeo do MURO -- renomeado pra personagens/muro/muro-intro.mp4
   {word:"FITA",   syl:["FI","TA"],   emoji:"🎀", level:2, character:"fita", genero:"f"},
   {word:"GELO",   syl:["GE","LO"],   emoji:"🧊", level:2, character:"gelo", genero:"m"},
   {word:"DUNA",   syl:["DU","NA"],   emoji:"🏜️", level:2, character:"duna", genero:"f"},

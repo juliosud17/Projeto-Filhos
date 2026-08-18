@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-08-18 — Banco 100% em vídeo (MURO confirmado) + sílabas quase completas
+
+- `parede.mp4` confirmado como o vídeo do MURO, renomeado e registrado (`character:"muro", genero:"m"`) — as 87 palavras do banco têm vídeo de personagem real agora.
+- Áudio de sílaba: 31 arquivos (5 vogais + 26 clusters) reorganizados de `fonetica/avogais/`/`fonetica/dígrafos/` (pastas que o app não reconhece) pra `fonetica/silabas/` (a única que `mediaFonetica()` resolve, sempre, não importa o tamanho da sílaba). `cão.mp3` renomeado pra `cao.mp3` (dado do banco é sem til); extensões `.MP3` normalizadas pra `.mp3`.
+- Achado: `rra.mp3`/`rro.mp3` não correspondem a nenhuma sílaba usada no banco — movidos pra `fonetica/_a_revisar/`, aguardando confirmação. Ainda faltam 4 clusters: `boi`, `gar`, `lho`, `nho`.
+- `testes/qa_test_piloto_vaca.js`: checagem "banco inteiro tem character" sem mais exceção hardcoded. Suíte: 834 checagens (era 826), 33/34 arquivos sem falha (mesma baseline).
+
 ## 2026-08-18 — Banco quase 100%: 86 das 87 palavras com vídeo de personagem
 
 - 68 vídeos soltos reorganizados em `personagens/<palavra>/<palavra>-intro.mp4`. `app/data/portugues-conteudo.js`: as 68 ganharam `character`+`genero` — total 86/87 do banco jogável com vídeo real (só falta MURO).

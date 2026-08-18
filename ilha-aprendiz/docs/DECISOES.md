@@ -400,3 +400,22 @@ Suíte completa rodada após a mudança: 34/34 arquivos, exceto o mesmo `qa_test
 **Efeito no "100%":** as 5 rodadas de "Monte a Sílaba" (níveis 1-5) já são totalmente jogáveis agora — 86/87 palavras com vídeo real, e a que falta (MURO) e o áudio de sílaba/palavra que ainda não foi gravado (a maioria) caem no fallback de TTS já garantido desde o piloto da Vaca, então nada fica mudo ou quebrado. "100%" no sentido de "sem áudio sintético nenhum" ainda depende de gravar as 33 sílabas e as 77 palavras inteiras que faltam (ver `producao/CHECKLIST_PRODUCAO.md`).
 
 Suíte completa rodada após todas as mudanças: 33/34 arquivos sem falha (mesma baseline conhecida em `qa_test_regression.js`), estável em múltiplas rodadas.
+
+---
+
+## 2026-08-18 — Vídeo do MURO confirmado + sílabas quase completas (banco 100% em vídeo)
+
+**Contexto:** o Júlio confirmou que o `parede.mp4` da rodada anterior era mesmo o vídeo do MURO, e nessa mesma mensagem avisou que gravou os áudios das 5 vogais sozinhas e dos clusters de 3+ letras, organizados em pastas próprias (`fonetica/avogais/` e `fonetica/dígrafos/`), pedindo pra conferir.
+
+**O que mudou:**
+- `parede.mp4` renomeado pra `personagens/muro/muro-intro.mp4`; `app/data/portugues-conteudo.js`: MURO ganhou `character:"muro", genero:"m"` — **as 87 palavras do banco agora têm vídeo de personagem real**, nenhuma exceção.
+- `testes/qa_test_piloto_vaca.js`: a checagem estrutural que aceitava "só MURO sem character" virou "banco inteiro tem character" (`comCharacter.length === WORDS.length`) — sem mais exceção hardcoded.
+- Áudio de sílaba: `avogais/` e `dígrafos/` não são pastas que o app conhece — `mediaFonetica()` (`media-catalog.js`) sempre resolve `tipo:"silaba"` pra pasta `silabas/`, independente do tamanho da sílaba (1 letra ou cluster de 3+). Reorganizei os 31 arquivos pra dentro de `fonetica/silabas/`, com dois ajustes no caminho: `cão.mp3` → `cao.mp3` (o dado do banco usa `CAO` sem til, mesma regra de sempre — nome de arquivo segue o dado, não a ortografia visual) e extensões `.MP3` normalizadas pra `.mp3` minúsculo (consistência, não era bug funcional no Windows).
+
+**Achado, não resolvido silenciosamente:** `rra.mp3` e `rro.mp3` não correspondem a nenhuma sílaba realmente usada no banco (CARRO e FERRO, as únicas palavras com RR duplo, já são cobertas por `car`+`ro` e `fer`+`ro` — nenhuma usa "RRA"/"RRO" como sílaba própria na quebra silábica oficial). Movidos pra `fonetica/_a_revisar/` sem apagar, aguardando o Júlio confirmar se é sobra ou se gravou pensando em outra coisa.
+
+**Ainda faltam 4 dos 28 clusters:** `boi` (JIBOIA), `gar` (GARRAFA), `lho` (MILHO/JULHO/COELHO), `nho` (NINHO) — não vieram nessa leva.
+
+**Estado do "100%" agora:** vídeo de personagem está 100% (87/87). Áudio de sílaba está 29/33 (só faltam os 4 clusters acima + a pegadinha do Ç de FUMAÇA, que já tinha decisão pendente). Áudio de palavra inteira segue baixo (19/87) mas continua não bloqueando — fallback de TTS garantido desde o piloto da Vaca.
+
+Suíte completa rodada após a mudança: 834 checagens em `qa_test_piloto_vaca.js` (era 826), 33/34 arquivos sem falha (mesma baseline conhecida).

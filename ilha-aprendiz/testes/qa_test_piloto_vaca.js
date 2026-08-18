@@ -85,24 +85,22 @@ check("mediaLiaVoice monta a variante de gênero masculino", mediaLiaVoice("comu
 check("mediaCharacterVideo monta personagem/personagem-estado", mediaCharacterVideo("vaca","intro") === "assets/video/personagens/vaca/vaca-intro.mp4");
 check("mediaSfx monta grupo/nome", mediaSfx("feedback","acerto") === "assets/audio/sfx/feedback/acerto.mp3");
 
-/* ---------- 2) dado: banco quase inteiro tem 'character' agora (2026-08-18,
-   depois de escalar Lote A -> nível 1 -> banco quase completo, conforme a
-   mídia real foi sendo produzida). Em vez de manter uma lista hardcoded de
-   nomes (ficou insustentável em 87 palavras), a checagem virou ESTRUTURAL:
-   toda palavra com 'character' tem que ter 'genero' válido e 'character'
-   igual ao lowercase de 'word' (mesma convenção de pasta em
-   app/assets/video/personagens/), e a única exceção conhecida sem mídia
-   ainda é MURO (ver producao/CHECKLIST_PRODUCAO.md). ---------- */
+/* ---------- 2) dado: banco INTEIRO tem 'character' agora (2026-08-18,
+   depois de escalar Lote A -> nível 1 -> banco quase completo -> MURO (o
+   último que faltava, confirmado pelo Júlio que o parede.mp4 era o vídeo
+   dele) -- as 87 palavras têm vídeo real). Em vez de manter uma lista
+   hardcoded de nomes (ficou insustentável em 87 palavras), a checagem é
+   ESTRUTURAL: toda palavra tem 'character' preenchido, 'genero' válido, e
+   'character' igual ao lowercase de 'word' (mesma convenção de pasta em
+   app/assets/video/personagens/). ---------- */
 const vacaItem = WORDS.find(w=>w.word==="VACA");
 check("WORDS.VACA tem character:'vaca'", vacaItem && vacaItem.character === "vaca");
 const comCharacter = WORDS.filter(w=>w.character);
-check("banco tem pelo menos 80 palavras com 'character' já produzido (2026-08-18: quase o banco inteiro)", comCharacter.length >= 80);
+check("banco INTEIRO (87 palavras) tem 'character' produzido (2026-08-18: última, MURO, confirmada)", comCharacter.length === WORDS.length);
 const characterErrado = comCharacter.filter(w => w.character !== w.word.toLowerCase());
 check("todo 'character' bate com lowercase(word) (mesma convenção da pasta de vídeo)", characterErrado.length === 0);
 const generoInvalido = comCharacter.filter(w => w.genero !== "m" && w.genero !== "f");
-check("toda palavra com 'character' tem 'genero' explícito e válido ('m'|'f')", generoInvalido.length === 0);
-const semCharacterAindaEsperado = WORDS.filter(w => !w.character).map(w=>w.word);
-check("a única palavra do banco ainda sem 'character' é MURO (falta vídeo -- ver CHECKLIST_PRODUCAO.md)", semCharacterAindaEsperado.length === 1 && semCharacterAindaEsperado[0] === "MURO");
+check("toda palavra tem 'genero' explícito e válido ('m'|'f')", generoInvalido.length === 0);
 
 /* ---------- 3) AudioManager: fallback pra TTS quando o áudio "real" falha
    (o stub de Audio deste teste SEMPRE falha, simulando arquivo ausente) --
