@@ -6,6 +6,16 @@
 
 Pra pedir um vídeo, cole o prompt mestre de `TEMPLATES_PROMPTS.md` com os 3 campos abaixo da palavra desejada.
 
+## ⚠️ Classificação de risco pedagógico (2026-08-18)
+
+Nem toda palavra vira um vídeo inequívoco só porque tem um objeto "dono" dela. Classificação usada:
+
+- 🟢 **Direto** (73 palavras, sem marcação abaixo) — objeto/animal único, resposta razoavelmente óbvia.
+- 🟡 **Precisa direção visual cuidadosa** (10 palavras, marcadas abaixo) — objeto certo, mas risco de a criança nomear algo vizinho (ex. NINHO → "ovo"). Prompt já ajustado com direção mais específica.
+- 🔴 **Abstrato/contextual** (4 palavras: DIA, JULHO, FESTA, CIDADE, marcadas abaixo) — não existe objeto único que "seja" a palavra; o vídeo depende da criança interpretar a cena inteira certo. **Decisão registrada em `docs/DECISOES.md`: tentar mesmo assim (cena contextual, sem entregar a resposta), sabendo que o resultado pode continuar ambíguo** — validar com o Benjamin antes de confiar nesse padrão pra outras palavras abstratas do banco.
+
+**Pendência de arquitetura pras 4 abstratas:** a fala fixa da Lia hoje é "Olha quem **chegou** por aqui!... e monte o nome dela/dele!" — isso pressupõe um personagem/ser chegando, o que não faz sentido pra DIA/JULHO/FESTA/CIDADE (são cena, não personagem). Antes de implementar essas 4 no jogo, via ser preciso uma variante da fala da Lia pra "cena" (ainda genérica, não por palavra — só uma 2ª opção de frase fixa por categoria, mesmo padrão de `genero`). Ainda não gravada, não implementada — fica pra quando chegar a vez de produzir essas 4.
+
 ---
 
 ## Nível 1 (restantes: 9)
@@ -31,10 +41,10 @@ ACTION = The rose grows slightly and its petals gently open.
 SOUND = No voice, no sound.
 ```
 
-**DEDO**
+**DEDO** 🟡 ajustado — risco de a criança ler "mão" em vez de "dedo"
 ```
-SUBJECT = A friendly cartoon hand.
-ACTION = The hand raises one finger, points forward, and makes a small friendly wave.
+SUBJECT = A close-up of a single friendly cartoon finger, the rest of the hand mostly cropped out of frame at the edge.
+ACTION = The finger gently wiggles and taps twice in place, staying the clear central focus of the frame.
 SOUND = No voice, no sound.
 ```
 
@@ -45,11 +55,11 @@ ACTION = The table gently assembles/appears piece by piece in a soft, smooth mot
 SOUND = No voice, no sound.
 ```
 
-**RUA**
+**RUA** 🟡 ajustado — risco de a criança ler "carro" em vez de "rua"
 ```
-SUBJECT = A short stylized cartoon street.
-ACTION = The street appears and a small toy car quickly passes through the frame.
-SOUND = No voice. A very subtle soft engine sound is acceptable.
+SUBJECT = A short stylized cartoon street with visible road markings (a dashed center line and a sidewalk on each side), no vehicles present.
+ACTION = The street appears from front to back in gentle perspective, its road markings softly brightening.
+SOUND = No voice, no sound.
 ```
 
 **SETE**
@@ -66,11 +76,12 @@ ACTION = The pear gently rotates in place and settles still.
 SOUND = No voice, no sound.
 ```
 
-**DIA**
+**DIA** ⚠️ palavra abstrata — vídeo é uma aposta pedagógica, ver nota no fim do arquivo
 ```
-SUBJECT = A bright cartoon sun with a small cloud.
-ACTION = The sun rises quickly from behind the small cloud and shines softly.
-SOUND = No voice, no sound.
+SUBJECT = A simple cheerful outdoor scene transitioning from dawn to bright daylight: sky, a few small clouds, green grass, and a small house in the distance.
+ACTION = The scene smoothly brightens from soft early dawn light into a fully bright, clear, sunny sky; small birds gently fly across the bright sky. Keep the sun small and secondary, never the focus of the frame.
+SOUND = No voice. Very subtle natural daytime ambience with one or two soft bird chirps.
+IMPORTANT SEMANTIC NOTE: the concept to communicate is "day/daytime" as the WHOLE scene brightening, not any single object in it — do not make the sun a character, do not give it a face, do not let the sun, clouds, house or birds dominate or become an obvious standalone answer.
 ```
 
 ---
@@ -175,10 +186,10 @@ ACTION = The spring compresses and then playfully bounces up.
 SOUND = No voice. A very subtle soft boing sound is acceptable.
 ```
 
-**MURO**
+**MURO** 🟡 ajustado — risco de a criança ler "tijolo"/"bloco" em vez de "muro"
 ```
-SUBJECT = Small colorful toy blocks.
-ACTION = The blocks stack and interlock, forming a small low wall.
+SUBJECT = A small low garden wall made of stacked colorful bricks, already shown as one continuous wall segment (not individual scattered blocks).
+ACTION = The wall gently glows/highlights once along its full length.
 SOUND = No voice, no sound.
 ```
 
@@ -196,10 +207,10 @@ ACTION = The ice cube slides slightly and gently sparkles/shines.
 SOUND = No voice, no sound.
 ```
 
-**DUNA**
+**DUNA** 🟡 ajustado — risco de a criança ler "areia"/"deserto" em vez de "duna"
 ```
-SUBJECT = A small cartoon sand dune.
-ACTION = A gentle breeze softly moves sand over the dune.
+SUBJECT = A single tall cartoon sand dune with a clear curved ridge silhouette against a plain background.
+ACTION = A gentle breeze blows a light trail of sand off the top ridge of the dune.
 SOUND = No voice. A very subtle soft wind sound is acceptable.
 ```
 
@@ -210,10 +221,10 @@ ACTION = The nine objects appear one by one and settle in a clear, organized arr
 SOUND = No voice, no sound.
 ```
 
-**BICO**
+**BICO** 🟡 ajustado — risco de a criança ler "passarinho" em vez de "bico"
 ```
-SUBJECT = A small cartoon bird shown in profile.
-ACTION = The bird gently opens and closes its beak; it does not need to speak.
+SUBJECT = An extreme close-up of a small cartoon bird's beak only, the rest of the bird's body mostly cropped out of frame.
+ACTION = The beak opens and closes twice, staying the clear central focus of the frame.
 SOUND = No voice. A very subtle soft chirp is optional.
 ```
 
@@ -270,7 +281,7 @@ ACTION = The ring gently spins and sparkles.
 SOUND = No voice, no sound.
 ```
 
-**ARCO**
+**ARCO** 🟡 risco aceito, não ajustado — "arco" isolado pode soar mais como "arco-íris" (2 palavras) do que "arco" pra uma criança; mantive como estava porque não achei uma direção visual claramente melhor. Se testar e não funcionar, considerar trocar pra um arco de brincar (brinquedo, formato de arco de circo/portal) em vez de arco-íris.
 ```
 SUBJECT = A colorful rainbow.
 ACTION = The rainbow gently forms across the frame from one side to the other.
@@ -298,10 +309,10 @@ ACTION = The kiwi rotates in place and reveals a cut half showing its green insi
 SOUND = No voice, no sound.
 ```
 
-**ILHA**
+**ILHA** 🟡 ajustado — risco de a criança ler "praia" em vez de "ilha"
 ```
-SUBJECT = A small tropical cartoon island.
-ACTION = The island gently emerges/rises from the water.
+SUBJECT = A small tropical island seen from above/at an angle that clearly shows it completely surrounded by blue water on all sides, with a palm tree on top.
+ACTION = The island gently emerges from the water, the surrounding water clearly visible on every side.
 SOUND = No voice. A very subtle soft water sound is acceptable.
 ```
 
@@ -312,11 +323,12 @@ ACTION = The zebra walks in and gently sways its head.
 SOUND = No voice. A very light natural sound is optional.
 ```
 
-**FESTA**
+**FESTA** ⚠️ palavra abstrata — vídeo é uma aposta pedagógica, ver nota no fim do arquivo
 ```
-SUBJECT = Colorful party balloons and confetti.
-ACTION = Balloons float in and confetti gently falls, with no text shown.
+SUBJECT = A small festive party scene with colorful balloons, falling confetti, a simple decorated cake, and hanging streamers, all shown together.
+ACTION = All the party elements appear and animate together at the same time (balloons gently sway, confetti falls, streamers wave) — no single element should dominate the frame.
 SOUND = No voice, no sound.
+IMPORTANT SEMANTIC NOTE: the concept to communicate is "festa" (the whole party) — not "balão" alone. Multiple party elements must be visible together, not just balloons.
 ```
 
 **PUDIM**
@@ -326,11 +338,11 @@ ACTION = The pudding gently wobbles/jiggles in place.
 SOUND = No voice, no sound.
 ```
 
-**NINHO**
+**NINHO** 🟡 ajustado — risco de a criança ler "ovo" ou "passarinho" em vez de "ninho"
 ```
-SUBJECT = A small bird's nest with eggs.
-ACTION = The nest appears with small eggs inside, and a little bird lands on it.
-SOUND = No voice. A very light natural chirp is optional.
+SUBJECT = A small bird's nest with a few eggs inside, no bird present.
+ACTION = The nest gently appears/settles and the eggs softly wiggle in place.
+SOUND = No voice, no sound.
 ```
 
 **FERRO**
@@ -361,11 +373,12 @@ ACTION = The corn gently rotates and a few husk leaves open.
 SOUND = No voice, no sound.
 ```
 
-**JULHO**
+**JULHO** ⚠️ palavra abstrata — vídeo é uma aposta pedagógica, ver nota no fim do arquivo
 ```
-SUBJECT = An illustrated calendar page with a festive winter-party (Festa Junina) atmosphere, no numbers or text visible.
-ACTION = The calendar page gently appears with small festive decorative elements around it.
+SUBJECT = An illustrated calendar page (no numbers, no text, no month name) styled with a warm "Festa Junina" (winter countryside party) atmosphere: small triangular flags, a simple bonfire icon, and warm colors.
+ACTION = The calendar page and its festive decorations gently appear together, settling into a warm, cozy composition. No single decoration should dominate the frame.
 SOUND = No voice, no sound.
+IMPORTANT SEMANTIC NOTE: the concept to communicate is "julho" (the month) via its cultural association with Festa Junina — no single element (flags, bonfire, calendar) should read as the obvious standalone answer.
 ```
 
 ---
@@ -523,11 +536,12 @@ ACTION = The onion rotates in place and reveals its stylized inner layers.
 SOUND = No voice, no sound.
 ```
 
-**CIDADE**
+**CIDADE** ⚠️ palavra abstrata — vídeo é uma aposta pedagógica, ver nota no fim do arquivo
 ```
-SUBJECT = A small stylized 3D toy city.
-ACTION = The city gently grows/assembles with colorful buildings appearing.
+SUBJECT = A small stylized 3D toy city with SEVERAL colorful buildings of different heights arranged together along a simple street layout.
+ACTION = The buildings gently grow/assemble together at the same time, forming a small skyline. No single building should dominate the frame.
 SOUND = No voice, no sound.
+IMPORTANT SEMANTIC NOTE: the concept to communicate is "cidade" (many buildings together) — not "prédio" (one building). Multiple distinct buildings must be visible at once.
 ```
 
 **AGULHA**
@@ -544,17 +558,17 @@ ACTION = The bottle gently rotates in place and settles still.
 SOUND = No voice, no sound.
 ```
 
-**BURACO**
+**BURACO** 🟡 ajustado — risco de a criança ler "bola" em vez de "buraco" (a bola roubava a cena)
 ```
-SUBJECT = A small cartoon hole in the ground.
-ACTION = A ball playfully rolls near the hole and gently falls into it.
-SOUND = No voice. A very subtle soft bounce sound is acceptable.
+SUBJECT = A cartoon hole in the ground with clear rounded edges and visible depth, no ball present.
+ACTION = The hole appears and its edges gently pulse/highlight once, staying the clear central focus.
+SOUND = No voice, no sound.
 ```
 
-**FUMAÇA**
+**FUMAÇA** 🟡 ajustado — risco de a criança ler "nuvem" em vez de "fumaça" (ver também alerta de nomeação de arquivo ÇA no `CHECKLIST_PRODUCAO.md`)
 ```
-SUBJECT = A light puff of cartoon smoke.
-ACTION = A small soft cloud of smoke rises and gently dissipates.
+SUBJECT = A thin wisp of gray cartoon smoke rising from a small chimney, the chimney shown only as a small gray base kept secondary.
+ACTION = The smoke rises in a thin curling trail and gently dissipates into the air.
 SOUND = No voice, no sound.
 ```
 
