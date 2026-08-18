@@ -1,6 +1,10 @@
 # Checklist de Produção — Monte a Sílaba (banco completo, 87 palavras)
 
-*Atualizar esta tabela conforme os arquivos forem entrando em `app/assets/`. ✅ = já existe no projeto | 🔴 = falta produzir/gravar | ♻️ = sílaba já existe (produzida por outra palavra), só reusar. Status conferido em 2026-08-17 (escala do banco inteiro, depois do Lote A validado ao vivo).*
+*Atualizar esta tabela conforme os arquivos forem entrando em `app/assets/`. ✅ = já existe no projeto | 🔴 = falta produzir/gravar | ♻️ = sílaba já existe (produzida por outra palavra), só reusar. Status conferido em 2026-08-18.*
+
+## 📁 Estrutura de pasta dos vídeos (importante)
+
+Cada palavra precisa da PRÓPRIA pasta em `app/assets/video/personagens/<palavra-minuscula>/`, com o vídeo dentro renomeado pra `<palavra-minuscula>-intro.mp4` (ex. `personagens/mala/mala-intro.mp4`) — é assim que o app calcula o caminho automaticamente (`mediaCharacterVideo`, `js/media-catalog.js`). **Todas as 87 pastas já estão criadas vazias** — é só soltar o vídeo dentro da pasta certa e renomear pra `<palavra>-intro.mp4`. Se cair solto na raiz de `personagens/` eu organizo, mas economiza um passo já soltar direto na pasta.
 
 ## ⚠️ Achado durante esta checagem — decisão necessária antes de gravar FUMAÇA
 
@@ -54,12 +58,14 @@ Praticamente todo o alfabeto (consoante + A/E/I/O/U) já está gravado — ver l
 
 | Nível | Total | Produzidos | Faltam |
 |---|---|---|---|
-| 1 | 16 | 7 (BOLA, CASA, GATO, PATO, VACA, SAPO, GALO) | 9 (RATO, MALA, ROSA, DEDO, MESA, RUA, SETE, PERA, DIA) |
+| 1 | 16 | 15 (BOLA, CASA, GATO, PATO, VACA, SAPO, GALO, RATO, MALA, ROSA, DEDO, MESA, RUA, PERA, DIA) | 1 (SETE) |
 | 2 | 22 | 2 (LOBO, SINO) | 20 |
 | 3 | 22 | 1 (CARRO) | 21 |
 | 4 | 11 | 0 | 11 |
 | 5 | 16 | 0 | 16 |
-| **Total** | **87** | **10** | **77** |
+| **Total** | **87** | **18** | **69** |
+
+Nível 1 quase fechado (2026-08-18) — só falta o vídeo de **SETE** (pasta `personagens/sete/` já criada, esperando `sete-intro.mp4`).
 
 Prompts de vídeo pras 77 palavras que faltam: `producao/PROMPTS_VIDEO_TODAS_PALAVRAS.md` (gerado em 2026-08-17, a partir das ações em português já registradas em `BANCO_87_PALAVRAS.md`).
 
