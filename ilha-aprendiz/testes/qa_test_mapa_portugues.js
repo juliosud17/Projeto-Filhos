@@ -104,8 +104,8 @@ check("popover mostra o nome da região", silabasRegion.querySelector('.map-popo
 check("popover de AVAILABLE tem CTA de ação", !!silabasRegion.querySelector('.map-popover__cta'));
 check("clicar de novo no mesmo marcador fecha o popover (toggle)", (()=>{ clickMarker('silabas'); return !silabasRegion.classList.contains('is-open'); })());
 clickMarker('silabas'); // reabre
-check("clique no CTA do popover abre screen-atividades", (()=>{ clickCta(silabasRegion); return active('screen-atividades'); })());
-check("state.currentModuloId aponta pro módulo certo", state.currentModuloId === 'silabas');
+check("clique no CTA do popover abre o jogo direto (rodada 4: pula a grade de Atividades)", (()=>{ clickCta(silabasRegion); return active('screen-game'); })());
+check("state.game aponta pra 1ª atividade não concluída do módulo", state.game === 'silabas');
 
 // abrir uma segunda região fecha a primeira (só 1 popover aberto por vez)
 resetProgress();
@@ -138,12 +138,14 @@ check("tela do Projeto Leitor mostra o roteiro de perguntas", PROJETO_LEITOR_ROT
 backFromProjetoLeitor();
 check("'Voltar pra ilha' retorna pro mapa", active('screen-mapa-portugues'));
 
-// ===== 6. backToModulos() é ciente da trilha =====
+// ===== 6. backToModulos() continua ciente da trilha -- a função e a tela
+// screen-atividades continuam existindo (Matemática ainda usa normalmente),
+// só não são mais alcançadas pelo clique no mapa desde a rodada 4. Testa
+// chamando openAtividades() direto, no lugar do fluxo mapa->CTA. =====
 resetProgress();
-openMapaPortugues();
-const setupRegion = clickMarker('silabas');
-clickCta(setupRegion);
-check("(setup) está em screen-atividades vindo do mapa", active('screen-atividades'));
+state.currentTrilha = 'portugues';
+openAtividades('silabas');
+check("(setup) screen-atividades ainda funciona se chamada diretamente", active('screen-atividades'));
 backToModulos();
 check("'← Voltar' de dentro de Atividades (Português) volta pro MAPA, não pra grade", active('screen-mapa-portugues'));
 
@@ -185,12 +187,13 @@ check("com a ilha inteira concluída, nenhum módulo é o destino atual (Projeto
 })());
 check("subtítulo reflete o destino remanescente (Castelo dos Livros)", document.getElementById('mapa-portugues-subtitle').textContent.includes('Castelo dos Livros'));
 
-// ===== 9. nome amigável da região aparece na tela de Atividades vinda do mapa =====
+// ===== 9. renderAtividades() ainda sabe usar o nome amigável quando chamada
+// diretamente -- preservada pra Matemática/futuro, só não é mais alcançada
+// pelo clique no mapa desde a rodada 4 (ver docs/DECISOES.md) =====
 resetProgress();
-openMapaPortugues();
-const r9 = clickMarker('silabas');
-clickCta(r9);
-check("tela de Atividades mostra o nome da região (não o nome curricular) vindo do mapa", document.getElementById('atividades-title').textContent.includes('Floresta do Alfabeto') && !document.getElementById('atividades-title').textContent.includes('Módulo 1'));
+state.currentTrilha = 'portugues';
+openAtividades('silabas');
+check("tela de Atividades mostra o nome da região (não o nome curricular) quando chamada diretamente", document.getElementById('atividades-title').textContent.includes('Floresta do Alfabeto') && !document.getElementById('atividades-title').textContent.includes('Módulo 1'));
 check("subtítulo de Atividades usa linguagem de aventura, não a descrição curricular", document.getElementById('atividades-subtitle').textContent === 'Escolha seu próximo desafio');
 check("dado curricular original continua intacto em PT_MODULES_BENJAMIN", PT_MODULES_BENJAMIN.find(m=>m.id==='silabas').name.includes('Módulo 1'));
 
@@ -241,37 +244,66 @@ check("ilha inteira concluída continua com a mensagem de conclusão (sem destin
   return mensagemDestinoAtual(null) === "Você já explorou a ilha inteira! 🎉";
 })());
 
-// ===== 13. subtítulo contextual da tela de Atividades (item 7) =====
+// ===== 13. subtítulo contextual da tela de Atividades, quando chamada
+// diretamente (mesma nota da seção 9) =====
 resetProgress();
-openMapaPortugues();
-const r13 = clickMarker('silabas');
-clickCta(r13);
+state.currentTrilha = 'portugues';
+openAtividades('silabas');
 check("sem progresso: subtítulo de Atividades convida a escolher", document.getElementById('atividades-subtitle').textContent === 'Escolha seu próximo desafio');
 
-backToModulos();
 activityLevel.silabas = 5; mastery['silabas:5'] = [true,true,true];
-openMapaPortugues();
-const r13b = clickMarker('silabas');
-clickCta(r13b);
+openAtividades('silabas');
 check("com progresso: subtítulo de Atividades mostra 'continue' + X de Y", document.getElementById('atividades-subtitle').textContent.includes('Continue sua aventura') && document.getElementById('atividades-subtitle').textContent.includes('de'));
 
-// ===== 14. cadeia completa de "Voltar": exercício -> Atividades -> Mapa -> Matérias =====
+// ===== 14. cadeia completa de "Voltar": exercício -> Mapa -> Matérias
+// (rodada 4: Atividades deixou de fazer parte do caminho normal do mapa) =====
 resetProgress();
 openMaterias();
 openMapaPortugues();
 const r14 = clickMarker('silabas');
 clickCta(r14);
-check("(setup 1/4) Ilha -> Floresta do Alfabeto (screen-atividades)", active('screen-atividades'));
-state.navBack = "atividades"; // mesma coisa que o card de atividade real seta antes de startGame
-state.game = MODULE1_ACTIVITIES[0].id;
-showScreen('screen-game');
-check("(setup 2/4) dentro de um exercício", active('screen-game'));
+check("(setup 1/3) Ilha -> direto pro jogo (screen-game), sem passar por Atividades", active('screen-game') && !active('screen-atividades'));
+check("state.game é a 1ª atividade do módulo (silabas)", state.game === 'silabas');
 backToMenu();
-check("Voltar do exercício retorna pra Atividades (Floresta do Alfabeto), não pro mapa direto", active('screen-atividades'));
-backToModulos();
-check("Voltar de Atividades retorna pra Ilha das Letras (mapa)", active('screen-mapa-portugues'));
+check("Voltar do exercício retorna DIRETO pra Ilha das Letras (mapa)", active('screen-mapa-portugues'));
 backToMaterias();
 check("Voltar da Ilha das Letras retorna pra Matérias", active('screen-materias'));
+
+// ===== 17. CTA do mapa pula a grade de Atividades (rodada 4, 2026-08-19) =====
+resetProgress();
+openMapaPortugues();
+const r17a = clickMarker('silabas');
+check("popover nomeia a 1ª atividade do módulo antes de clicar", r17a.querySelector('.map-popover').textContent.includes(MODULE1_ACTIVITIES[0].name));
+clickCta(r17a);
+check("CTA abre o jogo direto (screen-game), não a grade de Atividades", active('screen-game') && !active('screen-atividades'));
+check("state.game é a 1ª atividade não concluída do módulo", state.game === MODULE1_ACTIVITIES[0].id);
+
+// conclui a 1ª atividade -- CTA deve pular pra 2ª, não repetir a 1ª
+resetProgress();
+activityLevel[MODULE1_ACTIVITIES[0].id] = 5;
+mastery[MODULE1_ACTIVITIES[0].id + ':5'] = [true,true,true,true,true,true,true,true,true,true];
+openMapaPortugues();
+const r17b = clickMarker('silabas');
+check("popover nomeia a 2ª atividade quando a 1ª já está concluída", r17b.querySelector('.map-popover').textContent.includes(MODULE1_ACTIVITIES[1].name));
+clickCta(r17b);
+check("CTA pula direto pra 2ª atividade (não repete a 1ª já concluída)", state.game === MODULE1_ACTIVITIES[1].id);
+
+// módulo inteiro concluído (MASTERED, sem Desafio Final ainda) -- CTA abre a prova
+resetProgress();
+fullyMasterContainer('silabas');
+openMapaPortugues();
+const r17c = clickMarker('silabas');
+check("popover aponta o Desafio Final quando todas as atividades estão concluídas", r17c.querySelector('.map-popover').textContent.includes('Desafio Final'));
+clickCta(r17c);
+check("CTA abre o Desafio Final direto quando o módulo está MASTERED", state.provaMode === true && state.provaContainerId === 'silabas');
+
+// DESAFIO_APROVADO -- "Explorar de novo" também abre o Desafio Final direto
+resetProgress();
+fullyMasterContainer('silabas'); passProva('silabas');
+openMapaPortugues();
+const r17d = clickMarker('silabas');
+clickCta(r17d);
+check("CTA abre o Desafio Final de novo quando já aprovado (Explorar de novo)", state.provaMode === true && state.provaContainerId === 'silabas');
 
 // ===== 15. função pura de rolagem mobile (sem depender de layout real) =====
 check("calcularScrollCentralizado centraliza o alvo dentro da janela visível", calcularScrollCentralizado(300, 100, 800) === 250);

@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-08-19 — Ilha das Letras, rodada 4: o mapa pula a grade de Atividades
+
+- CTA do popover ("Continuar aventura") deixa de abrir a grade de 7 cards de Atividades — abre direto a próxima atividade não concluída do módulo (`proximaAtividadeDoModulo()`) ou o Desafio Final quando tudo já está feito. Progressão dentro do módulo vira sequencial, não mais livre escolha.
+- Popover ganha uma linha nova nomeando a atividade específica (ícone+nome) que o CTA vai abrir, antes de clicar.
+- `backToMenu()` (`js/admin.js`) ganha o branch que faltava pra `state.navBack === "mapa-portugues"` — "Voltar"/"Ver outros jogos" depois de um exercício volta pro mapa direto.
+- `screen-atividades`/`renderAtividades()` continuam intocados — Matemática segue usando normalmente.
+- `testes/qa_test_mapa_portugues.js`: 79 checagens. Suíte completa: mesma baseline (33/34).
+
 ## 2026-08-19 — Ilha das Letras: marcadores maiores + setinhas no destino atual
 
 - Marcadores do mapa (círculo+ícone) de 44px pra 58px — mais fáceis de ver/tocar.

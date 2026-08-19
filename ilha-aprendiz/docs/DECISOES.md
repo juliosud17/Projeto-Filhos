@@ -6,6 +6,22 @@
 
 ---
 
+## 2026-08-19 — Ilha das Letras, rodada 4: o mapa pula a grade de Atividades
+
+**Decisão:** clicar em "Continuar aventura" no mapa deixa de abrir `screen-atividades` (grade de 7 cards de escolha livre) e passa a abrir **diretamente a próxima atividade não concluída do módulo** (`proximaAtividadeDoModulo()`, `js/mapa-portugues.js`) — mesma função que os cards da grade sempre usaram (`maybeShowLesson()` → `startGame()`), só chamada de um lugar diferente. Quando as 7 atividades já estão concluídas, o CTA abre o Desafio Final direto (`startProva()`), tanto pra quem ainda não passou (MASTERED) quanto pra quem já passou e quer repetir por diversão (DESAFIO_APROVADO — "Explorar de novo").
+
+**Motivo, com print anexado pelo Júlio:** dentro de um módulo, as 7 atividades sempre foram simultaneamente destravadas — isso é arquitetura antiga (não-sequencial dentro do módulo), não um bug introduzido pelo mapa. Mas a grade de Atividades deixava essa liberdade visível e clicável — a criança podia pular direto pra "Maiúscula ↔ Minúscula" sem ter feito "Pares Mínimos" ainda, o que o Júlio chamou de "burlar o bloqueio da ilha". A solução não foi mudar a regra de desbloqueio (isso seguiria idêntico), foi tirar a tela que expõe a escolha livre — a criança agora só vê/faz uma atividade de cada vez, na ordem em que aparecem no módulo.
+
+**O que NÃO muda:** `screen-atividades`/`renderAtividades()` continuam existindo, código intocado — **Matemática ainda usa a grade normalmente** (`renderModulos()` → `openAtividades()`, nunca tocado em nenhuma rodada da Ilha das Letras). Só o mapa (Português) parou de rotear por ali. Mastery, desbloqueio, Desafio Final, níveis — tudo idêntico, é puramente uma mudança de "qual tela abre ao clicar".
+
+**Segunda parte do pedido — o popover passa a nomear a atividade específica:** como o CTA agora pula direto pra dentro de um jogo específico, o popover ganhou uma linha nova (ícone+nome da atividade, reaproveitando `act.icon`/`act.name` que já existiam em `MODULE1_ACTIVITIES` etc. — já em linguagem de criança, sem precisar de camada de tradução nova) — "🧩 Monte a Sílaba" antes de clicar, "🏁 Desafio Final" quando o módulo já está todo concluído.
+
+**Efeito colateral aceito, de propósito:** não dá mais pra escolher/repetir uma atividade específica pelo mapa (ex. rejogar "Caça-Letras" só por diversão depois de 100%) — a progressão dentro do módulo virou estritamente sequencial, que é exatamente o comportamento pedido. Replay livre de qualquer atividade continua disponível pelo painel de admin (`adminPlay`, já bypassava a grade, não depende de nada disso). `backToModulos()` (branch que devolve pro mapa) vira código órfão pro fluxo normal da criança em Português — mantido mesmo assim, é barato e Matemática usa a outra metade da mesma função normalmente. `state.navBack = "mapa-portugues"` (existia desde a rodada 2, sempre sobrescrito antes de ser lido) finalmente passou a ser real — `backToMenu()` (`js/admin.js`) ganhou o branch que faltava pra ler esse valor.
+
+**Testado** (`testes/qa_test_mapa_portugues.js`, 79 checagens — 9 novas/reescritas): CTA abre `screen-game` direto (não mais `screen-atividades`); popover nomeia a atividade certa antes de clicar; CTA pula pra 2ª atividade quando a 1ª já está concluída (não repete); CTA abre o Desafio Final direto tanto em MASTERED quanto em DESAFIO_APROVADO; cadeia de "Voltar" atualizada (exercício → Mapa → Matérias, sem mais passar por Atividades); `renderAtividades()`/`screen-atividades` continuam funcionando normalmente se chamadas diretamente (cobertura preservada, útil pra Matemática e qualquer uso futuro). Suíte completa: 33/34 arquivos sem falha (mesma baseline conhecida).
+
+---
+
 ## 2026-08-19 — Ilha das Letras: marcadores maiores + setinhas no destino atual
 
 **Decisão:** ajuste pequeno de UX pedido pelo Júlio — os marcadores do mapa (círculo+ícone da região) ficaram maiores (44px → 58px, bem acima do mínimo de toque de 44px), e o marcador do destino atual (`--recommended`) ganhou 2 setinhas apontando pra dentro, uma de cada lado, além do halo e do selo "✨" que já existiam.

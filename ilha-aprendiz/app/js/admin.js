@@ -189,6 +189,12 @@ function backToMenu(){
     }else if(state.navBack === "anoletivo"){
       renderAnoLetivo();
       showScreen("screen-menu");
+    }else if(state.navBack === "mapa-portugues"){
+      // Rodada 4 da Ilha das Letras (2026-08-19): o CTA do mapa agora pula
+      // a grade de Atividades e abre a atividade/Desafio Final direto --
+      // "Voltar"/"Ver outros jogos" precisa retornar pro mapa, não pra uma
+      // grade que a criança nunca visitou nesta sessão.
+      openMapaPortugues();
     }else{
       renderAtividades();
       showScreen("screen-atividades");

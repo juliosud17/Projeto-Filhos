@@ -82,6 +82,20 @@ function regionIsRecommendedToday(moduleId){
   return moduleId === computeDestinoAtual();
 }
 
+/* Próxima atividade não concluída de um módulo, na ordem em que aparecem
+   no container (mesma ordem que a antiga grade de Atividades sempre
+   mostrou) -- mesmo critério de "concluída" que moduleStatus()/doneCount
+   já usam (nível 5 + 80% de domínio), só que devolve a atividade em si, não
+   a contagem. null quando as 7 já estão concluídas (módulo MASTERED ou
+   DESAFIO_APROVADO). Rodada 4 (2026-08-19, ver docs/DECISOES.md): o CTA do
+   mapa passa a pular a grade de Atividades e abrir isso diretamente -- a
+   criança não escolhe mais livremente entre as 7, segue uma de cada vez. */
+function proximaAtividadeDoModulo(mod){
+  const container = containerById(mod.id);
+  if(!container) return null;
+  return container.activities.find(a => !(activityLevel[a.id]===5 && masteryPercent(a.id+":5")>=80)) || null;
+}
+
 /* Cabeçalho contextual do mapa (rodada 3) -- substitui o "Próximo destino:
    X" fixo por uma mensagem que reflete onde a criança realmente está,
    sem inventar regra de mastery nova (só leitura de moduleStatus(), que já
@@ -166,13 +180,22 @@ function renderMapaPortugues(){
     if(cta){
       // Módulo 8 (Castelo dos Livros) não é um jogo -- abre a tela do
       // Projeto Leitor, não a grade de atividades. Ver js/projeto-leitor.js.
+      // Demais módulos (rodada 4, 2026-08-19): pula a grade de Atividades
+      // -- vai direto pra próxima atividade não concluída (mesma função que
+      // os cards da grade sempre usaram, maybeShowLesson -> startGame) ou
+      // pro Desafio Final quando as 7 já estão concluídas.
       cta.onclick = (evt)=>{
         evt.stopPropagation();
         if(regiao.moduleId === "projetoleitor"){
           openProjetoLeitor();
         }else{
           state.navBack = "mapa-portugues";
-          openAtividades(mod.id);
+          const proxima = proximaAtividadeDoModulo(mod);
+          if(proxima){
+            maybeShowLesson(proxima.id);
+          }else{
+            startProva(mod.id);
+          }
         }
       };
     }
@@ -262,7 +285,16 @@ function mapaPopoverHtml(regiao, status, mod){
       break;
   }
 
-  return titulo + `<p class="map-popover__status">${statusLinha}</p>` + detalheLinha +
+  // Nomeia a atividade específica que o CTA abre (rodada 4, 2026-08-19) --
+  // sem isso, o popover só dizia o nome da região, nunca qual dos 7
+  // desafios ia abrir de fato; agora o CTA pula direto pra lá, então
+  // precisa deixar claro o que vai acontecer antes de clicar.
+  const proxima = proximaAtividadeDoModulo(mod);
+  const proximaLinha = proxima
+    ? `<p class="map-popover__detail">${proxima.icon} ${proxima.name}</p>`
+    : `<p class="map-popover__detail">🏁 Desafio Final</p>`;
+
+  return titulo + `<p class="map-popover__status">${statusLinha}</p>` + detalheLinha + proximaLinha +
     `<button type="button" class="map-popover__cta">${mapaCtaLabel(status.state)}</button>`;
 }
 
