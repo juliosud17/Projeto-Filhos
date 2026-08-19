@@ -4,6 +4,15 @@
 
 ---
 
+## 2026-08-19 — Monte a Sílaba fecha 100% (vídeo + sílabas + palavra inteira)
+
+- Últimas 4 sílabas gravadas (`boi`, `gar`, `lho`, `nho`) — sílabas agora 33/33.
+- `bói.MP3` renomeado pra `boi.mp3` (o jogo procura sem acento; conteúdo do áudio já estava certo).
+- `fonetica/palavras/` conferida: 87/87 palavras presentes, incluindo as 10 que faltavam antes + FUMAÇA. Duplicata `pato(1).MP3` não existe mais.
+- `digite-a-palavra.mp3` (fala da Lia do nível 5) confirmado gravado e no lugar certo — nível 5 usa a voz oficial, sem fallback de TTS.
+- Ressalva registrada (não é bug ativo, é limitação de design pra futuro): sílaba "boi" hoje só serve pro som tônico de JIBOIA — se uma palavra futura usar "boi" átono (ex. "boiadeiro"), vai precisar de solução nova, já que o sistema atual dá sempre a mesma pronúncia pra mesma grafia de sílaba. Ver `docs/DECISOES.md`.
+- **Efeito:** as 5 rodadas de "Monte a Sílaba" (níveis 1-5) estão 100% em mídia real — sem nenhum fallback de TTS pendente no fluxo principal.
+
 ## 2026-08-18 — Nível 5 (Digite a Palavra) para de usar voz nativa "crua"
 
 - `app/js/activities-portugues.js`: `renderDigitePalavra()` trocou `speak()` direto por `AudioManager.queueVoice([...])` com 2 peças — a instrução fixa `digite-a-palavra.mp3` (nova, ainda não gravada, cai pro TTS até lá) + a pronúncia oficial da palavra (`mediaFonetica("palavra", ...)`, já existe pra 76/87).

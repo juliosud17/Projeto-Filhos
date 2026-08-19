@@ -454,3 +454,19 @@ Suíte completa rodada após a mudança: 836 checagens em `qa_test_piloto_vaca.j
 **Achado incidental, não corrigido (fora do escopo desta mudança):** ao investigar um `jsdomError` intermitente em `qa_test_typing.js`, descobri que é um bug pré-existente e não relacionado — `endSession()` (`game-loop.js`) acessa `CHILD_INFO[state.child].name`, e esse teste específico nunca define `state.child` antes de simular respostas certas no nível 5. Confirmei que o erro acontece igual com o código ANTIGO (`speak()` direto), então não foi introduzido por esta mudança — é uma lacuna do harness de teste (ou, na pior hipótese, um bug real de `state.child` indefinido em algum fluxo de produção ainda não mapeado). Não é falha de teste (o `RESULT` continua "0 failed"), só barulho no console. Fica registrado pra quem for investigar depois, não resolvido agora pra não misturar dois problemas numa mudança só.
 
 Suíte completa rodada após a mudança: 33/34 arquivos sem falha (mesma baseline conhecida em `qa_test_regression.js`), estável.
+
+---
+
+## 2026-08-19 — Monte a Sílaba fecha 100%: últimas 4 sílabas, `bói`→`boi`, ressalva de "boi" contextual
+
+**Contexto:** o Júlio terminou os 4 clusters de sílaba que faltavam (`boi`, `gar`, `lho`, `nho`) e reconfirmou que já tinha terminado antes o áudio de palavra inteira. Ao gravar `boi` (usado em JIBOIA), salvou o arquivo como `bói.MP3` de propósito — pra marcar que o som é o "ó" tônico — e avisou que se uma palavra futura usar "boi" de um jeito átono (ele deu o exemplo "boiadeiro"), o som muda e não seria o mesmo áudio.
+
+**O que mudou:**
+- Conferi as 4 sílabas na pasta: `gar.MP3`, `LHO.MP3`, `nho.MP3` já estavam com nome correto (maiúsculo não importa no Windows). `bói.MP3` estava com acento — renomeei pra `boi.mp3`, porque o jogo calcula o nome do arquivo removendo acento (`mediaFileName()` em `media-catalog.js`) e sempre procura `boi.mp3`; com o acento no nome, o arquivo nunca seria encontrado e cairia silenciosamente no TTS nativo (mesma causa/correção do caso `cão.mp3`→`cao.mp3` de 2026-08-18). O CONTEÚDO do áudio (o som "bói" tônico) está certo — só o nome do arquivo precisava mudar.
+- Conferi `fonetica/palavras/`: as 87 palavras (incluindo as 10 que faltavam antes — cama, ovo, uva, vela, dente, rio, leite, neve, mola, barco — e FUMAÇA) estão presentes, com nome certo. `pato(1).MP3` (duplicado, achado numa rodada anterior) não existe mais na pasta.
+
+**Sobre a ressalva do Júlio (boi vs. boiadeiro):** é uma limitação real do sistema atual, não uma correção que dava pra fazer agora. O jogo resolve o áudio de sílaba só pelo TEXTO da sílaba (`mediaFonetica("silaba", texto)` → sempre o mesmo arquivo pra o mesmo texto) — não existe hoje nenhum mecanismo pra dar 2 pronúncias diferentes à mesma grafia dependendo da palavra em que ela aparece. Busquei "BOI" em `portugues-conteudo.js`: aparece só 1 vez no banco inteiro (JIBOIA), então não é um bug ativo — é um alerta de design pra quando/se uma palavra como "boiadeiro" for adicionada no futuro. Se isso acontecer, vai exigir uma solução nova (por exemplo, sufixar o nome do arquivo por contexto, ou tratar como caso especial) — não implementado agora porque não há problema real ainda pra resolver, só a possibilidade.
+
+**Efeito no "100%":** as 5 rodadas de "Monte a Sílaba" (níveis 1-5) fecham 100% em mídia real — vídeo de personagem (87/87), áudio de sílaba (33/33) e áudio de palavra inteira (87/87), sem nenhum fallback de TTS pendente no fluxo principal. Restam só itens de limpeza opcional sem efeito no jogo (`rra.mp3`/`rro.mp3` em `fonetica/_a_revisar/`, aguardando confirmação) e a pendência separada, já conhecida, da fala "cena" da Lia pro DIA.
+
+Suíte completa rodada após a conferência: 836 checagens em `qa_test_piloto_vaca.js`, 0 falhas (nenhuma mudança de código nesta rodada, só organização de arquivo e documentação).

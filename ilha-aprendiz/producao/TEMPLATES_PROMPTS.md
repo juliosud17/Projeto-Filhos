@@ -171,15 +171,9 @@ Já existem no projeto (`app/assets/audio/lia/comuns/`), geradas com a voz ofici
 | `monte-o-nome-genero-masculino.mp3` | mesma frase, "...monte o nome dele!" | ✅ |
 | `acerto-01.mp3` | "Isso! Muito bem!" | ✅ |
 | `dica-vamos-ouvir-o-comeco.mp3` | "Quase! Vamos ouvir o começo?" | ✅ |
-| `digite-a-palavra.mp3` | "Digite a palavra:" | 🔴 **falta gravar** (2026-08-18, ver `docs/DECISOES.md`) — usada no nível 5 ("Digite a Palavra"), antes de tocar a pronúncia da palavra em si. Enquanto não existe, cai no TTS nativo do navegador (fallback normal, não trava nada) |
+| `digite-a-palavra.mp3` | "Digite a palavra:" | ✅ (2026-08-19, gravado e confirmado em `app/assets/audio/Lia/comuns/`) — usada no nível 5 ("Digite a Palavra"), antes de tocar a pronúncia da palavra em si. |
 
 Variações futuras (`acerto-02`, `acerto-03` etc.) ficam pra depois — não precisa agora (ver `docs/audio/MEDIA_GUIDELINES.md`).
-
-**Prompt de fonética pra `digite-a-palavra.mp3`** (é uma fala fixa da Lia, não uma pronúncia neutra — grava com a mesma técnica de frase natural usada nas outras falas da Lia, tom de convite/instrução, não neutro/robótico):
-
-```
-Digite a palavra:
-```
 
 ---
 
