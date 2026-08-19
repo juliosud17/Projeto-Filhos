@@ -200,6 +200,17 @@ function renderMapaPortugues(){
       };
     }
 
+    // "Praticar de novo" (rodada 5, 2026-08-19): rever uma atividade já
+    // dominada, sem afetar mastery -- só aparece quando existe pelo menos
+    // 1 atividade concluída nesse módulo. Ver mapaPopoverHtml() abaixo.
+    const linkPraticar = popover.querySelector(".map-popover__link");
+    if(linkPraticar){
+      linkPraticar.onclick = (evt)=>{
+        evt.stopPropagation();
+        openPraticaLivre(mod);
+      };
+    }
+
     wrap.appendChild(btn);
     wrap.appendChild(popover);
     container.appendChild(wrap);
@@ -294,8 +305,47 @@ function mapaPopoverHtml(regiao, status, mod){
     ? `<p class="map-popover__detail">${proxima.icon} ${proxima.name}</p>`
     : `<p class="map-popover__detail">🏁 Desafio Final</p>`;
 
+  // "Praticar de novo" (rodada 5, 2026-08-19): só aparece quando já tem
+  // pelo menos 1 atividade concluída nesse módulo -- sem isso, não tem
+  // nada pra "rever" ainda. Fica separado do CTA principal (link discreto,
+  // não outro botão do mesmo tamanho) pra não competir por atenção com
+  // "Continuar aventura", que continua sendo a ação principal.
+  const linkPraticarHtml = status.doneCount > 0
+    ? `<button type="button" class="map-popover__link">🔁 Praticar de novo</button>`
+    : "";
+
   return titulo + `<p class="map-popover__status">${statusLinha}</p>` + detalheLinha + proximaLinha +
-    `<button type="button" class="map-popover__cta">${mapaCtaLabel(status.state)}</button>`;
+    `<button type="button" class="map-popover__cta">${mapaCtaLabel(status.state)}</button>` + linkPraticarHtml;
+}
+
+/* "Praticar de novo" (rodada 5, 2026-08-19) -- tela própria, só com as
+   atividades JÁ concluídas do módulo (nunca as pendentes: não é uma forma
+   disfarçada de voltar a escolher livremente antes da hora, é só review do
+   que já foi dominado). Reaproveita a mesma estrutura visual da grade de
+   Atividades (.game-grid/.game-card, zero CSS novo) sem reaproveitar
+   renderAtividades() em si -- aquela função mistura título/subtítulo de
+   "próximo desafio" e o card do Desafio Final, que não fazem sentido aqui. */
+function openPraticaLivre(mod){
+  renderPraticaLivre(mod);
+  showScreen("screen-pratica-livre");
+}
+
+function renderPraticaLivre(mod){
+  const regiao = PT_MAPA_REGIOES.find(r=>r.moduleId === mod.id);
+  const container = containerById(mod.id);
+  document.getElementById("pratica-livre-title").textContent =
+    `🔁 Praticar de novo — ${regiao ? regiao.nome : mod.name}`;
+
+  const grid = document.getElementById("pratica-livre-grid");
+  grid.innerHTML = "";
+  const concluidas = container.activities.filter(a => activityLevel[a.id]===5 && masteryPercent(a.id+":5")>=80);
+  concluidas.forEach(act=>{
+    const card = document.createElement("div");
+    card.className = "game-card";
+    card.innerHTML = `<span class="tag">✅ Dominado</span><div class="icon">${act.icon}</div><h4>${act.name}</h4><p>${act.desc}</p>`;
+    card.onclick = ()=> { state.navBack = "mapa-portugues"; startFreePractice(act.id); };
+    grid.appendChild(card);
+  });
 }
 
 /* Abrir/fechar popover ao clicar/tocar o marcador (cobre mobile, onde não

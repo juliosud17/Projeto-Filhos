@@ -13,6 +13,12 @@ function startGame(gameId){
   state.pools = {};        // pools anti-repetição (palavras, letras) por sessão
   state.usedSomLetters = new Set();
   state.wrongStreak = 0;
+  // reset defensivo -- quem quer sessão de prática livre (startFreePractice,
+  // js/mapa-portugues.js) liga essa flag DEPOIS de chamar startGame(), então
+  // isso aqui só garante que uma sessão normal nunca herda o modo de uma
+  // anterior por engano (mesmo espírito de provaMode/revisaoMode, que cada
+  // função de início/fim já cuida de ligar/desligar por conta própria).
+  state.freePracticeMode = false;
   document.getElementById("session-stars").textContent = 0;
   const revisitBtn = document.getElementById("lesson-revisit-btn");
   if(revisitBtn) revisitBtn.style.display = LESSONS[gameId] ? "inline-block" : "none";
@@ -29,6 +35,18 @@ function startGame(gameId){
 
 function playAgainSameGame(){
   startGame(state.game);
+}
+
+/* "Praticar de novo": rever uma atividade já dominada, sem afetar mastery
+   -- acessível pelo popover do mapa (js/mapa-portugues.js), rodada 5
+   (2026-08-19). Mesmo padrão de isolamento que Desafio Final/Revisão
+   Espaçada já usam (trilha de pontuação separada, ou nenhuma) -- um erro
+   por distração numa rodada "só por diversão" não pode fazer o módulo
+   parecer não-dominado de novo. startGame() já reseta freePracticeMode pra
+   false antes de tudo, então liga a flag só DEPOIS de chamá-lo. */
+function startFreePractice(activityId){
+  startGame(activityId);
+  state.freePracticeMode = true;
 }
 
 function nextRound(){
@@ -259,6 +277,12 @@ function registerAnswer(isCorrect, btnEl, opts){
       const r = state.revisaoResults[state.currentRender];
       r.total++;
       if(isCorrect) r.correct++;
+    }else if(state.freePracticeMode){
+      // Praticar de novo (rever atividade já dominada, pelo mapa): não
+      // grava em nenhuma trilha de pontuação -- nem mastery, nem prova, nem
+      // revisão. É prática livre de verdade, sem número nenhum mudando por
+      // causa dela (nem wrongStreak, que só existe pra sugerir "rever a
+      // aula" durante aprendizado normal).
     }else{
       const key = activityLevel.hasOwnProperty(state.game)
         ? state.game + ":" + activityLevel[state.game]

@@ -305,6 +305,47 @@ const r17d = clickMarker('silabas');
 clickCta(r17d);
 check("CTA abre o Desafio Final de novo quando já aprovado (Explorar de novo)", state.provaMode === true && state.provaContainerId === 'silabas');
 
+// ===== 18. "Praticar de novo" -- rever atividade já dominada, sem afetar mastery (rodada 5, 2026-08-19) =====
+resetProgress();
+openMapaPortugues();
+const r18a = clickMarker('silabas');
+check("sem nenhuma atividade concluída, o popover NÃO mostra 'Praticar de novo'", !r18a.querySelector('.map-popover__link'));
+
+resetProgress();
+activityLevel[MODULE1_ACTIVITIES[0].id] = 5;
+mastery[MODULE1_ACTIVITIES[0].id + ':5'] = [true,true,true,true,true,true,true,true,true,true];
+openMapaPortugues();
+const r18b = clickMarker('silabas');
+const linkPraticar = r18b.querySelector('.map-popover__link');
+check("com 1 atividade concluída, o popover mostra 'Praticar de novo'", !!linkPraticar && linkPraticar.textContent.includes('Praticar de novo'));
+
+linkPraticar.onclick(fakeEvt());
+check("clicar em 'Praticar de novo' abre a tela dedicada (screen-pratica-livre)", active('screen-pratica-livre'));
+check("título da tela nomeia a região", document.getElementById('pratica-livre-title').textContent.includes('Floresta do Alfabeto'));
+const cardsPratica = document.querySelectorAll('#pratica-livre-grid .game-card');
+check("a tela lista só a atividade JÁ concluída (1, não as outras 6 pendentes)", cardsPratica.length === 1);
+check("o card mostra o nome da atividade concluída", cardsPratica[0].textContent.includes(MODULE1_ACTIVITIES[0].name));
+
+const snapshotMasteryAntes = JSON.stringify({activityLevel, mastery});
+cardsPratica[0].onclick();
+check("clicar no card abre o jogo (screen-game) via prática livre", active('screen-game'));
+check("state.freePracticeMode fica true durante a prática livre", state.freePracticeMode === true);
+check("state.game é a atividade escolhida pra praticar", state.game === MODULE1_ACTIVITIES[0].id);
+
+// responde a rodada (acerto E erro) e confirma que mastery NÃO muda nadinha
+registerAnswer(true, null);
+registerAnswer(false, null);
+const snapshotMasteryDepois = JSON.stringify({activityLevel, mastery});
+check("responder durante a prática livre NÃO altera activityLevel/mastery (nem acerto nem erro)", snapshotMasteryAntes === snapshotMasteryDepois);
+
+backToMenu();
+check("Voltar da prática livre retorna pro mapa (state.navBack='mapa-portugues')", active('screen-mapa-portugues'));
+
+// uma sessão normal (fora da prática livre) continua resetando a flag corretamente
+openAtividades('silabas');
+maybeShowLesson(MODULE1_ACTIVITIES[1].id);
+check("uma sessão normal (fora da prática livre) NÃO fica marcada como freePracticeMode", state.freePracticeMode === false);
+
 // ===== 15. função pura de rolagem mobile (sem depender de layout real) =====
 check("calcularScrollCentralizado centraliza o alvo dentro da janela visível", calcularScrollCentralizado(300, 100, 800) === 250);
 check("calcularScrollCentralizado não deixa a rolagem passar do início", calcularScrollCentralizado(10, 100, 800) === 0);

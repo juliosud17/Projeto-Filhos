@@ -372,6 +372,22 @@
     font-family:inherit;
   }
   .map-popover__cta:hover{background:var(--purple-dark);}
+  /* "Praticar de novo" (rodada 5, 2026-08-19) -- link discreto, não outro
+     botão do mesmo peso visual do CTA principal (não deve competir por
+     atenção com "Continuar aventura"). */
+  .map-popover__link{
+    display:block;
+    margin:6px auto 0 auto;
+    background:none;
+    border:none;
+    color:#5b5780;
+    font-size:11px;
+    font-weight:700;
+    text-decoration:underline;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .map-popover__link:hover{color:var(--purple-dark);}
 
   /* Game screen */
   .game-topbar{

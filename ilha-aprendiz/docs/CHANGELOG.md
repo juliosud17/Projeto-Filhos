@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-08-19 — Ilha das Letras, rodada 5: "Praticar de novo"
+
+- Popover do mapa ganha um link "🔁 Praticar de novo" (só quando o módulo tem ≥1 atividade concluída) — abre `screen-pratica-livre`, tela nova listando só as atividades já dominadas daquele módulo (não as pendentes).
+- `state.freePracticeMode` novo (`js/game-loop.js`) — `registerAnswer()` isola essa pontuação do jeito que já faz com Desafio Final/Revisão Espaçada: acerto ou erro numa sessão de prática livre não muda `activityLevel`/`mastery`.
+- `startFreePractice(activityId)` novo — mesmo `startGame()` de sempre, só liga a flag depois.
+- `testes/qa_test_mapa_portugues.js`: 91 checagens (12 novas). Suíte completa: mesma baseline (33/34).
+
 ## 2026-08-19 — Ilha das Letras, rodada 4: o mapa pula a grade de Atividades
 
 - CTA do popover ("Continuar aventura") deixa de abrir a grade de 7 cards de Atividades — abre direto a próxima atividade não concluída do módulo (`proximaAtividadeDoModulo()`) ou o Desafio Final quando tudo já está feito. Progressão dentro do módulo vira sequencial, não mais livre escolha.

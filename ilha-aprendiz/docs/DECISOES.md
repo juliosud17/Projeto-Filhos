@@ -6,6 +6,23 @@
 
 ---
 
+## 2026-08-19 — Ilha das Letras, rodada 5: "Praticar de novo" (rever atividade já dominada)
+
+**Decisão:** a rodada 4 (abaixo) tirou a possibilidade de escolher livremente qual atividade jogar pelo mapa — resolveu o "burlar o bloqueio", mas também tirou a possibilidade legítima de rejogar uma atividade já dominada só por diversão/reforço. O Júlio pediu de volta essa possibilidade, especificamente pra atividades **já concluídas** (não é a mesma coisa que a grade de livre escolha de antes — lá dava pra pular *à frente*; aqui só dá pra olhar *pra trás*, não tem como "burlar" nada revendo o que já foi feito).
+
+**Onde:** perguntei antes de implementar (o pedido não especificava) — Júlio escolheu **um link discreto dentro do popover do mapa** ("🔁 Praticar de novo", só aparece quando o módulo tem pelo menos 1 atividade concluída) que abre uma tela nova e pequena (`screen-pratica-livre`) listando só as atividades já dominadas daquele módulo — não a grade inteira de 7 cards (isso reintroduziria a possibilidade de pular à frente, o problema que a rodada 4 resolveu).
+
+**Se conta pra mastery:** também perguntei — Júlio escolheu **não**, mesmo padrão de isolamento que o Desafio Final e a Revisão Espaçada já usam (`state.provaMode`/`state.revisaoMode` em `registerAnswer()`, `js/game-loop.js`) — um erro por distração numa rodada "só por diversão" não pode fazer o módulo parecer não-dominado de novo. Nova flag `state.freePracticeMode` segue exatamente esse padrão: `registerAnswer()` ganha um 3º branch que não grava em `mastery`/`activityLevel` nem em nenhuma trilha de pontuação — nem estrelas de sessão deixam de contar (isso continua normal, é só o número oficial de domínio que fica intocado).
+
+**Implementação:**
+- `startFreePractice(activityId)` (`js/game-loop.js`) — chama `startGame()` normalmente (que já reseta a flag pra `false` no início, defensivo) e só DEPOIS liga `state.freePracticeMode = true`.
+- `openPraticaLivre(mod)`/`renderPraticaLivre(mod)` (`js/mapa-portugues.js`) — tela nova, reaproveita a mesma classe CSS da grade de Atividades (`.game-grid`/`.game-card`, zero CSS novo pros cards) mas **não** reaproveita `renderAtividades()` em si (aquela função mistura "próximo desafio" + card de Desafio Final, que não fazem sentido numa tela de review). Lista só `container.activities.filter(nível 5 + 80%)`.
+- Voltar da prática livre usa o mesmo `state.navBack = "mapa-portugues"` + branch de `backToMenu()` que a rodada 4 já tinha criado.
+
+**Testado** (`testes/qa_test_mapa_portugues.js`, 91 checagens — 12 novas): link só aparece com ≥1 atividade concluída; tela lista só as concluídas (não as 6 pendentes); clicar num card entra em `screen-game` com `freePracticeMode=true`; responder (acerto E erro) durante a prática livre não muda `activityLevel`/`mastery` nadinha (snapshot antes/depois); "Voltar" retorna pro mapa; uma sessão normal fora da prática livre continua com a flag corretamente em `false`. Suíte completa: 33/34 arquivos sem falha (mesma baseline conhecida).
+
+---
+
 ## 2026-08-19 — Ilha das Letras, rodada 4: o mapa pula a grade de Atividades
 
 **Decisão:** clicar em "Continuar aventura" no mapa deixa de abrir `screen-atividades` (grade de 7 cards de escolha livre) e passa a abrir **diretamente a próxima atividade não concluída do módulo** (`proximaAtividadeDoModulo()`, `js/mapa-portugues.js`) — mesma função que os cards da grade sempre usaram (`maybeShowLesson()` → `startGame()`), só chamada de um lugar diferente. Quando as 7 atividades já estão concluídas, o CTA abre o Desafio Final direto (`startProva()`), tanto pra quem ainda não passou (MASTERED) quanto pra quem já passou e quer repetir por diversão (DESAFIO_APROVADO — "Explorar de novo").

@@ -89,7 +89,8 @@ const state = {
   currentModuloId:null, /* id do módulo container aberto (tela de atividades) */
   navBack:null, /* "atividades" | "modulos" | null — pra onde "← Voltar"/"Ver outros jogos" retorna depois de uma sessão, na árvore do Benjamin */
   lessonsSeen:new Set(), /* ids de atividade cuja "Aula da Ilha" já foi mostrada nesta sessão do app (sem persistência ainda, reseta ao recarregar a aba) */
-  wrongStreak:0 /* erros seguidos de primeira tentativa na atividade atual — usado só pra sugerir "rever a aula", nunca trava nem penaliza */
+  wrongStreak:0, /* erros seguidos de primeira tentativa na atividade atual — usado só pra sugerir "rever a aula", nunca trava nem penaliza */
+  freePracticeMode:false /* true durante "Praticar de novo" (rever atividade já dominada, pelo popover do mapa) — mesmo padrão de isolamento do Desafio Final/Revisão Espaçada: não grava em mastery/activityLevel, só o registerAnswer() sabe disso (js/game-loop.js) */
 };
 
 /* Domínio (mastery) por jogo: guarda os últimos 10 resultados de PRIMEIRA tentativa
