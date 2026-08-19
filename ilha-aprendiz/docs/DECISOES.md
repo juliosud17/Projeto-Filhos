@@ -6,6 +6,18 @@
 
 ---
 
+## 2026-08-19 — Ilha das Letras: marcadores maiores + setinhas no destino atual
+
+**Decisão:** ajuste pequeno de UX pedido pelo Júlio — os marcadores do mapa (círculo+ícone da região) ficaram maiores (44px → 58px, bem acima do mínimo de toque de 44px), e o marcador do destino atual (`--recommended`) ganhou 2 setinhas apontando pra dentro, uma de cada lado, além do halo e do selo "✨" que já existiam.
+
+**Por que 2 setas, não 4 "ao redor":** o próprio Júlio já pediu antes, na rodada de refinamento do mapa, pra não virar HUD de videogame nem poluir a ilustração. Duas setas (esquerda/direita) já comunicam "olha aqui" com clareza sem cercar o marcador inteiro — consistente com esse princípio já estabelecido.
+
+**Implementação:** só CSS (`app/css/app.css`) — `border`-trick pra desenhar as setas (sem imagem/emoji novo), animação de leve vaivém (`mapArrowIn-left`/`-right`) entrando na mesma `@media (prefers-reduced-motion: reduce)` já existente (paradas mas visíveis pra quem prefere menos movimento). Nenhuma mudança em `js/mapa-portugues.js` nem nos dados — puramente apresentação.
+
+**Testado:** `testes/qa_test_mapa_portugues.js` (72 checagens, sem mudança — nenhuma delas depende de tamanho/pixel, então continuam validando a estrutura/estado normalmente) + suíte completa: 33/34 arquivos sem falha (mesma baseline conhecida).
+
+---
+
 ## 2026-08-17 — Piloto VACA, rodada 2: orquestração audiovisual por Promise/async-await
 
 **Decisão:** enquanto o Júlio gera os áudios/vídeos reais das próximas palavras (via `producao/`), pediu uma segunda passada no piloto VACA especificamente pra virar uma **referência arquitetural reutilizável**: fluxo controlado por `Promise`/`async-await` de ponta a ponta (em vez de `setTimeout`s adivinhados pra sincronizar áudio/vídeo/UI) e destaque visual sincronizado com cada sílaba/palavra sendo pronunciada. Ele mandou uma proposta detalhada de como faria; boa parte do motor (`AudioManager.queueVoice`) já era internamente sequencial via `await` dentro de uma IIFE — só faltava expor isso como Promise pra quem chama, em vez de só aceitar callback.

@@ -206,7 +206,7 @@
   .map-hotspot{
     position:relative;
     display:flex; align-items:center; justify-content:center;
-    width:44px; height:44px; /* alvo de toque mínimo, mesmo com a ilha pequena numa tela estreita */
+    width:58px; height:58px; /* aumentado (pedido do Júlio, 2026-08-19) -- alvo de toque bem acima do mínimo de 44px, mesmo com a ilha pequena numa tela estreita */
     background:none;
     border:none;
     padding:0;
@@ -216,7 +216,7 @@
   .map-hotspot__ring{
     --pct:0;
     --ring-color: var(--purple);
-    width:44px; height:44px;
+    width:58px; height:58px;
     border-radius:50%;
     display:flex; align-items:center; justify-content:center;
     background: conic-gradient(var(--ring-color) calc(var(--pct) * 3.6deg), rgba(255,255,255,.55) 0deg);
@@ -224,20 +224,20 @@
     transition:transform .15s ease;
   }
   .map-hotspot__pin{
-    width:34px; height:34px;
+    width:46px; height:46px;
     border-radius:50%;
     background:var(--card);
     display:flex; align-items:center; justify-content:center;
-    font-size:19px; line-height:1;
+    font-size:27px; line-height:1;
   }
   .map-hotspot__seal{
-    position:absolute; top:-4px; right:-4px;
-    width:20px; height:20px;
+    position:absolute; top:-6px; right:-6px;
+    width:24px; height:24px;
     border-radius:50%;
     background:var(--card);
     box-shadow:var(--shadow);
     display:flex; align-items:center; justify-content:center;
-    font-size:12px;
+    font-size:14px;
   }
   .map-hotspot:hover .map-hotspot__ring{transform:translateY(-3px);}
   .map-hotspot:focus-visible{outline:3px solid var(--purple); outline-offset:3px; border-radius:50%;}
@@ -253,7 +253,7 @@
      visual independente do estado de mastery, por isso o brilho sobrepõe
      (não substitui) o efeito do estado normal; propositalmente mais suave
      que o pulso de AVAILABLE pra não competir/piscar demais. */
-  .map-hotspot--recommended .map-hotspot__ring{animation:mapGlow 2.6s ease-in-out infinite;}
+  .map-hotspot--recommended .map-hotspot__ring{animation:mapGlow 2.6s ease-in-out infinite; position:relative;}
   /* Selo "você está aqui" -- estático (não pisca), fica acima do marcador;
      combinado com o halo pulsante do anel, deixa o destino atual óbvio sem
      virar HUD. Também é o que continua comunicando "destino atual" quando
@@ -261,10 +261,35 @@
   .map-hotspot--recommended::before{
     content:"✨";
     position:absolute;
-    top:-16px; left:50%;
+    top:-20px; left:50%;
     transform:translateX(-50%);
-    font-size:14px;
+    font-size:16px;
     pointer-events:none;
+  }
+  /* Setinhas ao redor do marcador do destino atual (pedido do Júlio,
+     2026-08-19) -- apontam pra dentro, dos dois lados, reforçando "é aqui"
+     sem cercar o marcador inteiro (4 setas ficaria HUD demais). Feitas com
+     a técnica de triângulo em CSS (borda), sem imagem/emoji novo. */
+  .map-hotspot--recommended .map-hotspot__ring::before,
+  .map-hotspot--recommended .map-hotspot__ring::after{
+    content:"";
+    position:absolute;
+    top:50%;
+    width:0; height:0;
+    border-top:7px solid transparent;
+    border-bottom:7px solid transparent;
+    transform:translateY(-50%);
+    pointer-events:none;
+  }
+  .map-hotspot--recommended .map-hotspot__ring::before{
+    left:-20px;
+    border-right:10px solid var(--purple);
+    animation:mapArrowIn-left 1.3s ease-in-out infinite;
+  }
+  .map-hotspot--recommended .map-hotspot__ring::after{
+    right:-20px;
+    border-left:10px solid var(--purple);
+    animation:mapArrowIn-right 1.3s ease-in-out infinite;
   }
 
   @keyframes mapPulse{
@@ -275,12 +300,23 @@
     0%, 100%{ box-shadow:0 0 0 3px rgba(124,92,255,.28), var(--shadow); }
     50%{ box-shadow:0 0 0 9px rgba(124,92,255,0), var(--shadow); }
   }
+  @keyframes mapArrowIn-left{
+    0%, 100%{ transform:translateY(-50%) translateX(0); opacity:.5; }
+    50%{ transform:translateY(-50%) translateX(5px); opacity:1; }
+  }
+  @keyframes mapArrowIn-right{
+    0%, 100%{ transform:translateY(-50%) translateX(0); opacity:.5; }
+    50%{ transform:translateY(-50%) translateX(-5px); opacity:1; }
+  }
   /* Quem prefere menos movimento continua identificando os dois estados
      animados (disponível/destino atual) -- só perde o piscar. A cor do
-     anel e o selo "✨" estático (acima) já comunicam tudo sem animação. */
+     anel, o selo "✨" e as setinhas (paradas, mas visíveis) acima já
+     comunicam tudo sem animação. */
   @media (prefers-reduced-motion: reduce){
     .map-hotspot--available .map-hotspot__ring,
-    .map-hotspot--recommended .map-hotspot__ring{
+    .map-hotspot--recommended .map-hotspot__ring,
+    .map-hotspot--recommended .map-hotspot__ring::before,
+    .map-hotspot--recommended .map-hotspot__ring::after{
       animation:none;
     }
     .map-hotspot--recommended .map-hotspot__ring{

@@ -4,6 +4,12 @@
 
 ---
 
+## 2026-08-19 — Ilha das Letras: marcadores maiores + setinhas no destino atual
+
+- Marcadores do mapa (círculo+ícone) de 44px pra 58px — mais fáceis de ver/tocar.
+- Marcador do destino atual ganha 2 setinhas (esquerda/direita, CSS puro) apontando pra ele, além do halo e do selo "✨" que já existiam — sem virar HUD (só 2, não 4 ao redor).
+- Só CSS (`app/css/app.css`), respeitando `prefers-reduced-motion`. Suíte completa: mesma baseline (33/34).
+
 ## 2026-08-19 — Monte a Sílaba fecha 100% (vídeo + sílabas + palavra inteira)
 
 - Últimas 4 sílabas gravadas (`boi`, `gar`, `lho`, `nho`) — sílabas agora 33/33.
