@@ -37,9 +37,33 @@ Não vou gravar/nomear o áudio de FUMAÇA até isso ficar decidido — as outra
 - Sílaba: `app/assets/audio/fonetica/silabas/<silaba-minuscula-sem-acento>.mp3` — **sempre essa pasta**, não importa se a sílaba tem 1, 2, 3+ letras. Não criar pasta nova por tamanho de sílaba (foi o que aconteceu com `avogais/`/`dígrafos/` desta vez — reorganizei, mas economiza um passo já soltar direto em `silabas/` da próxima vez).
 - Palavra inteira: `app/assets/audio/fonetica/palavras/<palavra-minuscula>.mp3`.
 
-## Áudio de palavra inteira — 19 das 87 já existem
+## 🎉 Áudio de palavra inteira: 76 das 87 já existem (2026-08-18, 4ª rodada)
 
-`fonetica/palavras/{vaca,gato,pato,sapo,bola,casa,galo,lobo,sino,carro,dedo,dia,mala,mesa,pera,rato,rosa,rua,sete}.mp3` ✅ (Lote A + os 9 do nível 1). As outras 68 faltam — gravar sob demanda, mesma lógica de sempre (1 arquivo por palavra, pronúncia oficial, nunca junto com a voz da Lia). Não bloqueia jogar (fallback TTS).
+O Júlio gravou a maior parte das palavras inteiras usando a técnica de frase-molde (ver `FRASES_GRAVACAO_PALAVRAS.md`). **Não precisa de nenhuma mudança de código** — `mediaFonetica("palavra", item.word)` já resolve pra `fonetica/palavras/<palavra>.mp3` automaticamente pra qualquer palavra, sem precisar registrar nada em `portugues-conteudo.js` (diferente do vídeo, que precisa do campo `character`). Assim que o arquivo existe na pasta certa, o jogo já usa ele — sem esperar eu mexer em nada.
+
+**Faltam 10** (mais a FUMAÇA, que segue de fora por causa da pendência do Ç):
+
+| Nível | Faltam |
+|---|---|
+| 2 | `cama`, `ovo`, `uva`, `vela`, `dente`, `rio`, `leite`, `neve`, `mola` (9) |
+| 4 | `barco` (1) |
+
+Frases prontas pra essas 10, mesmo molde de sempre:
+
+```
+Agora, vamos ouvir a palavra: cama.
+Agora, vamos ouvir a palavra: ovo.
+Agora, vamos ouvir a palavra: uva.
+Agora, vamos ouvir a palavra: vela.
+Agora, vamos ouvir a palavra: dente.
+Agora, vamos ouvir a palavra: rio.
+Agora, vamos ouvir a palavra: leite.
+Agora, vamos ouvir a palavra: neve.
+Agora, vamos ouvir a palavra: mola.
+Agora, vamos ouvir a palavra: barco.
+```
+
+**Achado, não mexi:** tem um arquivo duplicado — `pato(1).MP3`, ao lado do `pato.mp3` que já existia. Não atrapalha nada (o jogo só procura `pato.mp3`), mas se quiser limpar a pasta, esse aí é sobra e dá pra apagar direto no seu computador (não consigo apagar arquivo por aqui).
 
 ## Palavras que precisam de atenção extra na pronúncia (consoante dobrada, mesma regra do CAR-RO)
 
@@ -53,10 +77,10 @@ Não vou gravar/nomear o áudio de FUMAÇA até isso ficar decidido — as outra
 
 `sfx/feedback/acerto.mp3` ✅ · `sfx/feedback/erro.mp3` ✅ — prontos, não precisam de nada novo.
 
-## O que falta pra fechar 100% (vídeo já fechado — só áudio agora)
+## O que falta pra fechar 100% (vídeo já fechado — quase lá no áudio)
 
-1. Gravar os 4 clusters que faltam: `boi`, `gar`, `lho`, `nho`.
-2. Decidir o caso do `Ç` (FUMAÇA) antes de gravar o áudio dessa palavra especificamente.
-3. Gravar as 68 palavras inteiras que faltam.
-4. Confirmar o que fazer com `rra.mp3`/`rro.mp3` (em `fonetica/_a_revisar/`).
+1. Gravar os 4 clusters de sílaba que faltam: `boi`, `gar`, `lho`, `nho`.
+2. Gravar as 10 palavras inteiras que faltam: `cama`, `ovo`, `uva`, `vela`, `dente`, `rio`, `leite`, `neve`, `mola`, `barco` (frases prontas acima).
+3. Decidir o caso do `Ç` (FUMAÇA) antes de gravar o áudio dessa palavra especificamente.
+4. Confirmar o que fazer com `rra.mp3`/`rro.mp3` (em `fonetica/_a_revisar/`) e o `pato(1).MP3` duplicado.
 5. (Fora do escopo de áudio) gravar a variante "cena" da fala da Lia, se quiser fechar a pendência do DIA.

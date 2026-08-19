@@ -136,36 +136,7 @@ SOUND = "Muuu... muu muu!" synchronized with the cow's mouth movement.
 
 Separado da personalidade da Lia de propósito — objetivo é pronúncia limpa, neutra, sem entonação de personagem. Só troca `[CONTENT]`.
 
-```
-Brazilian Portuguese educational pronunciation for children ages 5–8.
-
-Speak ONLY the exact content provided below.
-
-Extremely clear articulation.
-Natural Brazilian Portuguese pronunciation.
-Neutral, warm and clean delivery.
-Slightly slower than normal speech, but never exaggerated.
-
-No introduction.
-No explanation.
-No celebration.
-No additional words.
-No music.
-No sound effects.
-No singing.
-No spelling unless explicitly requested.
-
-For syllables:
-pronounce the syllable naturally as a single sound unit, NOT the names of the individual letters.
-
-For words:
-pronounce the complete word naturally and clearly.
-
-Avoid exaggerated theatrical intonation.
-
-CONTENT:
-[CONTENT]
-```
+**Correção de 2026-08-18:** cheguei a sugerir colar um bloco de instruções em inglês (tipo "fale devagar e com calma") no campo de texto do ElevenLabs. **Isso estava errado** — o ElevenLabs de texto-pra-voz fala LITERALMENTE tudo que está no campo de texto, ele não obedece instrução meta como um prompt de vídeo (Flow) obedeceria. O jeito que realmente funciona (e que o Júlio já vinha usando por conta própria) é gerar a palavra dentro de uma FRASE natural em português — isso dá contexto e ritmo calmo pro modelo — e depois cortar só a palavra no CapCut. Ver `producao/FRASES_GRAVACAO_PALAVRAS.md` pra frase-molde pronta + as frases das 67 palavras que faltam. O `CONTENT:` abaixo continua valendo só pra sílabas soltas curtas onde a frase-molde de palavra não se aplica (ex. `ba.mp3`, `ca.mp3`) — mesmo assim, se sair rápido/sem calma, vale testar a mesma técnica de frase (ver seção de sílabas em `FRASES_GRAVACAO_PALAVRAS.md`).
 
 **Regra crítica de pronúncia:** sílaba nunca é soletrada. `VA` é sempre "vá" /va/ (som da sílaba), nunca "vê-á" (nome das letras). Mesma regra vale pra toda sílaba do banco.
 
