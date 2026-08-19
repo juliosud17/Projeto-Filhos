@@ -80,6 +80,14 @@ check("mediaFonetica('palavra','VACA') usa a pasta palavras", mediaFonetica("pal
 check("mediaFonetica('letra','A') usa a pasta letras", mediaFonetica("letra","A") === "assets/audio/fonetica/letras/a.mp3");
 check("mediaFonetica('numero','10') usa a pasta numeros", mediaFonetica("numero","10") === "assets/audio/fonetica/numeros/10.mp3");
 check("mediaFonetica com tipo desconhecido devolve null (não path errado)", mediaFonetica("silabao","VA") === null);
+
+/* Bug do Ç (achado em 2026-08-18, corrigido a pedido do Júlio, ver
+   docs/DECISOES.md): Ç NÃO é acento comum, tem som próprio (/s/, diferente
+   do /k/ de C antes de A/O/U). Antes da correção, mediaFileName("ÇA")
+   colidia com mediaFileName("CA") (os dois viravam "ca.mp3") -- tocaria o
+   som errado pra qualquer palavra com ÇA/ÇO/ÇU. */
+check("mediaFonetica('silaba','ÇA') NÃO colide com CA (bug do Ç corrigido)", mediaFonetica("silaba","ÇA") === "assets/audio/fonetica/silabas/ssa.mp3" && mediaFonetica("silaba","ÇA") !== mediaFonetica("silaba","CA"));
+check("WORDS.FUMACA usa 'ÇA' (não 'CA') na 3ª sílaba -- grafia real da palavra", WORDS.find(w=>w.word==="FUMACA").syl[2] === "ÇA");
 check("mediaLiaVoice monta categoria/nome", mediaLiaVoice("comuns","monte-o-nome") === "assets/audio/lia/comuns/monte-o-nome.mp3");
 check("mediaLiaVoice monta a variante de gênero masculino", mediaLiaVoice("comuns","monte-o-nome-genero-masculino") === "assets/audio/lia/comuns/monte-o-nome-genero-masculino.mp3");
 check("mediaCharacterVideo monta personagem/personagem-estado", mediaCharacterVideo("vaca","intro") === "assets/video/personagens/vaca/vaca-intro.mp4");
@@ -234,7 +242,11 @@ for(const wordName of outrasComCharacter){
   check(wordName + ": opções começam desabilitadas (mesmo padrão da Vaca)", Array.from(document.querySelectorAll(".option-btn")).every(b=>b.disabled===true));
   check(wordName + ": mediaCharacterVideo resolve o caminho esperado", mediaCharacterVideo(item.character,"intro") === "assets/video/personagens/" + item.character + "/" + item.character + "-intro.mp4");
   item.syl.forEach(s=>{
-    check(wordName + ": mediaFonetica('silaba','" + s + "') resolve (sem heurística de tamanho)", mediaFonetica("silaba", s) === "assets/audio/fonetica/silabas/" + s.toLowerCase() + ".mp3");
+    // Ç não é tratado como acento comum (ver mediaFileName, media-catalog.js e
+    // docs/DECISOES.md 2026-08-18) -- soa /s/, viraria "ss" no arquivo, não
+    // pode colidir com C (som /k/). O nome esperado aqui já reflete isso.
+    const nomeEsperado = s.toLowerCase().replace(/ç/g, "ss");
+    check(wordName + ": mediaFonetica('silaba','" + s + "') resolve (sem heurística de tamanho)", mediaFonetica("silaba", s) === "assets/audio/fonetica/silabas/" + nomeEsperado + ".mp3");
   });
   check(wordName + ": mediaFonetica('palavra',...) resolve", mediaFonetica("palavra", item.word) === "assets/audio/fonetica/palavras/" + item.word.toLowerCase() + ".mp3");
 

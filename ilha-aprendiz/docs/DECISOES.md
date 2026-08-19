@@ -419,3 +419,20 @@ Suíte completa rodada após todas as mudanças: 33/34 arquivos sem falha (mesma
 **Estado do "100%" agora:** vídeo de personagem está 100% (87/87). Áudio de sílaba está 29/33 (só faltam os 4 clusters acima + a pegadinha do Ç de FUMAÇA, que já tinha decisão pendente). Áudio de palavra inteira segue baixo (19/87) mas continua não bloqueando — fallback de TTS garantido desde o piloto da Vaca.
 
 Suíte completa rodada após a mudança: 834 checagens em `qa_test_piloto_vaca.js` (era 826), 33/34 arquivos sem falha (mesma baseline conhecida).
+
+---
+
+## 2026-08-18 — Bug do Ç corrigido (FUMAÇA liberada pra gravar)
+
+**Contexto:** pendência aberta desde a primeira leva de vídeos — `mediaFileName()` tratava `Ç` como acento comum e o reduzia a `C` na hora de montar o nome do arquivo, então a sílaba `ÇA` de FUMAÇA colidiria com `CA` (som errado: /k/ em vez de /s/). Perguntei ao Júlio como resolver; ele escolheu a opção recomendada: corrigir no código.
+
+**Decisão de design:** `Ç` não é um caso de acento (que só marca tonicidade, o som da letra continua o mesmo — `"LÁ"`→`"la"` é seguro) — é uma consoante com som PRÓPRIO, diferente de `C`. Por isso o tratamento dele precisa acontecer ANTES do NFD genérico que cuida dos acentos de verdade, não junto.
+
+**O que mudou:**
+- `app/js/media-catalog.js`: `mediaFileName()` agora troca `ç`/`Ç` por `"ss"` antes do NFD (aproxima o som /s/ do Ç e garante arquivo distinto de C).
+- `app/data/portugues-conteudo.js`: a 3ª sílaba de FUMAÇA no banco virou `"ÇA"` (grafia real da palavra) em vez de `"CA"` — o jogo passa a mostrar e cobrar a sílaba certa na tela do "Monte a Sílaba", não só no áudio. Confirmei que essa mudança é segura: a mecânica do jogo compara os blocos clicados contra `item.syl` (o próprio array), nunca contra `item.word` reconstruído, então `syl` pode ter uma grafia diferente da palavra sem quebrar nada.
+- `testes/qa_test_piloto_vaca.js`: checagem genérica de sílaba (seção 9) ajustada pra já esperar a troca de Ç por "ss"; nova checagem dedicada confirmando que `ÇA` e `CA` não colidem mais, e que o dado de FUMAÇA usa `"ÇA"`.
+
+**Efeito colateral bom, não planejado:** como `ÇA` deixou de ser igual a `CA`, `CA` volta a poder aparecer como distrator visual nas rodadas de FUMAÇA (antes não aparecia, porque o código de distratores excluía qualquer sílaba igual às da palavra certa) — isso ajuda pedagogicamente a mostrar a diferença visual entre `ÇA` e `CA`, não só a sonora.
+
+Suíte completa rodada após a mudança: 836 checagens em `qa_test_piloto_vaca.js` (era 834), 33/34 arquivos sem falha (mesma baseline conhecida). FUMAÇA está liberada pra gravar (sílaba `ssa.mp3` + palavra `fumaca.mp3`, ver `producao/CHECKLIST_PRODUCAO.md`).

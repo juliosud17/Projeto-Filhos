@@ -24,12 +24,15 @@ O Júlio criou as 5 vogais sozinhas e 26 dos 28 clusters de 3+ letras, organizad
 | `lho` 🔴 | MILHO, JULHO ♻️, COELHO ♻️ |
 | `nho` 🔴 | NINHO |
 
-## ⚠️ Achado ainda pendente — decisão necessária antes de gravar o ÁUDIO de FUMAÇA
+## ✅ Bug do Ç corrigido (2026-08-18) — já pode gravar FUMAÇA
 
-`mediaFileName()` (`app/js/media-catalog.js`) normaliza acento tirando qualquer marca combinante Unicode — isso é correto pra acento comum (ex. `"LÁ"` → `"la"`, mesmo som, só sem o acento tônico). **Mas `Ç` não é só uma letra acentuada — é uma letra com som diferente de `C`** (Ç soa /s/, C antes de A/O/U soa /k/). A normalização atual reduz `Ç` a `C`, então a sílaba `ÇA` de FUMAÇA calcularia o mesmo arquivo que `CA` (`ca.mp3`) — **isso tocaria o som errado** (kah em vez de sah). Antes de gravar o ÁUDIO de FUMAÇA (o vídeo já está ok, essa pegadinha é só de áudio), preciso de uma decisão sua:
-- (a) ajustar `mediaFileName()` pra tratar `Ç` como consoante própria (ex. gerar `ssa` ou manter `ça` como token distinto), ou
-- (b) outra forma que você prefira.
-Não vou gravar/nomear o áudio de FUMAÇA até isso ficar decidido — as outras 76 palavras não têm esse problema, e enquanto isso a palavra já é jogável normalmente via TTS.
+O Júlio escolheu a opção (a): corrigi `mediaFileName()` (`app/js/media-catalog.js`) pra tratar `Ç` como consoante própria, não como acento comum — `Ç` agora vira `ss` no nome do arquivo (aproxima o som /s/ do Ç e garante que não colide mais com `C`, que soa /k/). Ajustei também `portugues-conteudo.js`: a 3ª sílaba de FUMAÇA no banco agora é `"ÇA"` (grafia real da palavra) em vez de `"CA"` — o jogo já mostra e cobra "ÇA" certinho na tela, não "CA".
+
+**O que isso muda pra gravação:** a sílaba `ÇA` de FUMAÇA agora espera o arquivo `fonetica/silabas/ssa.mp3` (não mais `ca.mp3`, que continua sendo só de `CA`/`FOCA`/`VACA` etc.). Pode gravar normalmente:
+- Sílaba: `CONTEUDO: ÇA` (som /s/, tipo "sá") → salvar como `fonetica/silabas/ssa.mp3`.
+- Palavra inteira: frase-molde de sempre → `Agora, vamos ouvir a palavra: fumaça.` → salvar como `fonetica/palavras/fumaca.mp3` (sem cedilha no nome do arquivo, igual às outras).
+
+Suíte de testes atualizada com checagem específica desse bug (836 checagens, era 826) — confirma que `ÇA` e `CA` nunca mais colidem.
 
 ## 📁 Estrutura de pastas (importante)
 
@@ -41,7 +44,7 @@ Não vou gravar/nomear o áudio de FUMAÇA até isso ficar decidido — as outra
 
 O Júlio gravou a maior parte das palavras inteiras usando a técnica de frase-molde (ver `FRASES_GRAVACAO_PALAVRAS.md`). **Não precisa de nenhuma mudança de código** — `mediaFonetica("palavra", item.word)` já resolve pra `fonetica/palavras/<palavra>.mp3` automaticamente pra qualquer palavra, sem precisar registrar nada em `portugues-conteudo.js` (diferente do vídeo, que precisa do campo `character`). Assim que o arquivo existe na pasta certa, o jogo já usa ele — sem esperar eu mexer em nada.
 
-**Faltam 10** (mais a FUMAÇA, que segue de fora por causa da pendência do Ç):
+**Faltam 10 + FUMAÇA** (bug do Ç já corrigido, ver seção acima — FUMAÇA pode ser gravada normalmente agora):
 
 | Nível | Faltam |
 |---|---|
@@ -80,7 +83,7 @@ Agora, vamos ouvir a palavra: barco.
 ## O que falta pra fechar 100% (vídeo já fechado — quase lá no áudio)
 
 1. Gravar os 4 clusters de sílaba que faltam: `boi`, `gar`, `lho`, `nho`.
-2. Gravar as 10 palavras inteiras que faltam: `cama`, `ovo`, `uva`, `vela`, `dente`, `rio`, `leite`, `neve`, `mola`, `barco` (frases prontas acima).
-3. Decidir o caso do `Ç` (FUMAÇA) antes de gravar o áudio dessa palavra especificamente.
+2. Gravar as 11 palavras inteiras que faltam: `cama`, `ovo`, `uva`, `vela`, `dente`, `rio`, `leite`, `neve`, `mola`, `barco`, `fumaça` (frases prontas acima; FUMAÇA já pode ser gravada, bug do Ç corrigido).
+3. Gravar a sílaba `ssa` (ÇA de FUMAÇA) — ver instrução na seção do bug do Ç acima.
 4. Confirmar o que fazer com `rra.mp3`/`rro.mp3` (em `fonetica/_a_revisar/`) e o `pato(1).MP3` duplicado.
 5. (Fora do escopo de áudio) gravar a variante "cena" da fala da Lia, se quiser fechar a pendência do DIA.

@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-08-18 — Bug do Ç corrigido, FUMAÇA liberada pra gravar
+
+- `app/js/media-catalog.js`: `mediaFileName()` trata `Ç` como consoante própria (vira `"ss"`) ANTES do NFD, em vez de deixar o acento genérico reduzi-lo a `C` — `ÇA` não colide mais com `CA` (som errado corrigido).
+- `app/data/portugues-conteudo.js`: 3ª sílaba de FUMAÇA corrigida de `"CA"` pra `"ÇA"` (grafia real) — jogo mostra/cobra a sílaba certa na tela, não só no áudio.
+- `testes/qa_test_piloto_vaca.js`: checagem dedicada do bug + ajuste na checagem genérica de sílaba. Suíte: 836 checagens (era 834), 33/34 arquivos sem falha.
+- FUMAÇA liberada: sílaba `ssa.mp3` + palavra `fumaca.mp3` podem ser gravadas normalmente agora.
+
 ## 2026-08-18 — Banco 100% em vídeo (MURO confirmado) + sílabas quase completas
 
 - `parede.mp4` confirmado como o vídeo do MURO, renomeado e registrado (`character:"muro", genero:"m"`) — as 87 palavras do banco têm vídeo de personagem real agora.

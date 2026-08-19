@@ -111,7 +111,7 @@ const WORDS = [
   {word:"AGULHA", syl:["A","GU","LHA"],  emoji:"🪡", level:5, character:"agulha", genero:"f"},
   {word:"GARRAFA",syl:["GAR","RA","FA"], emoji:"🍾", level:5, character:"garrafa", genero:"f"},
   {word:"BURACO", syl:["BU","RA","CO"],  emoji:"🕳️", level:5, character:"buraco", genero:"m"},
-  {word:"FUMACA", syl:["FU","MA","CA"],  emoji:"💨", level:5, character:"fumaca", genero:"f"},
+  {word:"FUMACA", syl:["FU","MA","ÇA"],  emoji:"💨", level:5, character:"fumaca", genero:"f"}, // ÇA (não CA) -- Ç tem som próprio (/s/), diferente de C -- ver mediaFileName() em media-catalog.js e docs/DECISOES.md 2026-08-18
   {word:"JIBOIA", syl:["JI","BOI","A"],  emoji:"🐍", level:5, character:"jiboia", genero:"f"},
 ];
 

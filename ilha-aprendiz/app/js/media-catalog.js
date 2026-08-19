@@ -16,11 +16,21 @@ const MEDIA_BASE = "assets/";
 /* Normaliza texto pra nome de arquivo: minúsculo, sem acento, sem espaço.
    Mesma ideia de normalizeTyped() (activities-portugues.js), mas própria
    pra não criar dependência de ordem de carregamento entre os dois arquivos
-   -- media-catalog.js é intencionalmente autocontido. */
+   -- media-catalog.js é intencionalmente autocontido.
+
+   Ç tratado ANTES do NFD, de propósito (decisão 2026-08-18, docs/DECISOES.md):
+   Ç não é uma letra acentuada como as outras (á, é, ã...) -- é uma consoante
+   com SOM PRÓPRIO, diferente de C (Ç soa /s/, C antes de A/O/U soa /k/). Se
+   deixasse o NFD genérico tratar Ç como "C com acento" (mesma lógica que tira
+   o acento de "LÁ" -> "la"), a sílaba ÇA colidiria com CA no nome do arquivo
+   (as duas virariam "ca.mp3"), tocando o som errado pra qualquer palavra com
+   ÇA/ÇO/ÇU (ex. FUMAÇA). ç/Ç -> "ss" (aproxima o som /s/ do Ç, e garante um
+   arquivo distinto de C) ANTES do NFD, que só cuida dos acentos "de verdade". */
 function mediaFileName(texto){
   return String(texto)
     .trim()
     .toLowerCase()
+    .replace(/ç/g, "ss")
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
     .replace(/\s+/g, "-");
