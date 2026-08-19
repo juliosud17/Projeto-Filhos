@@ -292,7 +292,30 @@ function renderDigitePalavra(stage, item){
   confirmBtn.onclick = check;
   input.addEventListener("keydown", e=>{ if(e.key === "Enter") check(); });
   input.focus();
-  speak("Digite a palavra " + item.word);
+  /* Ajuste de 2026-08-18 (achado do Júlio): antes usava speak() direto, que
+     é sempre a voz nativa/genérica do navegador (nunca a voz oficial da
+     Lia/fonética) -- destoava do resto do app, que só cai no TTS nativo
+     como ÚLTIMO recurso quando o áudio real falha. Trocado por
+     AudioManager.queueVoice com 2 peças reais, mesmo padrão do resto do
+     jogo: (1) a instrução fixa "Digite a palavra:", reutilizável por
+     qualquer palavra (mesma lógica das falas da Lia em
+     montaFalaIntroPersonagem) -- ainda não gravada, cai pro TTS até lá; (2)
+     a pronúncia oficial da palavra (mediaFonetica("palavra", ...)), que já
+     existe pra 76 das 87 palavras do banco. Cada peça tem seu próprio
+     fallback de TTS (grace period, nunca fica muda), então não precisa
+     esperar todo o banco estar gravado pra já melhorar a experiência.
+
+     Decisão de NÃO montar a palavra juntando os áudios de sílaba
+     (ba+na+na): sílabas gravadas isoladas não têm a coarticulação natural
+     da fala contínua -- juntas soam picadas/robóticas, não como alguém
+     falando "banana" de verdade. É exatamente por isso que o projeto já
+     tem a convenção de 1 áudio por PALAVRA INTEIRA separado de sílaba (ver
+     TEMPLATES_PROMPTS.md) -- a solução certa é gravar a palavra inteira,
+     não emendar sílabas. */
+  AudioManager.queueVoice([
+    { url: mediaLiaVoice("comuns", "digite-a-palavra"), fallbackText: "Digite a palavra:" },
+    { url: mediaFonetica("palavra", item.word), fallbackText: item.word }
+  ]);
 }
 
 /* --- Benjamin: Leitura Rápida (Módulo 2 — mesmo motor de nível 1-5 do Módulo 1,

@@ -72,9 +72,13 @@ Agora, vamos ouvir a palavra: barco.
 
 `FERRO` (FER-RO), `OSSO` (OS-SO), `MASSA` (MAS-SA) — ver instrução extra em `TEMPLATES_PROMPTS.md`, seção "Alerta — sílaba com consoante dobrada".
 
-## Falas da Lia (fixas, já prontas — cobrem qualquer palavra, inclusive gênero)
+## Falas da Lia (fixas, cobrem qualquer palavra, inclusive gênero)
 
-`monte-o-nome.mp3` ✅ (feminino) · `monte-o-nome-genero-masculino.mp3` ✅ (masculino) · `acerto-01.mp3` ✅ · `dica-vamos-ouvir-o-comeco.mp3` ✅. Nenhuma fala nova precisa ser gravada. **Pendência separada:** falta uma variante "cena" pra palavras sem personagem (DIA hoje, JULHO/FESTA/CIDADE se algum dia forem contextuais) — ver `docs/DECISOES.md`, 2026-08-18.
+`monte-o-nome.mp3` ✅ (feminino) · `monte-o-nome-genero-masculino.mp3` ✅ (masculino) · `acerto-01.mp3` ✅ · `dica-vamos-ouvir-o-comeco.mp3` ✅. **Nova, falta gravar:** `digite-a-palavra.mp3` 🔴 — "Digite a palavra:" (nível 5, ver achado abaixo e prompt em `TEMPLATES_PROMPTS.md`). Enquanto não grava, cai no TTS nativo (não trava, só não tem a voz oficial). **Pendência separada:** falta uma variante "cena" pra palavras sem personagem (DIA hoje, JULHO/FESTA/CIDADE se algum dia forem contextuais) — ver `docs/DECISOES.md`, 2026-08-18.
+
+## ✅ Nível 5 (Digite a Palavra) corrigido — não usa mais voz nativa "crua" (2026-08-18)
+
+Achado do Júlio: o áudio de "Digite a palavra banana" saía com a voz nativa do navegador, destoando do resto do app. Causa: `renderDigitePalavra()` chamava `speak()` direto, sem passar pelo `AudioManager` (que sempre tenta o áudio real primeiro e só cai pro TTS como último recurso). Corrigido pra usar o mesmo padrão do resto do jogo: toca a fala fixa `digite-a-palavra.mp3` (nova, precisa gravar — ver acima) seguida da pronúncia oficial da palavra (`fonetica/palavras/<palavra>.mp3`, já existe pra 76/87). **Decisão tomada:** não formar a palavra juntando os áudios de sílaba (ex. ba+na+na) — sílabas gravadas isoladas não têm a coarticulação natural da fala contínua, ficaria picado/robótico. É por isso que o projeto já separa "áudio de sílaba" de "áudio de palavra inteira" desde o início.
 
 ## SFX
 

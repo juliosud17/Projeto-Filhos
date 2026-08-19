@@ -7,6 +7,22 @@ const testScript = `
 window.speechSynthesis = { cancel(){}, speak(){} };
 window.SpeechSynthesisUtterance = function(t){ this.text=t; };
 window.AudioContext = function(){ return { createOscillator(){return {connect(){},frequency:{setValueAtTime(){},exponentialRampToValueAtTime(){}},start(){},stop(){}} }, createGain(){return {connect(){},gain:{setValueAtTime(){},exponentialRampToValueAtTime(){}}} }, destination:{}, currentTime:0 }; };
+/* nível 5 (Digite a Palavra) passou a usar AudioManager.queueVoice em vez de
+   speak() direto (2026-08-18, ver docs/DECISOES.md) -- precisa dos mesmos
+   stubs de mídia que qa_test_piloto_vaca.js/qa_test_svg.js, senão jsdom trava
+   tentando tocar áudio de verdade. */
+window.HTMLMediaElement.prototype.play = function(){ return Promise.reject(new Error("jsdom: arquivo de mídia não existe (stub de teste)")); };
+window.HTMLMediaElement.prototype.pause = function(){};
+window.HTMLMediaElement.prototype.load = function(){};
+window.Audio = function(url){ this._url = url; this._listeners = {}; this.volume = 1; };
+window.Audio.prototype.addEventListener = function(evt, cb){ (this._listeners[evt] = this._listeners[evt] || []).push(cb); };
+window.Audio.prototype.play = function(){
+  const self = this;
+  return Promise.resolve().then(()=>{
+    (self._listeners.error || []).forEach(cb=>cb());
+    throw new Error("simulado: mp3 não existe (estado real do projeto hoje)");
+  });
+};
 // nextRound normalmente é agendado via setTimeout(nextRound, 1100) numa
 // resposta certa — em vez de deixar o timer real do Node disparar depois
 // (o que causaria um SEGUNDO avanço de rodada bem depois do teste já ter

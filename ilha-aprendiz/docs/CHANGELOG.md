@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-08-18 — Nível 5 (Digite a Palavra) para de usar voz nativa "crua"
+
+- `app/js/activities-portugues.js`: `renderDigitePalavra()` trocou `speak()` direto por `AudioManager.queueVoice([...])` com 2 peças — a instrução fixa `digite-a-palavra.mp3` (nova, ainda não gravada, cai pro TTS até lá) + a pronúncia oficial da palavra (`mediaFonetica("palavra", ...)`, já existe pra 76/87).
+- Decisão explícita de NÃO montar a palavra juntando áudios de sílaba (ex. ba+na+na) — soa picado/robótico, sem coarticulação natural. Mantém a separação já estabelecida entre áudio de sílaba e de palavra inteira.
+- `qa_test_typing.js`, `qa_test_modulo4.js`, `qa_test_prova.js` ganharam os stubs de mídia que faltavam.
+- Achado incidental (não corrigido, fora do escopo): `qa_test_typing.js` tem um `jsdomError` pré-existente e não relacionado (`endSession()` acessa `CHILD_INFO[state.child].name` sem `state.child` definido no teste) — confirmado que já acontecia com o código antigo, registrado em `docs/DECISOES.md` pra investigar depois.
+
 ## 2026-08-18 — Bug do Ç corrigido, FUMAÇA liberada pra gravar
 
 - `app/js/media-catalog.js`: `mediaFileName()` trata `Ç` como consoante própria (vira `"ss"`) ANTES do NFD, em vez de deixar o acento genérico reduzi-lo a `C` — `ÇA` não colide mais com `CA` (som errado corrigido).

@@ -436,3 +436,21 @@ Suíte completa rodada após a mudança: 834 checagens em `qa_test_piloto_vaca.j
 **Efeito colateral bom, não planejado:** como `ÇA` deixou de ser igual a `CA`, `CA` volta a poder aparecer como distrator visual nas rodadas de FUMAÇA (antes não aparecia, porque o código de distratores excluía qualquer sílaba igual às da palavra certa) — isso ajuda pedagogicamente a mostrar a diferença visual entre `ÇA` e `CA`, não só a sonora.
 
 Suíte completa rodada após a mudança: 836 checagens em `qa_test_piloto_vaca.js` (era 834), 33/34 arquivos sem falha (mesma baseline conhecida). FUMAÇA está liberada pra gravar (sílaba `ssa.mp3` + palavra `fumaca.mp3`, ver `producao/CHECKLIST_PRODUCAO.md`).
+
+---
+
+## 2026-08-18 — Nível 5 (Digite a Palavra) para de usar voz nativa "crua"
+
+**Contexto:** o Júlio notou que o áudio de instrução do nível 5 ("Digite a palavra banana") sai com a voz genérica do navegador, destoando do resto do app (que usa a voz oficial da Lia + fonética real na maior parte do tempo). Perguntou se dava pra montar a fala da palavra juntando os áudios de sílaba já gravados (ex. `ba`+`na`+`na` pra "banana").
+
+**Causa raiz:** `renderDigitePalavra()` (`app/js/activities-portugues.js`) chamava `speak()` direto — a função de TTS nativo de `utils.js` — em vez de passar pelo `AudioManager`, que é quem decide entre áudio real e TTS (com a folga de 300ms já estabelecida, ver decisão de 2026-08-17 sobre duas vozes sobrepostas). Era o único lugar do jogo que ainda ignorava esse fluxo.
+
+**Decisão sobre a pergunta do Júlio (juntar sílabas):** NÃO fazer isso. Sílabas gravadas isoladas (`ba.mp3`, `na.mp3`) não têm a coarticulação natural da fala contínua — tocadas em sequência soam picadas/robóticas, não como alguém falando "banana" de verdade. É exatamente por isso que o projeto desde o início separa "1 áudio por sílaba" de "1 áudio por palavra inteira" (`TEMPLATES_PROMPTS.md`, "Princípio de economia") — juntar sílabas seria reintroduzir o problema que essa separação já resolve.
+
+**O que mudou:**
+- `renderDigitePalavra()` agora chama `AudioManager.queueVoice([...])` com 2 peças, mesmo padrão usado no resto do jogo (ex. `registerAnswerWithCharacterFeedback`): (1) a instrução fixa `digite-a-palavra.mp3` ("Digite a palavra:") — nova fala da Lia, reutilizável por qualquer palavra, **ainda não gravada** (cai pro TTS nativo até lá, mas nunca fica muda); (2) a pronúncia oficial da palavra via `mediaFonetica("palavra", item.word)` — já existe pra 76 das 87 palavras do banco, TTS cobre as 11 que faltam.
+- `testes/qa_test_typing.js`, `qa_test_modulo4.js`, `qa_test_prova.js`: ganharam os mesmos stubs de `HTMLMediaElement`/`Audio` que os outros testes de mídia já tinham — sem eles, o `AudioManager.queueVoice` novo travava o jsdom tentando tocar áudio de verdade (mesmo padrão de causa/correção do ajuste de gênero em 2026-08-17).
+
+**Achado incidental, não corrigido (fora do escopo desta mudança):** ao investigar um `jsdomError` intermitente em `qa_test_typing.js`, descobri que é um bug pré-existente e não relacionado — `endSession()` (`game-loop.js`) acessa `CHILD_INFO[state.child].name`, e esse teste específico nunca define `state.child` antes de simular respostas certas no nível 5. Confirmei que o erro acontece igual com o código ANTIGO (`speak()` direto), então não foi introduzido por esta mudança — é uma lacuna do harness de teste (ou, na pior hipótese, um bug real de `state.child` indefinido em algum fluxo de produção ainda não mapeado). Não é falha de teste (o `RESULT` continua "0 failed"), só barulho no console. Fica registrado pra quem for investigar depois, não resolvido agora pra não misturar dois problemas numa mudança só.
+
+Suíte completa rodada após a mudança: 33/34 arquivos sem falha (mesma baseline conhecida em `qa_test_regression.js`), estável.
