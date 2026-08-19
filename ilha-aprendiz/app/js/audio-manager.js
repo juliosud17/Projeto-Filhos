@@ -154,7 +154,47 @@ const AudioManager = (function(){
 
   function stopAll(){ stopVoice(); }
 
-  return { queueVoice, playVoice, stopVoice, stopAll, playSfx, VOLUMES };
+  /* Destrava áudio/fala em navegador móvel (2026-08-19, achado do Júlio
+     testando no celular: vídeo às vezes não toca sozinho e as vozes da Lia
+     e da fonética simplesmente não saem). Causa: iOS Safari e Chrome
+     Android bloqueiam QUALQUER play() de <audio>/<video> ou
+     speechSynthesis.speak() disparado por código, a menos que aconteça
+     DENTRO de um gesto real do usuário (toque/clique) -- e a partir daí
+     fica destravado pro resto da sessão. No app, a voz da Lia/fonética
+     sempre toca de forma assíncrona (depois de um await, um setTimeout,
+     início de rodada) -- nunca dentro do próprio evento de toque -- então
+     no celular ela nasce sempre bloqueada. No desktop isso não aparece
+     porque a política de autoplay lá é mais permissiva.
+
+     Chamar 1x, dentro de um onclick real (ver `selectChild()` em
+     navigation.js -- é o primeiro toque garantido de toda sessão, antes de
+     qualquer áudio precisar tocar). Toca um áudio silencioso de verdade
+     (não é decorativo -- é o play() que "gasta" a permissão do gesto) e
+     também dispara e cancela uma fala vazia, pra destravar
+     speechSynthesis do mesmo jeito. Depois disso, todo play()/speak()
+     assíncrono do resto da sessão passa a funcionar normalmente --
+     confirmado ser o mesmo mecanismo usado por bibliotecas de áudio pra
+     web (Howler.js e afins) pra esse exato problema. */
+  let audioUnlocked = false;
+  function unlockAudio(){
+    if(audioUnlocked) return;
+    audioUnlocked = true;
+    try{
+      const silencio = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
+      const a = new Audio(silencio);
+      a.volume = 0;
+      const p = a.play();
+      if(p && typeof p.catch === "function") p.catch(()=>{});
+    }catch(e){}
+    try{
+      const u = new SpeechSynthesisUtterance(" ");
+      u.volume = 0;
+      window.speechSynthesis.speak(u);
+      window.speechSynthesis.cancel();
+    }catch(e){}
+  }
+
+  return { queueVoice, playVoice, stopVoice, stopAll, playSfx, VOLUMES, unlockAudio };
 })();
 
 /* Vídeo de personagem com fallback duplo (fora do objeto AudioManager

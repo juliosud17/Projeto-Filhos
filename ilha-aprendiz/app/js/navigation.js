@@ -10,6 +10,11 @@ function updateGlobalStars(){
 }
 
 function selectChild(child){
+  // Destrava áudio/fala pra navegador móvel (2026-08-19) -- este onclick é
+  // o primeiro toque garantido de toda sessão, sempre antes de qualquer
+  // vídeo/voz precisar tocar. Ver comentário de unlockAudio() em
+  // audio-manager.js pro porquê.
+  if(typeof AudioManager !== "undefined" && AudioManager.unlockAudio) AudioManager.unlockAudio();
   state.child = child;
   if(child === "benjamin"){
     // Benjamin tem 21 módulos — em vez de uma lista única gigante, a

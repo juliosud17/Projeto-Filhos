@@ -4,26 +4,13 @@
 
 ---
 
-## 2026-08-19 — Ilha das Letras, rodada 5: "Praticar de novo"
+## 2026-08-19 — Áudio/voz destravado pra celular (autoplay bloqueado sem gesto do usuário)
 
-- Popover do mapa ganha um link "🔁 Praticar de novo" (só quando o módulo tem ≥1 atividade concluída) — abre `screen-pratica-livre`, tela nova listando só as atividades já dominadas daquele módulo (não as pendentes).
-- `state.freePracticeMode` novo (`js/game-loop.js`) — `registerAnswer()` isola essa pontuação do jeito que já faz com Desafio Final/Revisão Espaçada: acerto ou erro numa sessão de prática livre não muda `activityLevel`/`mastery`.
-- `startFreePractice(activityId)` novo — mesmo `startGame()` de sempre, só liga a flag depois.
-- `testes/qa_test_mapa_portugues.js`: 91 checagens (12 novas). Suíte completa: mesma baseline (33/34).
-
-## 2026-08-19 — Ilha das Letras, rodada 4: o mapa pula a grade de Atividades
-
-- CTA do popover ("Continuar aventura") deixa de abrir a grade de 7 cards de Atividades — abre direto a próxima atividade não concluída do módulo (`proximaAtividadeDoModulo()`) ou o Desafio Final quando tudo já está feito. Progressão dentro do módulo vira sequencial, não mais livre escolha.
-- Popover ganha uma linha nova nomeando a atividade específica (ícone+nome) que o CTA vai abrir, antes de clicar.
-- `backToMenu()` (`js/admin.js`) ganha o branch que faltava pra `state.navBack === "mapa-portugues"` — "Voltar"/"Ver outros jogos" depois de um exercício volta pro mapa direto.
-- `screen-atividades`/`renderAtividades()` continuam intocados — Matemática segue usando normalmente.
-- `testes/qa_test_mapa_portugues.js`: 79 checagens. Suíte completa: mesma baseline (33/34).
-
-## 2026-08-19 — Ilha das Letras: marcadores maiores + setinhas no destino atual
-
-- Marcadores do mapa (círculo+ícone) de 44px pra 58px — mais fáceis de ver/tocar.
-- Marcador do destino atual ganha 2 setinhas (esquerda/direita, CSS puro) apontando pra ele, além do halo e do selo "✨" que já existiam — sem virar HUD (só 2, não 4 ao redor).
-- Só CSS (`app/css/app.css`), respeitando `prefers-reduced-motion`. Suíte completa: mesma baseline (33/34).
+- `app/js/audio-manager.js`: novo `AudioManager.unlockAudio()` — toca áudio silencioso + fala vazia (speechSynthesis) pra "gastar" a permissão do gesto do usuário, destravando `play()`/`speak()` assíncronos pro resto da sessão em navegador móvel.
+- `app/js/navigation.js`: `selectChild()` chama `unlockAudio()` logo no início (primeiro toque garantido de toda sessão).
+- Causa: iOS Safari/Chrome Android bloqueiam `play()`/`speak()` disparado por código fora de um gesto real — a voz da Lia/fonética sempre tocava de forma assíncrona, então nascia sempre bloqueada no celular (não acontecia no desktop).
+- Vídeo de personagem não mudou — o fallback "▶️ Toque para começar" já existente continua cobrindo o caso do navegador ainda bloquear autoplay-com-som.
+- Suíte: `qa_test_piloto_vaca.js` 836/836. Falhas em `qa_test_regression.js`/`qa_test_new_activities.js` confirmadas pré-existentes, não relacionadas.
 
 ## 2026-08-19 — Monte a Sílaba fecha 100% (vídeo + sílabas + palavra inteira)
 

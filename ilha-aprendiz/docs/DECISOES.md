@@ -6,51 +6,6 @@
 
 ---
 
-## 2026-08-19 — Ilha das Letras, rodada 5: "Praticar de novo" (rever atividade já dominada)
-
-**Decisão:** a rodada 4 (abaixo) tirou a possibilidade de escolher livremente qual atividade jogar pelo mapa — resolveu o "burlar o bloqueio", mas também tirou a possibilidade legítima de rejogar uma atividade já dominada só por diversão/reforço. O Júlio pediu de volta essa possibilidade, especificamente pra atividades **já concluídas** (não é a mesma coisa que a grade de livre escolha de antes — lá dava pra pular *à frente*; aqui só dá pra olhar *pra trás*, não tem como "burlar" nada revendo o que já foi feito).
-
-**Onde:** perguntei antes de implementar (o pedido não especificava) — Júlio escolheu **um link discreto dentro do popover do mapa** ("🔁 Praticar de novo", só aparece quando o módulo tem pelo menos 1 atividade concluída) que abre uma tela nova e pequena (`screen-pratica-livre`) listando só as atividades já dominadas daquele módulo — não a grade inteira de 7 cards (isso reintroduziria a possibilidade de pular à frente, o problema que a rodada 4 resolveu).
-
-**Se conta pra mastery:** também perguntei — Júlio escolheu **não**, mesmo padrão de isolamento que o Desafio Final e a Revisão Espaçada já usam (`state.provaMode`/`state.revisaoMode` em `registerAnswer()`, `js/game-loop.js`) — um erro por distração numa rodada "só por diversão" não pode fazer o módulo parecer não-dominado de novo. Nova flag `state.freePracticeMode` segue exatamente esse padrão: `registerAnswer()` ganha um 3º branch que não grava em `mastery`/`activityLevel` nem em nenhuma trilha de pontuação — nem estrelas de sessão deixam de contar (isso continua normal, é só o número oficial de domínio que fica intocado).
-
-**Implementação:**
-- `startFreePractice(activityId)` (`js/game-loop.js`) — chama `startGame()` normalmente (que já reseta a flag pra `false` no início, defensivo) e só DEPOIS liga `state.freePracticeMode = true`.
-- `openPraticaLivre(mod)`/`renderPraticaLivre(mod)` (`js/mapa-portugues.js`) — tela nova, reaproveita a mesma classe CSS da grade de Atividades (`.game-grid`/`.game-card`, zero CSS novo pros cards) mas **não** reaproveita `renderAtividades()` em si (aquela função mistura "próximo desafio" + card de Desafio Final, que não fazem sentido numa tela de review). Lista só `container.activities.filter(nível 5 + 80%)`.
-- Voltar da prática livre usa o mesmo `state.navBack = "mapa-portugues"` + branch de `backToMenu()` que a rodada 4 já tinha criado.
-
-**Testado** (`testes/qa_test_mapa_portugues.js`, 91 checagens — 12 novas): link só aparece com ≥1 atividade concluída; tela lista só as concluídas (não as 6 pendentes); clicar num card entra em `screen-game` com `freePracticeMode=true`; responder (acerto E erro) durante a prática livre não muda `activityLevel`/`mastery` nadinha (snapshot antes/depois); "Voltar" retorna pro mapa; uma sessão normal fora da prática livre continua com a flag corretamente em `false`. Suíte completa: 33/34 arquivos sem falha (mesma baseline conhecida).
-
----
-
-## 2026-08-19 — Ilha das Letras, rodada 4: o mapa pula a grade de Atividades
-
-**Decisão:** clicar em "Continuar aventura" no mapa deixa de abrir `screen-atividades` (grade de 7 cards de escolha livre) e passa a abrir **diretamente a próxima atividade não concluída do módulo** (`proximaAtividadeDoModulo()`, `js/mapa-portugues.js`) — mesma função que os cards da grade sempre usaram (`maybeShowLesson()` → `startGame()`), só chamada de um lugar diferente. Quando as 7 atividades já estão concluídas, o CTA abre o Desafio Final direto (`startProva()`), tanto pra quem ainda não passou (MASTERED) quanto pra quem já passou e quer repetir por diversão (DESAFIO_APROVADO — "Explorar de novo").
-
-**Motivo, com print anexado pelo Júlio:** dentro de um módulo, as 7 atividades sempre foram simultaneamente destravadas — isso é arquitetura antiga (não-sequencial dentro do módulo), não um bug introduzido pelo mapa. Mas a grade de Atividades deixava essa liberdade visível e clicável — a criança podia pular direto pra "Maiúscula ↔ Minúscula" sem ter feito "Pares Mínimos" ainda, o que o Júlio chamou de "burlar o bloqueio da ilha". A solução não foi mudar a regra de desbloqueio (isso seguiria idêntico), foi tirar a tela que expõe a escolha livre — a criança agora só vê/faz uma atividade de cada vez, na ordem em que aparecem no módulo.
-
-**O que NÃO muda:** `screen-atividades`/`renderAtividades()` continuam existindo, código intocado — **Matemática ainda usa a grade normalmente** (`renderModulos()` → `openAtividades()`, nunca tocado em nenhuma rodada da Ilha das Letras). Só o mapa (Português) parou de rotear por ali. Mastery, desbloqueio, Desafio Final, níveis — tudo idêntico, é puramente uma mudança de "qual tela abre ao clicar".
-
-**Segunda parte do pedido — o popover passa a nomear a atividade específica:** como o CTA agora pula direto pra dentro de um jogo específico, o popover ganhou uma linha nova (ícone+nome da atividade, reaproveitando `act.icon`/`act.name` que já existiam em `MODULE1_ACTIVITIES` etc. — já em linguagem de criança, sem precisar de camada de tradução nova) — "🧩 Monte a Sílaba" antes de clicar, "🏁 Desafio Final" quando o módulo já está todo concluído.
-
-**Efeito colateral aceito, de propósito:** não dá mais pra escolher/repetir uma atividade específica pelo mapa (ex. rejogar "Caça-Letras" só por diversão depois de 100%) — a progressão dentro do módulo virou estritamente sequencial, que é exatamente o comportamento pedido. Replay livre de qualquer atividade continua disponível pelo painel de admin (`adminPlay`, já bypassava a grade, não depende de nada disso). `backToModulos()` (branch que devolve pro mapa) vira código órfão pro fluxo normal da criança em Português — mantido mesmo assim, é barato e Matemática usa a outra metade da mesma função normalmente. `state.navBack = "mapa-portugues"` (existia desde a rodada 2, sempre sobrescrito antes de ser lido) finalmente passou a ser real — `backToMenu()` (`js/admin.js`) ganhou o branch que faltava pra ler esse valor.
-
-**Testado** (`testes/qa_test_mapa_portugues.js`, 79 checagens — 9 novas/reescritas): CTA abre `screen-game` direto (não mais `screen-atividades`); popover nomeia a atividade certa antes de clicar; CTA pula pra 2ª atividade quando a 1ª já está concluída (não repete); CTA abre o Desafio Final direto tanto em MASTERED quanto em DESAFIO_APROVADO; cadeia de "Voltar" atualizada (exercício → Mapa → Matérias, sem mais passar por Atividades); `renderAtividades()`/`screen-atividades` continuam funcionando normalmente se chamadas diretamente (cobertura preservada, útil pra Matemática e qualquer uso futuro). Suíte completa: 33/34 arquivos sem falha (mesma baseline conhecida).
-
----
-
-## 2026-08-19 — Ilha das Letras: marcadores maiores + setinhas no destino atual
-
-**Decisão:** ajuste pequeno de UX pedido pelo Júlio — os marcadores do mapa (círculo+ícone da região) ficaram maiores (44px → 58px, bem acima do mínimo de toque de 44px), e o marcador do destino atual (`--recommended`) ganhou 2 setinhas apontando pra dentro, uma de cada lado, além do halo e do selo "✨" que já existiam.
-
-**Por que 2 setas, não 4 "ao redor":** o próprio Júlio já pediu antes, na rodada de refinamento do mapa, pra não virar HUD de videogame nem poluir a ilustração. Duas setas (esquerda/direita) já comunicam "olha aqui" com clareza sem cercar o marcador inteiro — consistente com esse princípio já estabelecido.
-
-**Implementação:** só CSS (`app/css/app.css`) — `border`-trick pra desenhar as setas (sem imagem/emoji novo), animação de leve vaivém (`mapArrowIn-left`/`-right`) entrando na mesma `@media (prefers-reduced-motion: reduce)` já existente (paradas mas visíveis pra quem prefere menos movimento). Nenhuma mudança em `js/mapa-portugues.js` nem nos dados — puramente apresentação.
-
-**Testado:** `testes/qa_test_mapa_portugues.js` (72 checagens, sem mudança — nenhuma delas depende de tamanho/pixel, então continuam validando a estrutura/estado normalmente) + suíte completa: 33/34 arquivos sem falha (mesma baseline conhecida).
-
----
-
 ## 2026-08-17 — Piloto VACA, rodada 2: orquestração audiovisual por Promise/async-await
 
 **Decisão:** enquanto o Júlio gera os áudios/vídeos reais das próximas palavras (via `producao/`), pediu uma segunda passada no piloto VACA especificamente pra virar uma **referência arquitetural reutilizável**: fluxo controlado por `Promise`/`async-await` de ponta a ponta (em vez de `setTimeout`s adivinhados pra sincronizar áudio/vídeo/UI) e destaque visual sincronizado com cada sílaba/palavra sendo pronunciada. Ele mandou uma proposta detalhada de como faria; boa parte do motor (`AudioManager.queueVoice`) já era internamente sequencial via `await` dentro de uma IIFE — só faltava expor isso como Promise pra quem chama, em vez de só aceitar callback.
@@ -515,3 +470,18 @@ Suíte completa rodada após a mudança: 33/34 arquivos sem falha (mesma baselin
 **Efeito no "100%":** as 5 rodadas de "Monte a Sílaba" (níveis 1-5) fecham 100% em mídia real — vídeo de personagem (87/87), áudio de sílaba (33/33) e áudio de palavra inteira (87/87), sem nenhum fallback de TTS pendente no fluxo principal. Restam só itens de limpeza opcional sem efeito no jogo (`rra.mp3`/`rro.mp3` em `fonetica/_a_revisar/`, aguardando confirmação) e a pendência separada, já conhecida, da fala "cena" da Lia pro DIA.
 
 Suíte completa rodada após a conferência: 836 checagens em `qa_test_piloto_vaca.js`, 0 falhas (nenhuma mudança de código nesta rodada, só organização de arquivo e documentação).
+
+---
+
+## 2026-08-19 — Áudio/voz não tocava no celular (autoplay bloqueado sem destravar)
+
+**Contexto:** o Júlio testou no celular e reportou dois sintomas: o vídeo do personagem às vezes não toca sozinho, e as vozes (Lia, sílabas, palavras) simplesmente não saem.
+
+**Causa raiz:** navegadores móveis (Safari iOS, Chrome Android) bloqueiam qualquer `play()` de `<audio>`/`<video>` e qualquer `speechSynthesis.speak()` disparado por código, A MENOS que aconteça DENTRO de um gesto real do usuário (toque/clique) — a partir daí, fica destravado pro resto da sessão. No app, a voz da Lia/fonética sempre toca de forma assíncrona (depois de um `await`, um `setTimeout`, início de rodada) — nunca dentro do próprio evento de toque — então no celular ela nasce sempre bloqueada. No desktop isso não aparecia porque a política de autoplay lá é mais permissiva. O vídeo já tinha um fallback ("▶️ Toque para começar") pra esse mesmo bloqueio — por isso ele "às vezes" tocava sozinho (quando o navegador permitia) e às vezes exigia o toque; já as vozes não tinham NENHUM mecanismo de destravamento nem fallback visual, então ficavam mudas sem aviso nenhum.
+
+**O que mudou:**
+- `app/js/audio-manager.js`: novo `AudioManager.unlockAudio()` — toca um áudio silencioso real (`<audio>` com um WAV de silêncio embutido) e dispara+cancela uma fala vazia via `speechSynthesis`, só pra "gastar" a permissão do gesto do usuário. É o mesmo mecanismo usado por bibliotecas de áudio pra web (Howler.js e afins) pra esse exato problema.
+- `app/js/navigation.js`: `selectChild()` chama `AudioManager.unlockAudio()` logo no início — é o primeiro toque garantido de toda sessão (escolher Joaquim/Benjamin na tela inicial), sempre antes de qualquer vídeo/voz precisar tocar.
+- Vídeo de personagem não mudou — o fallback "toque pra começar" já existente continua cobrindo o caso do navegador ainda bloquear autoplay-com-som mesmo depois do destravamento (comportamento esperado em alguns navegadores/versões, não é bug).
+
+**Testado:** suíte completa rodada, `qa_test_piloto_vaca.js` continua 836/836. Os dois arquivos com erro (`qa_test_regression.js`, `qa_test_new_activities.js`) foram confirmados como falhas PRÉ-EXISTENTES e não relacionadas (reproduzidas de forma idêntica revertendo a mudança e rodando de novo) — mesma causa já documentada antes (`state.child` não definido no harness de teste).
