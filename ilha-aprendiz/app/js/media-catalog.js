@@ -61,16 +61,29 @@ function mediaLiaVoice(categoria, nome){
 
 /* Vídeo de personagem. estado hoje só "intro" no piloto -- ver
    docs/characters/CHARACTER_BIBLE.md e a seção F da arquitetura aprovada
-   (sem vídeo de erro, sem estados extras até validar que fazem diferença). */
+   (sem vídeo de erro, sem estados extras até validar que fazem diferença).
+
+   characterId passa por mediaFileName() desde a Fase 0.5 (PRODUCTION_AUDIT.md
+   item 14/TAREFA 3) -- antes era inserido cru no caminho, diferente de toda
+   outra função media*() deste arquivo. Não havia bug ativo confirmado: os
+   87 valores reais de `character` em app/data/portugues-conteudo.js já são
+   minúsculos/sem acento/sem espaço/sem ç, então mediaFileName(characterId)
+   === characterId pra todo o banco atual (nenhum asset precisou ser
+   renomeado). O risco era latente -- um personagem futuro com maiúscula,
+   acento ou espaço geraria um caminho não normalizado, e no GitHub Pages
+   (case-sensitive) isso 404a silenciosamente, exatamente como já aconteceu
+   uma vez com 164 arquivos de áudio (ver docs/DECISOES.md). */
 function mediaCharacterVideo(characterId, estado){
-  return MEDIA_BASE + "video/personagens/" + characterId + "/" + characterId + "-" + estado + ".mp4";
+  const id = mediaFileName(characterId);
+  return MEDIA_BASE + "video/personagens/" + id + "/" + id + "-" + estado + ".mp4";
 }
 
 /* Som avulso de personagem, fora do vídeo -- não usado no piloto (o "muuu"
    da vaca vem embutido em vaca-intro.mp4), existe pra quando surgir o
-   primeiro caso real de reuso do som sem o vídeo. */
+   primeiro caso real de reuso do som sem o vídeo. Mesma normalização de
+   characterId que mediaCharacterVideo (Fase 0.5, ver comentário acima). */
 function mediaCharacterSound(characterId, nome){
-  return MEDIA_BASE + "audio/personagens/" + characterId + "/" + mediaFileName(nome) + ".mp3";
+  return MEDIA_BASE + "audio/personagens/" + mediaFileName(characterId) + "/" + mediaFileName(nome) + ".mp3";
 }
 
 /* SFX. grupo: "feedback" | "progresso" | "interface". */

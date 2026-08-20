@@ -4,6 +4,8 @@
 
 > **Nota (2026-08-16):** desde a criação deste documento, dois itens tratados abaixo como pendência já foram resolvidos — **modularização do código** e **persistência de progresso** (item 1 dos "próximos passos"). O texto abaixo não foi reescrito pra preservar o registro histórico da descoberta original; o status atual e vivo fica em `docs/ROADMAP.md`, `docs/DECISOES.md` e `CLAUDE.md`.
 
+> **Nota (2026-08-20, saneamento pré-produção/Fase 0.5):** este documento também não menciona, em nenhuma linha, a frente audiovisual — que já existe, com piloto VACA validado e banco de mídia completo (87 palavras com vídeo de personagem + áudio de fonética/Lia/SFX reais no projeto, ver `docs/ROADMAP.md`, seção "Frente paralela: piloto audiovisual"). Mesmo motivo do parecer acima: preservar o registro histórico original em vez de reescrever; status vivo continua em `docs/ROADMAP.md`.
+
 ---
 
 ## Propósito

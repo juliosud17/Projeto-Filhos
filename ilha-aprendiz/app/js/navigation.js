@@ -301,7 +301,11 @@ function renderAtividades(){
     card.className = "game-card";
     const tag = complete ? "🏆 Completo" : `Nível ${lvl}/5`;
     const lessonNote = LESSONS[act.id] ? `<p style="margin-top:4px; color:var(--purple-dark); font-weight:800; font-size:12px;">🎓 Tem aulinha antes de praticar</p>` : "";
-    card.innerHTML = `<span class="tag">${tag}</span><div class="icon">${act.icon}</div><h4>${act.name}</h4><p>${act.desc}</p>
+    // descricaoSemBncc (utils.js, Fase 0.5): o card que a criança toca não
+    // pode mostrar o código BNCC embutido em act.desc (ex. "(EF01MA01)") --
+    // ver PRODUCTION_AUDIT.md item 18.6. act.desc em si continua intocado,
+    // com o código, pra uso futuro em painel de responsáveis/admin.
+    card.innerHTML = `<span class="tag">${tag}</span><div class="icon">${act.icon}</div><h4>${act.name}</h4><p>${descricaoSemBncc(act.desc)}</p>
       <p style="margin-top:6px; color:#8480a3; font-size:12px;">Domínio no nível atual: ${pct}%</p>${lessonNote}`;
     card.onclick = ()=> { state.navBack = "atividades"; maybeShowLesson(act.id); };
     grid.appendChild(card);

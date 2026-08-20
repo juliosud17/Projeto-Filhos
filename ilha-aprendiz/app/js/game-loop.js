@@ -333,6 +333,22 @@ function renderRound(){
   const stage = document.getElementById("game-stage");
   stage.innerHTML = "";
 
+  /* Corrige o TTS "vazando" desligado pra outras atividades (achado na
+     auditoria de produção, 2026-08-20, PRODUCTION_AUDIT.md item 13):
+     AudioManager.setTtsAllowed(false) era chamado 1x dentro de
+     renderSilabas() (ver activities-portugues.js) e nada revertia depois --
+     uma vez que a criança visitasse "Monte a Sílaba", o TTS ficava
+     silenciosamente desligado pro resto da sessão em qualquer atividade.
+     renderRound() é o único funil por onde toda rodada de toda atividade
+     passa, então recalcular a política aqui, a cada rodada, torna-a
+     contextual à atividade atual em vez de um estado global que só liga e
+     nunca desliga. "Monte a Sílaba" (currentRender === "silabas") continua
+     proibida de usar TTS -- essa é a única exceção deliberada, ver
+     audio-manager.js. */
+  if(typeof AudioManager !== "undefined" && AudioManager.setTtsAllowed){
+    AudioManager.setTtsAllowed(state.currentRender !== "silabas");
+  }
+
   switch(state.currentRender){
     case "letras": return renderLetras(stage);
     case "letras_b": return renderLetras(stage);

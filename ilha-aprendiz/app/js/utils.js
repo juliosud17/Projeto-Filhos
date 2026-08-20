@@ -26,6 +26,34 @@ function speakStop(){ try{ window.speechSynthesis.cancel(); }catch(e){} }
    do elemento que o envolve (mesmo truque que já usávamos pra emoji). */
 function visual(item){ return item.svg || item.emoji || ""; }
 
+/* Separação desc infantil vs metadado BNCC (Fase 0.5, PRODUCTION_AUDIT.md
+   item 18.6/TAREFA 2): os campos `desc` das atividades em
+   app/data/matematica-atividades.js e app/data/portugues-atividades.js
+   terminam com o código de habilidade BNCC entre parênteses, ex.:
+   "Contar quantidade... (EF01MA01)". Isso é intencional e correto como
+   METADADO -- serve documentação pedagógica, painel de responsáveis e
+   administração -- mas nunca deveria aparecer na tela que a criança vê
+   (princípio obrigatório em CLAUDE.md: "BNCC não deve poluir a interface
+   infantil"). O achado da auditoria foi que renderAtividades()
+   (navigation.js) interpola `act.desc` cru no card que a criança toca.
+
+   Correção mínima: NÃO tocar nos 38+ campos `desc` (continuam a fonte
+   única, com o código embutido, disponível pra quem precisar dele no
+   futuro -- painel admin, docs). Em vez disso, duas funções puras que
+   separam as duas leituras de uma mesma string:
+   - descricaoSemBncc(desc): o texto sem o código, pra exibir à criança.
+   - extrairCodigoBncc(desc): só o código (ou null), pra uso futuro em
+     telas administrativas/de responsável.
+   Único ponto de renderização já corrigido para usar a primeira:
+   navigation.js, renderAtividades(). */
+function descricaoSemBncc(desc){
+  return (desc || "").replace(/\s*\(EF[0-9A-Z]+\)\s*$/, "").trim();
+}
+function extrairCodigoBncc(desc){
+  const m = /\((EF[0-9A-Z]+)\)\s*$/.exec(desc || "");
+  return m ? m[1] : null;
+}
+
 function beep(kind){
   try{
     const ctx = new (window.AudioContext || window.webkitAudioContext)();

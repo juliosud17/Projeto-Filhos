@@ -16,7 +16,7 @@
 | Trava de ritmo por bimestre | 🟢 Existe desde 2026-08-16 (`js/ritmo-bimestre.js`, referência informativa) |
 | Estrutura de documentação viva (este conjunto de arquivos) | 🟢 Criada em 2026-08-16 |
 | Modularização do código (`app/ilha_aprendiz.html` → `js/`, `css/`, `data/`) | 🟢 Feita em 2026-08-16 — ver `docs/ARQUITETURA.md` |
-| Arquitetura audiovisual (personagens, voz da Lia, fonética, SFX) | 🟡 Aprovada e piloto VACA implementado em 2026-08-17 (`app/js/media-catalog.js`, `app/js/audio-manager.js`) — assets reais (vídeo/áudio) ainda não adicionados ao projeto, ver `docs/DECISOES.md` |
+| Arquitetura audiovisual (personagens, voz da Lia, fonética, SFX) | 🟢 Piloto VACA validado e banco de mídia completo desde 2026-08-19/20 (`app/js/media-catalog.js`, `app/js/audio-manager.js`) — as 87 palavras têm vídeo de personagem + áudio de fonética/Lia/SFX reais no projeto (confirmado em `app/assets/`, coberto por `testes/qa_test_piloto_vaca.js`), ver atualização em "Frente paralela" abaixo e `docs/DECISOES.md` |
 
 ## Por que essa ordem (o gargalo)
 
@@ -50,11 +50,13 @@ A etapa que já estava combinada como prioridade desde antes deste documento exi
 
 ## Frente paralela: piloto audiovisual (não bloqueia os itens 1-5 acima)
 
-Arquitetura aprovada e piloto VACA (`ilha-aprendiz`, Módulo 1 → Monte a Sílaba) implementado em código em 2026-08-17 — ver `docs/DECISOES.md` e `docs/audio/MEDIA_GUIDELINES.md`. **Falta pro piloto virar experiência real:**
+Arquitetura aprovada e piloto VACA (`ilha-aprendiz`, Módulo 1 → Monte a Sílaba) implementado em código em 2026-08-17 — ver `docs/DECISOES.md` e `docs/audio/MEDIA_GUIDELINES.md`. Estado original desta seção (2026-08-17) listava 3 passos pendentes; atualização em 2026-08-20, saneamento pré-produção (Fase 0.5), com o estado real encontrado no projeto:
 
-1. Adicionar os assets reais no projeto (vídeo `vaca-intro.mp4` + os áudios de voz/fonética/SFX listados na aprovação) — hoje o código já roda com fallback de TTS/beep/emoji, sem quebrar nada.
-2. Validação manual (Chrome desktop, Chrome Android, Safari/iPhone, autoplay, fallback, troca rápida de tela, cliques repetidos, sem áudio sobreposto, funciona sem mídia, tempo da rodada não cansa).
-3. Só depois de validar o vertical slice: decidir se/como escalar pra outras palavras/personagens.
+1. ~~Adicionar os assets reais no projeto~~ — **feito.** O banco de mídia está completo: as 87 palavras (não só VACA) têm vídeo de personagem (`app/assets/video/personagens/<id>/<id>-intro.mp4`) e áudio de fonética/voz da Lia/SFX reais (`app/assets/audio/`), confirmados fisicamente no projeto e cobertos por `testes/qa_test_piloto_vaca.js` (838 checagens). O código continua com fallback de TTS/beep/emoji pra qualquer asset que venha a faltar.
+2. ~~Validação manual~~ — **feita, e encontrou problemas reais já corrigidos**: no celular (GitHub Pages), o TTS estava atravessando/cortando a voz real da Lia (corrigido subindo `GRACE_MS` de 300ms para 1800ms em `app/js/audio-manager.js`, e depois proibindo TTS de vez em "Monte a Sílaba" a pedido do Júlio); também foi encontrado e corrigido um bug de case-sensitivity — 164 arquivos de áudio com nome `.MP3` funcionavam no Windows/`file://` e davam 404 no GitHub Pages (filesystem case-sensitive), ver `docs/DECISOES.md`.
+3. Decisão de escalar pra outras palavras/personagens além de VACA — **já tomada e executada**: o banco inteiro (87 palavras) foi escalado, não ficou restrito ao piloto original.
+
+Pendência real ainda aberta (não documental, precisa de ação humana): `docs/audio/VOZ_LIA.md` não tem o Voice ID/modelo/configurações do ElevenLabs preenchidos — Júlio precisa preencher a partir do próprio painel.
 
 ## Fora do roadmap (decisão já tomada, não revisitar sem motivo novo)
 

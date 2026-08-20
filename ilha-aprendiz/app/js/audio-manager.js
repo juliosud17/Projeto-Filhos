@@ -26,17 +26,26 @@ const AudioManager = (function(){
                         // cancelar silenciosamente uma fila anterior quando
                         // outra começa (nova fala interrompe a anterior)
 
-  /* PROIBIDO TTS por enquanto (2026-08-20, pedido direto do Júlio): mesmo
-     com GRACE_MS maior, o TTS ainda estava atravessando/cortando a voz da
-     Lia e da fonética no celular -- o Júlio pediu pra tirar o TTS de vez
-     desse fluxo (não é mais "corrida contra o tempo", é bloqueio total).
-     Como toda a mídia de voz do "Monte a Sílaba" (único lugar que usa
-     AudioManager hoje, ver activities-portugues.js) já está gravada
+  /* PROIBIDO TTS em "Monte a Sílaba" (2026-08-20, pedido direto do Júlio):
+     mesmo com GRACE_MS maior, o TTS ainda estava atravessando/cortando a
+     voz da Lia e da fonética no celular -- o Júlio pediu pra tirar o TTS de
+     vez desse fluxo (não é mais "corrida contra o tempo", é bloqueio
+     total). Como toda a mídia de voz do "Monte a Sílaba" (único lugar que
+     usa AudioManager hoje, ver activities-portugues.js) já está gravada
      (banco 100%, CHECKLIST_PRODUCAO.md), desligar o TTS aqui não deixa
      nada mudo no caso normal -- só some a leitura robótica de reforço que
-     causava o corte. `setTtsAllowed(false)` é chamado 1x no topo de
-     `renderSilabas()`. Continua reversível (`setTtsAllowed(true)`) se um
-     dia precisar religar, por isso é função e não uma constante apagada. */
+     causava o corte.
+
+     A política é CONTEXTUAL, não um interruptor global que só liga uma vez:
+     `game-loop.js`'s `renderRound()` -- o único funil por onde toda rodada
+     de toda atividade passa -- chama `setTtsAllowed(true/false)` a cada
+     rodada, de acordo com a atividade atual. `renderSilabas()` também
+     chama `setTtsAllowed(false)` diretamente, como reforço redundante e
+     inofensivo (não depende só de `renderRound()` acertar a condição).
+     Correção feita na Fase 0.5 (PRODUCTION_AUDIT.md item 13): antes disso,
+     nada revertia a flag para `true` depois de sair de "Monte a Sílaba",
+     então o TTS ficava desligado pro resto da sessão em qualquer outra
+     atividade -- bug real, não comportamento pretendido. */
   let ttsAllowed = true;
   function setTtsAllowed(v){ ttsAllowed = !!v; }
 

@@ -14,12 +14,13 @@ Papel: orientação e encorajamento. Nunca entrega a resposta antes da criança 
 |---|---|
 | Provider | ElevenLabs |
 | Método de criação | Voice Design |
-| Voice ID | `PREENCHER — copiar do painel ElevenLabs (não é segredo, mas não foi informado a este documento; Júlio preenche na primeira geração real)` |
-| Modelo usado | `PREENCHER — modelo ElevenLabs usado na geração (ex. eleven_multilingual_v2 ou equivalente vigente)` |
+| Voice ID | **PENDENTE DE PREENCHIMENTO PELO RESPONSÁVEL** |
+| Modelo | **PENDENTE DE PREENCHIMENTO PELO RESPONSÁVEL** |
+| Configurações relevantes (stability, similarity, style, speaker boost etc.) | **PENDENTE** |
 | Idioma | Português brasileiro (pt-BR) nativo |
 | API key | **NUNCA registrar aqui nem em nenhum outro arquivo do repositório** |
 
-> Este documento nasce com os campos de Voice ID/modelo em aberto porque esta sessão de arquitetura não teve acesso ao painel do ElevenLabs. Preencher assim que a primeira leva de áudios reais do piloto for gerada — é a mesma etapa de "aprovação" do pipeline (seção G da arquitetura aprovada).
+> **Pendência confirmada na Fase 0.5 (saneamento pré-produção, 2026-08-20):** mesmo com a produção real de áudio já concluída (banco de 87 palavras + falas da Lia, ver `docs/CHANGELOG.md`), este documento nunca recebeu de volta o Voice ID, o modelo nem as configurações de geração usados no ElevenLabs — ninguém preencheu esses campos depois da primeira geração real. Isso não foi inferido nem inventado aqui: **Júlio precisa preencher os três campos acima a partir do painel do ElevenLabs** (Voice ID da voz da Lia, nome do modelo usado — ex. `eleven_multilingual_v2` ou o que de fato foi usado — e as configurações de estabilidade/similaridade/estilo, se ajustadas). Sem isso, não há registro de como reproduzir a mesma voz caso seja preciso gerar áudio adicional no futuro.
 
 ## Prompt original do Voice Design
 

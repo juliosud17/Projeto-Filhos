@@ -63,10 +63,10 @@ A ideia é operar a Ilha Aprendiz como uma pequena operação de produto, onde c
 
 ### 4.6 Agente de Acompanhamento (Dados da Família)
 - **Função:** registrar o que Benjamin e Joaquim já dominam, gerar relatórios simples de evolução para orientar os próximos passos pedagógicos.
-- **Quando acionar:** periodicamente (ex.: mensal), com base na observação real dos pais, já que o protótipo atual não salva progresso automaticamente entre sessões.
+- **Quando acionar:** periodicamente (ex.: mensal), com base na observação real dos pais. *(Nota 2026-08-20, saneamento pré-produção: desde 2026-08-16 o app já salva progresso automaticamente entre sessões via `js/storage.js`/localStorage — texto original preservado por registrar a intenção do agente, mas a premissa de "sem persistência" não é mais verdadeira, ver `docs/ROADMAP.md`.)*
 
 ### 4.7 Agente de Web Design / Desenvolvimento do Site
-- **Função:** transformar o protótipo (hoje um único arquivo HTML) em um site/produto de verdade — estrutura de páginas, responsividade (celular/tablet), performance, e eventualmente salvar progresso de verdade (hoje tudo é perdido ao fechar a aba). Cuida da experiência de quem *usa* o produto, não do conteúdo pedagógico em si.
+- **Função:** transformar o protótipo (hoje um único arquivo HTML, já modularizado em `css/`/`data/`/`js/` desde 2026-08-16) em um site/produto de verdade — estrutura de páginas, responsividade (celular/tablet), performance, e evoluir o progresso local que já existe (`js/storage.js`) para progresso na nuvem. Cuida da experiência de quem *usa* o produto, não do conteúdo pedagógico em si. *(Nota 2026-08-20: a frase original dizia "hoje tudo é perdido ao fechar a aba" — não é mais verdade desde 2026-08-16, ver `docs/PRODUCTION_AUDIT.md` pra diagnóstico completo do estado atual antes da migração pra produto comercial.)*
 - **Quando acionar:** quando decidirmos sair de "protótipo para testar em casa" para "produto que outras famílias vão acessar" — ou antes disso, se o arquivo único ficar difícil de manter.
 - **Entrega:** arquitetura do site, decisões técnicas (hospedagem, salvamento de progresso, contas de usuário), e a implementação em si.
 - **Como se relaciona com os outros agentes:** recebe os jogos já aprovados pelo Agente de QA e pela Agente de Design/Marca (identidade visual) — não decide conteúdo pedagógico nem visual da marca, só constrói e organiza o produto em torno deles.
@@ -102,7 +102,7 @@ A partir de agora, nenhum conteúdo novo é considerado "pronto" sem passar pela
 
 ## 7. Próximos passos práticos
 
-- Ver o [Índice Completo do Currículo](../pedagogia/CURRICULO_BNCC_PORTUGUES.md) para o status real de cada módulo — hoje 2 de 8 módulos de Português têm conteúdo, e só 1 está refinado.
+- Ver o [Índice Completo do Currículo](../pedagogia/CURRICULO_BNCC_PORTUGUES.md) para o status real de cada módulo. *(Nota 2026-08-20: a contagem original acima — "2 de 8 módulos, só 1 refinado" — é de uma fase bem anterior do projeto; o estado atual é 7 de 8 módulos de Português completos e testados, ver `docs/ROADMAP.md`. Texto original preservado como registro histórico.)*
 - Prioridade recomendada pelo Agente Pedagógico: **refinar o Módulo 2 antes de criar o Módulo 3** (mesmo padrão de níveis e testes já aplicado ao Módulo 1).
 - Decidir quando acionar o Agente de Web Design (sair do protótipo em arquivo único para um site de verdade, com progresso salvo).
 - Decidir se as skills acima devem ser criadas agora ou só quando o volume de conteúdo justificar.
