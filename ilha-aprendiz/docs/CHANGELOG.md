@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-08-20 — TTS PROIBIDO no "Monte a Sílaba" (pedido direto do Júlio)
+
+- `app/js/audio-manager.js`: `AudioManager.setTtsAllowed(v)` novo -- quando `false`, TTS nunca toca, mesmo se o áudio real falhar de verdade. `renderSilabas()` (`activities-portugues.js`) chama isso logo no início, cobrindo os 5 níveis do módulo.
+- Delay artificial de "esperar o TTS terminar de falar" virou fixo e curto (200ms) quando TTS está desligado -- não faz mais sentido esperar algo que não vai falar.
+- `qa_test_piloto_vaca.js`: reescrita grande (seções 3-7) -- estava construído simulando "mp3 não existe" e observando comportamento via TTS, premissa dupla e obsoleta (banco 100% completo + TTS agora proibido). Passou a simular sucesso de áudio por padrão e checar via `audioLog` (URLs reais tocadas, em ordem) em vez de `spokenLog`. Nova checagem dedicada: mesmo com falha REAL simulada do áudio, TTS não entra.
+- `qa_test_speak_coverage.js`: exceção documentada pra `silabas` (não fala mais via TTS, de propósito).
+- Suíte: `qa_test_piloto_vaca.js` 838/838, `qa_test_speak_coverage.js` 26/26, sem falha nova.
+
 ## 2026-08-20 — TTS cortando a voz da Lia no celular (GRACE_MS aumentado)
 
 - `app/js/audio-manager.js`: `GRACE_MS` (folga antes de cair pro TTS) de 300ms para 1800ms — no celular pela rede, o mp3 às vezes demorava mais que 300ms pra confirmar `playing`, o TTS entrava otimisticamente e era cortado no meio quando o áudio real alcançava.

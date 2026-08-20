@@ -99,6 +99,11 @@ function normalizeTyped(v){
    em vez de clicar sílabas prontas, a criança escreve a palavra toda,
    reforçando EF01LP02 "escrever palavras de forma alfabética") --- */
 function renderSilabas(stage){
+  // Proibido TTS por enquanto neste módulo (2026-08-20, pedido do Júlio --
+  // ver comentário de setTtsAllowed em audio-manager.js pro porquê). Todos
+  // os 5 níveis de "Monte a Sílaba" passam por aqui (nível 5 via early
+  // return pra renderDigitePalavra logo abaixo).
+  if(typeof AudioManager !== "undefined" && AudioManager.setTtsAllowed) AudioManager.setTtsAllowed(false);
   const lvl = activityLevel.silabas || 5;
   const item = pickWeightedByLevel(WORDS, lvl, "WORDS");
   if(lvl === 5){ return renderDigitePalavra(stage, item); }

@@ -26,6 +26,20 @@ const AudioManager = (function(){
                         // cancelar silenciosamente uma fila anterior quando
                         // outra começa (nova fala interrompe a anterior)
 
+  /* PROIBIDO TTS por enquanto (2026-08-20, pedido direto do Júlio): mesmo
+     com GRACE_MS maior, o TTS ainda estava atravessando/cortando a voz da
+     Lia e da fonética no celular -- o Júlio pediu pra tirar o TTS de vez
+     desse fluxo (não é mais "corrida contra o tempo", é bloqueio total).
+     Como toda a mídia de voz do "Monte a Sílaba" (único lugar que usa
+     AudioManager hoje, ver activities-portugues.js) já está gravada
+     (banco 100%, CHECKLIST_PRODUCAO.md), desligar o TTS aqui não deixa
+     nada mudo no caso normal -- só some a leitura robótica de reforço que
+     causava o corte. `setTtsAllowed(false)` é chamado 1x no topo de
+     `renderSilabas()`. Continua reversível (`setTtsAllowed(true)`) se um
+     dia precisar religar, por isso é função e não uma constante apagada. */
+  let ttsAllowed = true;
+  function setTtsAllowed(v){ ttsAllowed = !!v; }
+
   function stopVoice(){
     activeToken++;
     speakStop();
@@ -66,13 +80,26 @@ const AudioManager = (function(){
       const startTts = ()=>{
         if(ttsStarted || audioTookOver) return;
         ttsStarted = true;
-        if(item.fallbackText) speak(item.fallbackText);
+        if(item.fallbackText && ttsAllowed) speak(item.fallbackText);
+      };
+
+      /* Delay antes de resolver quando cai pro fallback: originalmente
+         calculado pra "dar tempo do TTS terminar de falar" (proporcional
+         ao tamanho do texto). Com TTS proibido (ttsAllowed=false), não tem
+         fala nenhuma acontecendo pra esperar terminar -- usar o mesmo
+         cálculo longo aqui só deixaria timers pendentes por mais tempo à
+         toa (achado em 2026-08-20: isso estava atravessando com os timers
+         da rodada seguinte em sequências rápidas, gerando corrida de
+         estado nos testes). Com TTS desligado, resolve rápido (200ms fixo,
+         só um respiro mínimo). */
+      const finishDelayMs = ()=>{
+        if(!ttsAllowed || !item.fallbackText) return 200;
+        return Math.min(4000, 600 + item.fallbackText.length * 55);
       };
 
       if(!item.url){
         startTts();
-        const ms = item.fallbackText ? Math.min(4000, 600 + item.fallbackText.length * 55) : 200;
-        setTimeout(finish, ms);
+        setTimeout(finish, finishDelayMs());
         return;
       }
 
@@ -80,8 +107,7 @@ const AudioManager = (function(){
       try{ audio = new Audio(item.url); }
       catch(e){
         startTts();
-        const ms = item.fallbackText ? Math.min(4000, 600 + item.fallbackText.length * 55) : 200;
-        setTimeout(finish, ms);
+        setTimeout(finish, finishDelayMs());
         return;
       }
       audio.volume = item.volume != null ? item.volume : VOLUMES.voice;
@@ -100,8 +126,7 @@ const AudioManager = (function(){
         if(audioTookOver) return;
         clearTimeout(graceTimer);
         startTts();
-        const ms = item.fallbackText ? Math.min(4000, 600 + item.fallbackText.length * 55) : 200;
-        setTimeout(finish, ms);
+        setTimeout(finish, finishDelayMs());
       };
 
       audio.addEventListener("playing", onPlaying);
@@ -209,7 +234,7 @@ const AudioManager = (function(){
     }catch(e){}
   }
 
-  return { queueVoice, playVoice, stopVoice, stopAll, playSfx, VOLUMES, unlockAudio };
+  return { queueVoice, playVoice, stopVoice, stopAll, playSfx, VOLUMES, unlockAudio, setTtsAllowed };
 })();
 
 /* Vídeo de personagem com fallback duplo (fora do objeto AudioManager

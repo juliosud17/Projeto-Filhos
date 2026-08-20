@@ -54,6 +54,18 @@ for(const g of games){
   // atividades (ver docs/DECISOES.md, "duas vozes sobrepostas").
   if(g === "silabas") await wait(600);
   check(g + ": renderRound produced a .prompt element", !!prompt);
+  // silabas ("Monte a Sílaba") é EXCEÇÃO a essa checagem desde 2026-08-20:
+  // TTS foi proibido nesse módulo de propósito (pedido do Júlio -- estava
+  // atravessando/cortando a voz real da Lia no celular, ver setTtsAllowed
+  // em audio-manager.js e docs/DECISOES.md). speak() legitimamente NUNCA é
+  // chamado aqui agora, mesmo se o áudio real falhasse -- não é uma
+  // atividade muda por acidente, é a atividade com a cobertura de
+  // áudio/TTS mais rigorosa do projeto, só que testada à parte, em
+  // qa_test_piloto_vaca.js (seções 3-7), não aqui.
+  if(g === "silabas"){
+    check(g + ": TTS nunca é chamado (proibido no módulo, ver qa_test_piloto_vaca.js pra cobertura completa)", lastSpoken.length === 0);
+    continue;
+  }
   check(g + ": speak() was called automatically at least once (len=" + lastSpoken.length + ")", lastSpoken.length > 0);
   if(lastSpoken.length > 0){
     console.log("  " + g + " prompt: \\"" + promptText + "\\" | spoken: \\"" + lastSpoken[0] + "\\"");

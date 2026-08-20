@@ -30,14 +30,20 @@ window.HTMLMediaElement.prototype.play = function(){ return Promise.reject(new E
 window.HTMLMediaElement.prototype.pause = function(){};
 window.HTMLMediaElement.prototype.load = function(){};
 /* Audio (voz/SFX) fake -- resolve por microtask, sem tocar rede/arquivo de
-   verdade. Qualquer URL falha (mesmo cenário: nenhum MP3 existe ainda). */
-window.Audio = function(url){ this._url = url; this._listeners = {}; this.volume = 1; };
+   verdade. Simula SUCESSO por padrão (dispara 'playing' e depois 'ended'):
+   reflete o estado real do projeto desde 2026-08-19/20, banco de mídia
+   100% completo (ver CHECKLIST_PRODUCAO.md) -- o cenário antigo era o
+   oposto (tudo falhava, porque nenhum mp3 existia ainda em 2026-08-17).
+   audioLog registra a URL de cada Audio() criado, na ordem -- é como os
+   testes abaixo verificam QUAL áudio real tocou e em que ordem, agora que
+   a checagem via TTS (spokenLog) não serve mais pra isso (ver seção 3). */
+window.Audio = function(url){ this._url = url; this._listeners = {}; this.volume = 1; audioLog.push(url); };
 window.Audio.prototype.addEventListener = function(evt, cb){ (this._listeners[evt] = this._listeners[evt] || []).push(cb); };
 window.Audio.prototype.play = function(){
   const self = this;
   return Promise.resolve().then(()=>{
-    (self._listeners.error || []).forEach(cb=>cb());
-    throw new Error("simulado: mp3 não existe (estado real do projeto hoje)");
+    (self._listeners.playing || []).forEach(cb=>cb());
+    return Promise.resolve().then(()=>{ (self._listeners.ended || []).forEach(cb=>cb()); });
   });
 };
 
@@ -51,6 +57,7 @@ window.speak = function(t){ spokenLog.push(t); return realSpeak(t); };
 let beepLog = [];
 const realBeep = beep;
 window.beep = function(kind){ beepLog.push(kind); return realBeep(kind); };
+let audioLog = [];
 
 (async function(){
 
@@ -110,29 +117,45 @@ check("todo 'character' bate com lowercase(word) (mesma convenção da pasta de 
 const generoInvalido = comCharacter.filter(w => w.genero !== "m" && w.genero !== "f");
 check("toda palavra tem 'genero' explícito e válido ('m'|'f')", generoInvalido.length === 0);
 
-/* ---------- 3) AudioManager: fallback pra TTS quando o áudio "real" falha
-   (o stub de Audio deste teste SEMPRE falha, simulando arquivo ausente) --
-   ajuste de 2026-08-17: o TTS não fala mais junto/imediato por padrão (isso
-   causava DUAS vozes sobrepostas quando o MP3 real existe e funciona) --
-   só entra depois que o áudio real não confirma que tocou (aqui, via
-   erro), então o teste espera um pouco antes de checar, em vez de checar
-   de forma síncrona. ---------- */
+/* ---------- 3) TTS PROIBIDO no módulo (2026-08-20, pedido direto do
+   Júlio, ver setTtsAllowed em audio-manager.js): antes, quando o áudio
+   real falhava, o TTS entrava como rede de segurança ("nunca fica mudo").
+   Isso foi INTENCIONALMENTE revogado -- no celular, mesmo com folga maior
+   (GRACE_MS 1800ms), o TTS ainda atravessava/cortava a voz da Lia, e o
+   Júlio pediu pra tirar de vez. Agora, mesmo simulando uma falha REAL do
+   áudio (stub de Audio.play trocado só pra esta checagem), o TTS NUNCA
+   deve tocar -- silêncio é o comportamento esperado, não mais TTS. Em
+   produção quem desliga o TTS é renderSilabas() (chamado 1x, cobre todo o
+   módulo) -- como este teste chama AudioManager.queueVoice() diretamente,
+   sem passar por renderSilabas(), precisa ligar o mesmo interruptor aqui
+   à mão pra simular o estado real de quando a criança está jogando. ---------- */
+AudioManager.setTtsAllowed(false);
 spokenLog = [];
+const originalPlay = window.Audio.prototype.play;
+window.Audio.prototype.play = function(){
+  const self = this;
+  return Promise.resolve().then(()=>{
+    (self._listeners.error || []).forEach(cb=>cb());
+    throw new Error("simulado: falha real de mp3 (mesmo assim, TTS continua proibido)");
+  });
+};
 let queueDone = false;
 AudioManager.queueVoice([
   { url: mediaLiaVoice("comuns","monte-o-nome"), fallbackText: "Olha quem chegou por aqui! Observe com atenção... e monte o nome dela!" }
 ], ()=>{ queueDone = true; });
-check("logo após chamar queueVoice, o TTS AINDA NÃO falou (dá chance do áudio real, evita sobrepor vozes)", spokenLog.length === 0);
-await wait(500); // o áudio "real" (stub) já falhou por microtask; passado esse tempo o TTS deve ter assumido
-check("depois da folga, o TTS assumiu porque o áudio real falhou (nunca fica mudo)", spokenLog.length === 1);
-check("o texto de fallback da instrução NUNCA cita a palavra-alvo (regra pedagógica)", spokenLog[0].toUpperCase().indexOf("VACA") === -1);
-await wait(4500);
-check("a fila de voz eventualmente termina (mesmo só com fallback de TTS)", queueDone === true);
+await wait(2200); // folga maior que GRACE_MS (1800ms) -- tempo de sobra pro TTS "tentar" entrar, se fosse permitido
+check("mesmo com o áudio real falhando de verdade, o TTS NÃO toca (proibido no módulo, 2026-08-20)", spokenLog.length === 0);
+await wait(400); // com TTS proibido, giveUpToTts() resolve rápido agora (200ms fixo, não tem fala nenhuma pra esperar terminar -- ver finishDelayMs em audio-manager.js)
+check("a fila de voz termina mesmo sem tocar nada (nunca trava a criança esperando um áudio que não veio)", queueDone === true);
+window.Audio.prototype.play = originalPlay;
 
 /* ---------- 4) renderSilabas, 1º encontro: vídeo indisponível cai pro
    fallback, instrução NÃO revela mais a resposta (era o bug original:
-   speak("Monte a palavra " + word)), opções liberam só depois ---------- */
+   speak("Monte a palavra " + word)), opções liberam só depois. Áudio real
+   (stub simula sucesso, banco 100% completo) -- checagem via audioLog, não
+   mais via spokenLog (TTS proibido no módulo, ver seção 3). ---------- */
 spokenLog = [];
+audioLog = [];
 state.characterIntroSeen = new Set(); // força "1º encontro" pra este teste
 const stage1 = document.getElementById("game-stage");
 const originalPick = window.pickWeightedByLevel;
@@ -149,9 +172,10 @@ let optsAfterRender = Array.from(document.querySelectorAll(".option-btn"));
 check("renderSilabas(VACA) produz as opções de sílaba (VA/CA + distratores)", optsAfterRender.length >= 3);
 check("opções começam DESABILITADAS até a Lia terminar a instrução (evita clique de reflexo)", optsAfterRender.every(b=>b.disabled === true));
 
-await wait(4500); // vídeo falha -> fallback -> instrução falada -> opções liberadas
-check("nenhuma fala desta rodada contém 'VACA' (a resposta não é entregue)", !spokenLog.some(t => t.toUpperCase().indexOf("VACA") !== -1));
-check("a instrução falada é a versão segura (não revela a palavra)", spokenLog.some(t => t.indexOf("monte o nome dela") !== -1));
+await wait(500); // áudio real "toca" rápido agora (stub resolve por microtask) -- vídeo falha (stub sempre rejeita) -> fallback -> instrução toca -> opções liberam
+check("nenhum áudio tocado nesta rodada é a pronúncia da palavra 'vaca' (a resposta não é entregue na instrução)", !audioLog.includes(mediaFonetica("palavra","VACA")));
+check("a instrução tocada é o arquivo certo da Lia (monte-o-nome.mp3, VACA é 'f')", audioLog.includes(mediaLiaVoice("comuns","monte-o-nome")));
+check("TTS não entra nesta rodada (áudio real funcionou; e mesmo se falhasse, está proibido no módulo)", spokenLog.length === 0);
 optsAfterRender = Array.from(document.querySelectorAll(".option-btn"));
 check("opções são liberadas depois que a instrução termina", optsAfterRender.every(b=>b.disabled === false));
 
@@ -160,6 +184,7 @@ check("opções são liberadas depois que a instrução termina", optsAfterRende
    criança, então nunca deve ser pulado -- revogou a redução original do
    piloto, que pulava o vídeo em reencontros na mesma sessão) ---------- */
 spokenLog = [];
+audioLog = [];
 const stage2 = document.getElementById("game-stage");
 window.pickWeightedByLevel = function(){ return vacaItem; };
 try{
@@ -169,36 +194,44 @@ try{
   fail++;
 }
 check("2º encontro: o vídeo é criado de novo (nunca pula, prende a atenção da criança)", document.querySelectorAll("video").length === 1);
-await wait(4500); // vídeo falha (stub) -> fallback -> instrução falada
-check("2º encontro: a instrução é falada mesmo depois do vídeo (via fallback)", spokenLog.length >= 1);
+await wait(500); // vídeo falha (stub) -> fallback -> instrução toca de novo (áudio real)
+check("2º encontro: a instrução toca de novo mesmo depois do vídeo (áudio real, não TTS)", audioLog.includes(mediaLiaVoice("comuns","monte-o-nome")));
+check("2º encontro: TTS continua não entrando", spokenLog.length === 0);
 window.pickWeightedByLevel = originalPick;
 
 /* ---------- 6) acerto do piloto: SFX + Lia (personalidade) + fonética
    (pronúncia oficial) como peças SEPARADAS, nunca uma frase só. Rodada 2 do
    piloto (orquestração por Promise): a função é async agora -- await direto
-   na Promise real, sem adivinhar quanto tempo o áudio leva. ---------- */
+   na Promise real, sem adivinhar quanto tempo o áudio leva. Checagem via
+   audioLog (URLs reais tocados, na ordem) -- TTS proibido no módulo desde
+   2026-08-20 (ver seção 3), então spokenLog não serve mais pra verificar
+   sequência/conteúdo aqui. ---------- */
 spokenLog = [];
+audioLog = [];
 beepLog = [];
-let nextRoundSpokenCount = null;
-window.nextRound = function(){ nextRoundSpokenCount = spokenLog.length; };
+let nextRoundAudioCount = null;
+window.nextRound = function(){ nextRoundAudioCount = audioLog.length; };
 await registerAnswerWithCharacterFeedback(true, vacaItem);
-check("acerto: SFX com fallback pro beep('ok') (sfx-acerto.mp3 ainda não existe)", beepLog.includes("ok"));
-check("acerto: fala tem a frase da Lia + as 3 pronúncias oficiais separadas (VA, CA, VACA) -- 4 itens, não 1 frase só", spokenLog.length === 4);
-check("acerto: 1º item falado é a Lia (personalidade), não a fonética", spokenLog[0] && spokenLog[0].toUpperCase().indexOf("ISSO") !== -1);
-check("acerto: fonética de VA falada isoladamente", spokenLog.includes("VA"));
-check("acerto: fonética de CA falada isoladamente", spokenLog.includes("CA"));
-check("acerto: fonética da palavra inteira falada por último", spokenLog[3] === "VACA");
+check("acerto: SFX toca o áudio real (sfx/feedback/acerto.mp3 existe -- banco 100% completo, sem precisar do beep de fallback)", audioLog.includes(mediaSfx("feedback","acerto")) && !beepLog.includes("ok"));
+check("acerto: 4 áudios tocados -- frase da Lia + as 3 pronúncias oficiais separadas (VA, CA, VACA), nunca 1 frase só (o SFX não conta, é canal independente)", audioLog.filter(u=>u!==mediaSfx("feedback","acerto")).length === 4);
+check("acerto: 1º item tocado é a Lia (personalidade), não a fonética", audioLog[1] === mediaLiaVoice("comuns","acerto-01"));
+check("acerto: fonética de VA tocada isoladamente", audioLog.includes(mediaFonetica("silaba","VA")));
+check("acerto: fonética de CA tocada isoladamente", audioLog.includes(mediaFonetica("silaba","CA")));
+check("acerto: fonética da palavra inteira tocada por último", audioLog[audioLog.length-1] === mediaFonetica("palavra","VACA"));
+check("acerto: TTS não entra em nenhum momento (proibido no módulo)", spokenLog.length === 0);
 check("nenhum elemento fica com .is-speaking depois que a sequência de acerto termina (sem vazamento visual)", document.querySelectorAll(".is-speaking").length === 0);
 await wait(1000); // margem pro setTimeout curto de registerAnswer (nextRoundDelay) disparar
-check("nextRound só é chamado DEPOIS que as 4 falas já foram registradas -- sincronização real via Promise, não um timeout adivinhado em paralelo", nextRoundSpokenCount === 4);
+check("nextRound só é chamado DEPOIS que os 4 áudios de voz já foram registrados -- sincronização real via Promise, não um timeout adivinhado em paralelo", nextRoundAudioCount === 5); // 4 de voz + 1 do sfx, já tocados antes do nextRoundDelay
 window.nextRound = function(){};
 
 /* ---------- 7) erro do piloto: dica revela só a 1ª sílaba, nunca a palavra ---------- */
 spokenLog = [];
+audioLog = [];
 await registerAnswerWithCharacterFeedback(false, vacaItem);
-check("erro: dica tem 2 itens (frase da Lia + só a 1ª sílaba)", spokenLog.length === 2);
-check("erro: a dica revela só 'VA' (não a palavra inteira)", spokenLog[1] === "VA");
-check("erro: nenhuma fala desta dica é a palavra completa 'VACA'", !spokenLog.some(t=>t.toUpperCase()==="VACA"));
+check("erro: dica tem 2 áudios (frase da Lia + só a 1ª sílaba)", audioLog.length === 2);
+check("erro: a dica toca só 'VA' (não a palavra inteira)", audioLog[1] === mediaFonetica("silaba","VA"));
+check("erro: nenhum áudio desta dica é a palavra completa 'VACA'", !audioLog.includes(mediaFonetica("palavra","VACA")));
+check("erro: TTS não entra (proibido no módulo)", spokenLog.length === 0);
 check("erro: nenhum elemento fica com .is-speaking depois que a dica termina", document.querySelectorAll(".is-speaking").length === 0);
 
 /* ---------- 8) API nova do Audio Manager (rodada 2 do piloto) ---------- */
