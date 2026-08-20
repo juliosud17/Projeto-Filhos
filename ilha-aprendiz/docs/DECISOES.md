@@ -485,3 +485,17 @@ Suíte completa rodada após a conferência: 836 checagens em `qa_test_piloto_va
 - Vídeo de personagem não mudou — o fallback "toque pra começar" já existente continua cobrindo o caso do navegador ainda bloquear autoplay-com-som mesmo depois do destravamento (comportamento esperado em alguns navegadores/versões, não é bug).
 
 **Testado:** suíte completa rodada, `qa_test_piloto_vaca.js` continua 836/836. Os dois arquivos com erro (`qa_test_regression.js`, `qa_test_new_activities.js`) foram confirmados como falhas PRÉ-EXISTENTES e não relacionadas (reproduzidas de forma idêntica revertendo a mudança e rodando de novo) — mesma causa já documentada antes (`state.child` não definido no harness de teste).
+
+---
+
+## 2026-08-20 — GRACE_MS de 300ms pra 1800ms (TTS cortando a voz da Lia no celular)
+
+**Contexto:** depois do destravamento de autoplay + correção de maiúscula/minúscula (entradas acima), o Júlio testou de novo no celular: agora a voz da Lia toca, mas o TTS entra primeiro e é cortado no meio quando o áudio real "alcança" — um corte audível estranho, não silêncio.
+
+**Causa raiz:** `playVoiceItem()` (`audio-manager.js`) dá só `GRACE_MS` (300ms) pro áudio real confirmar o evento `playing` antes de "desistir" e chamar o TTS otimisticamente — pensado originalmente (2026-08-17) pra evitar as duas vozes tocando juntas quando o áudio real funciona rápido (caso comum no desktop, arquivo local). No celular, pela rede (GitHub Pages, sem cache ainda), o mp3 às vezes demora mais que 300ms só pra começar a tocar de verdade — então o TTS entra, e quando o áudio real finalmente confirma `playing`, corta o TTS no meio (`speakStop()` dentro de `onPlaying`). O corte em si é o comportamento correto (nunca dá pra deixar as duas vozes sobrepostas) — o problema é o TTS ter entrado sem necessidade.
+
+**O que mudou:**
+- `GRACE_MS`: 300ms → 1800ms. Justificativa: o caso de arquivo genuinamente ausente/quebrado já cai pro TTS na hora, pelo evento `error` — isso NÃO depende do `GRACE_MS`, então aumentar a folga não atrasa esse caso. O `GRACE_MS` só afeta o caso "arquivo existe mas está demorando" — e como o banco de mídia está 100% completo agora (ver `CHECKLIST_PRODUCAO.md`), dar mais tempo aqui é seguro: a criança não fica esperando mais no caso comum (áudio existe), e o TTS só entra de verdade quando o arquivo falha mesmo.
+- `audio.preload = "auto"` adicionado, pra pedir ao navegador que priorize o download do mp3 assim que o elemento é criado — ajuda o áudio real "vencer a corrida" contra o `GRACE_MS` no celular.
+
+**Testado:** suíte completa, `qa_test_piloto_vaca.js` 836/836, `qa_test_typing.js`/`qa_test_modulo4.js`/`qa_test_prova.js`/`qa_test_svg.js` sem falha nova.

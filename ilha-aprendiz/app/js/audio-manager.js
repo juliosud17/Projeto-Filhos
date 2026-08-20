@@ -40,10 +40,24 @@ const AudioManager = (function(){
      `playing` dentro da folga (arquivo ausente, falhou, autoplay bloqueado,
      ou demorou demais) é que o TTS entra -- continua garantindo que nunca
      fica mudo, só sem sobrepor quando o áudio real funciona (o caso comum
-     agora que a mídia existe). */
+     agora que a mídia existe).
+
+     GRACE_MS subiu de 300ms pra 1800ms em 2026-08-20 (achado do Júlio
+     testando no celular pela rede, via GitHub Pages): 300ms bastava no
+     desktop com arquivo local, mas no celular a rede às vezes demora mais
+     que isso só pra confirmar que o mp3 começou a tocar -- o TTS entrava
+     antes, e quando o áudio real finalmente confirmava, cortava o TTS no
+     meio da fala (o "corte estranho" que ele ouviu). Como agora TODA a
+     mídia de voz existe (banco 100%, ver CHECKLIST_PRODUCAO.md), o caso de
+     arquivo genuinamente ausente/quebrado já cai pro TTS na hora, pelo
+     evento `error` (não depende do GRACE_MS) -- só quem ficou mais lento
+     é essa folga "otimista", então dar mais tempo aqui é seguro: não deixa
+     a criança esperando mais no caso comum (áudio existe, só demora um
+     pouco a mais no celular), e só usa TTS de verdade quando o arquivo
+     falha de fato. */
   function playVoiceItem(item, token){
     return new Promise((resolve)=>{
-      const GRACE_MS = 300;
+      const GRACE_MS = 1800;
       let done = false;
       let audioTookOver = false;
       let ttsStarted = false;
@@ -71,6 +85,7 @@ const AudioManager = (function(){
         return;
       }
       audio.volume = item.volume != null ? item.volume : VOLUMES.voice;
+      audio.preload = "auto"; // pede pro navegador priorizar o download logo, ajuda o áudio real vencer a corrida contra o GRACE_MS no celular
 
       const graceTimer = setTimeout(startTts, GRACE_MS);
 

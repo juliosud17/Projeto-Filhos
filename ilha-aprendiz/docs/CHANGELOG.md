@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-08-20 — TTS cortando a voz da Lia no celular (GRACE_MS aumentado)
+
+- `app/js/audio-manager.js`: `GRACE_MS` (folga antes de cair pro TTS) de 300ms para 1800ms — no celular pela rede, o mp3 às vezes demorava mais que 300ms pra confirmar `playing`, o TTS entrava otimisticamente e era cortado no meio quando o áudio real alcançava.
+- `audio.preload = "auto"` adicionado, pra ajudar o download do mp3 começar mais rápido.
+- Caso de arquivo genuinamente ausente continua caindo pro TTS na hora (evento `error`, não depende do `GRACE_MS`) — a mudança só afeta o caso "arquivo existe mas demorou", seguro agora que o banco de mídia está 100% completo.
+- Suíte: `qa_test_piloto_vaca.js` 836/836, sem falha nova nos outros arquivos.
+
 ## 2026-08-19 — Áudio/voz destravado pra celular (autoplay bloqueado sem gesto do usuário)
 
 - `app/js/audio-manager.js`: novo `AudioManager.unlockAudio()` — toca áudio silencioso + fala vazia (speechSynthesis) pra "gastar" a permissão do gesto do usuário, destravando `play()`/`speak()` assíncronos pro resto da sessão em navegador móvel.
