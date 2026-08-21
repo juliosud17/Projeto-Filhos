@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ilha Aprendiz</title>
+<meta http-equiv="refresh" content="0; url=./ilha_aprendiz.html">
+</head>
+<body>
+<!--
+  Este arquivo NÃO é o app -- é só um redirecionamento mínimo pro app de
+  verdade, que continua em app/ilha_aprendiz.html (servido aqui como
+  /ilha_aprendiz.html via publicDir, ver vite.config.mjs).
+
+  Por que ele existe: Vite/Rollup exige pelo menos um entry HTML na raiz
+  do projeto pra "vite build" funcionar, e ter algo em "/" é o padrão
+  esperado por um dev server, por "vite preview" e por hospedagem estática
+  (GitHub Pages, etc.) -- sem isso, quem abrisse a raiz do site cairia num
+  404. Este arquivo resolve isso com o menor código possível, sem duplicar
+  nem uma linha da aplicação real.
+
+  Este é o ÚNICO arquivo HTML que o Vite processa/bundla nesta fase. O app
+  real (app/ilha_aprendiz.html) e os 24 <script> clássicos que ele carrega
+  NÃO passam por aqui e NÃO são tocados por este arquivo -- ver
+  docs/DEV_SETUP.md e docs/ARQUITETURA.md pra arquitetura completa.
+-->
+<p>Redirecionando para <a href="./ilha_aprendiz.html">Ilha Aprendiz</a>…</p>
+</body>
+</html>

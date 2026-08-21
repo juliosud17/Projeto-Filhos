@@ -4,6 +4,82 @@
 
 ---
 
+## 2026-08-21 — Correção Fase 2: Vite atualizado de `^5.4.21` para `^8.2.2`
+
+Ambiente real do Júlio confirmado: Node v24.14.1, npm 11.11.0 — compatível
+com a exigência de engine do Vite 8 (`^20.19.0 || >=22.12.0`). Instalado
+`vite@8.2.2` (última estável da linha 8.2.x) no lugar de `^5.4.21`.
+
+- `package.json`/`package-lock.json`: `vite` → `^8.2.2`.
+- `vite.config.js` renomeado pra **`vite.config.mjs`** — Vite 8 emitiu um
+  aviso de compatibilidade futura ("ESM syntax in a file loaded as
+  CommonJS... planned to become the default in a future major version")
+  porque o `package.json` do projeto não declara `"type": "module"`. A
+  extensão `.mjs` resolve isso de forma explícita e mínima, sem tocar em
+  `package.json` (que continua CommonJS por padrão, irrelevante pros
+  scripts clássicos servidos via `publicDir`, que nunca passam pelo
+  resolvedor de módulos do Node). Nenhuma outra linha do config mudou —
+  `publicDir: 'app'`, `base: './'` e a estrutura de build permanecem
+  idênticas, confirmadas compatíveis com Vite 8 sem ajuste.
+- Revalidação completa: build com diff byte-a-byte (`dist/ilha_aprendiz.html`
+  idêntico ao original), 24 scripts na mesma ordem, zero `type="module"`,
+  CSS e asset de amostra (MD5) idênticos, `qa_test_vite_build.js` 10/10,
+  smoke test com Chromium headless contra `vite dev` e `vite preview`
+  (navegação ok, globais definidos, zero erro de página além do
+  `favicon.ico` pré-existente), persistência de `localStorage` confirmada
+  sobrevivendo a reload sob `http://localhost`. Suíte completa: 38/39
+  arquivos sem falha (mesma falha conhecida em `qa_test_regression.js`,
+  zero falhas novas). Nenhum arquivo em `app/` foi tocado por esta
+  correção.
+
+## 2026-08-21 — Fase 2: migração controlada para Vite/HTTP
+
+Objetivo único, conforme escopo aprovado: rodar o Ilha Aprendiz oficialmente
+por `npm run dev`/`npm run build`/`npm run preview`, sem reescrever a
+arquitetura interna do jogo. Vite tratado como infraestrutura, não como
+autorização pra converter os 24 scripts em ES Modules, refatorar globais,
+mudar `state`/`mastery`/localStorage/IDs, ou introduzir React/Supabase/
+backend/PWA — nada disso foi feito.
+
+- **`vite.config.js`** (novo): `publicDir: 'app'` — todo `app/` (HTML real,
+  `css/`, `data/`, `js/`, `assets/`) é copiado/servido como passthrough
+  puro, sem nenhum processamento. `base: './'` (relativo, não assume um
+  path fixo). Decisão e alternativas descartadas documentadas em
+  `docs/DECISOES.md`.
+- **`index.html`** (novo, raiz do projeto): stub de 12 linhas que só
+  redireciona pra `/ilha_aprendiz.html` — único arquivo que o Vite de fato
+  bundla nesta fase; existe porque Rollup exige ao menos 1 entry HTML.
+  `app/ilha_aprendiz.html` não foi movido nem alterado.
+- **`package.json`**: `vite` adicionado como devDependency (atualizado depois pra `^8.2.2`, ver entrada de correção logo abaixo);
+  scripts novos `dev`, `build`, `preview`; `test` inalterado.
+- **`testes/qa_test_vite_build.js`** (novo, sem jsdom — roda em qualquer
+  máquina): valida a saída de `npm run build` — `dist/ilha_aprendiz.html`
+  byte-idêntico ao original, os 24 `<script src>` na mesma ordem
+  documentada em `docs/RUNTIME_DEPENDENCIES.md`, nenhum `type="module"`
+  introduzido, CSS idêntico, asset de amostra copiado com integridade.
+  Quando `dist/` não existe (build ainda não rodado), avisa e não conta
+  como falha — `npm test` sozinho continua funcionando sem exigir build
+  prévio.
+- **`docs/DEV_SETUP.md`** (novo): pré-requisitos, passo a passo, URLs
+  locais, estrutura de `dist/`, e nota explícita sobre `localStorage` de
+  `file://` vs `http://localhost` serem origens separadas (sem migração
+  automática de progresso entre os dois).
+- **`docs/ARQUITETURA.md`**: seção "duas visões" da Fase 1 atualizada —
+  a visão de curto prazo virou a visão atual, implementada.
+- **`docs/DECISOES.md`**: nova entrada registrando a decisão de
+  `publicDir` passthrough (em vez de deixar o HTML real ser processado
+  pelo Rollup, que arriscaria minificação quebrar os `onclick=` inline).
+- **Validação:** build de verificação com diff byte-a-byte confirmando
+  zero alteração no app real; smoke test funcional com Chromium headless
+  contra `vite dev` e `vite preview` (navegação, todos os globais
+  esperados definidos, zero erro de página); persistência de
+  `localStorage` confirmada sobrevivendo a reload sob `http://localhost`.
+  Suíte completa: 38/39 arquivos sem falha (mesma falha conhecida em
+  `qa_test_regression.js`, zero falhas novas).
+- `file://` e o deploy atual no GitHub Pages (que serve os arquivos-fonte
+  direto, sem usar `dist/`) **não foram alterados** — continuam
+  funcionando exatamente como antes desta fase.
+
 ## 2026-08-21 — Fase 1: preparação estrutural para produção (contratos pré-Vite)
 
 Seguindo a sequência de fases pequenas e reversíveis do plano de produção

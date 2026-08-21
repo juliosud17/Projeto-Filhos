@@ -117,30 +117,44 @@ Sem servidor, sem processo de build, sem `npm run dev`/`npm run build` —
 `npm test` existe só para rodar a suíte de QA (Node + jsdom), não para
 servir o app.
 
-### 2. Visão de curto prazo (alvo da Fase 2 — ainda não implementada)
+### 2. Visão atual — pós Fase 2 (implementada em 2026-08-21, Vite adicionado como infraestrutura)
 
 ```
-Navegador (HTTP, local via `vite dev` ou publicado)
-  └─ Vite serve app/ilha_aprendiz.html (ou equivalente movido pra raiz do projeto Vite)
-       ├─ CSS/scripts servidos via Vite (dev: HMR; build: bundle/dist/)
-       ├─ MESMOS 24 arquivos JS preservados — ordem de carga e contrato de
-       │    globais mantidos tal como documentado em RUNTIME_DEPENDENCIES.md,
-       │    GLOBALS_INVENTORY.md e ID_CONTRACT.md (nenhuma migração pra ES
-       │    Modules decidida ainda — decisão em aberto pra Fase 2)
-       ├─ localStorage["ilhaAprendizProgresso"]      (schema preservado, ver LOCAL_STORAGE_CONTRACT.md)
-       └─ app/assets/ servido como pasta estática (public/), path preservado
-            (ver PATHS_MIGRATION.md — decisão recomendada é NÃO processar/
-            hashear os assets de mídia, dado o volume de paths montados por
-            concatenação de string em media-catalog.js)
+Navegador (HTTP, via `npm run dev`/`npm run preview`, ou file:// -- os dois convivem)
+  └─ vite.config.mjs: publicDir: 'app'  (passthrough puro, zero processamento)
+       ├─ index.html (NOVO, raiz do projeto) -- único arquivo que o Vite
+       │    de fato bundla; 12 linhas, só redireciona pra /ilha_aprendiz.html
+       └─ app/ilha_aprendiz.html  (idêntico ao de sempre, servido/copiado sem alteração)
+            ├─ <link href="css/app.css">                (idêntico)
+            ├─ 24× <script src="...">, MESMA ordem       (idêntico, ver RUNTIME_DEPENDENCIES.md)
+            │    ├─ 8 arquivos data/*.js                 (idênticos, nenhum virou ES Module)
+            │    └─ 16 arquivos js/*.js                  (idênticos, nenhum virou ES Module)
+            ├─ bootstrap: loadProgress()+updateGlobalStars()  (idêntico, fim de js/storage.js)
+            ├─ localStorage["ilhaAprendizProgresso"]      (schema idêntico -- mas origem
+            │    file:// e origem http://localhost são localStorage SEPARADOS,
+            │    ver docs/DEV_SETUP.md)
+            └─ app/assets/ (áudio/vídeo/imagem)  (paths idênticos, MEDIA_BASE="assets/",
+                 copiados byte-a-byte em dist/ na mesma estrutura de pastas)
 ```
 
-**Importante:** esta visão de curto prazo NÃO inclui Supabase, backend,
-login, PWA, service worker ou React — esses continuam como evolução
-futura, fora do escopo até de uma eventual Fase 3+ (ver PASSO 12 do
-relatório da Fase 1, `docs/DECISOES.md`). O único objetivo da Fase 2, tal
-como planejada aqui, é trocar `file://` por HTTP/Vite preservando 100% do
-comportamento e dos contratos documentados nesta Fase 1 — ver
-`docs/VITE_MIGRATION_CHECKLIST.md`.
+`npm run build` gera `dist/` com essa mesma estrutura (`dist/ilha_aprendiz.html`
+é byte-idêntico a `app/ilha_aprendiz.html`, confirmado por diff no build de
+verificação da Fase 2). `npm run preview` serve `dist/` localmente pra
+conferência antes de publicar. Nenhum dos 24 scripts virou ES Module; nenhum
+foi processado/minificado/renomeado — decisão e motivo completo em
+`docs/DECISOES.md` (entrada de 2026-08-21) e passo a passo de uso em
+`docs/DEV_SETUP.md`.
+
+**Importante:** esta fase NÃO incluiu Supabase, backend, login, PWA,
+service worker ou React — esses continuam como evolução futura, fora do
+escopo até de uma eventual fase seguinte (ver PASSO 15 do relatório da
+Fase 2, `docs/DECISOES.md`). O objetivo único desta fase era trocar
+`file://` por HTTP/Vite preservando 100% do comportamento e dos contratos
+documentados na Fase 1 — cumprido sem alterar uma linha do app real.
+`file://` continua funcionando exatamente como antes (nada em `app/` foi
+movido/renomeado); GitHub Pages também continua servindo os arquivos-fonte
+direto, sem usar `dist/` — essa fase não mudou o deploy atual, só
+adicionou a opção de rodar via Vite localmente.
 
 ## Pendências técnicas conhecidas
 

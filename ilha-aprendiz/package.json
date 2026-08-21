@@ -4,9 +4,13 @@
   "private": true,
   "description": "Suite de testes (Node + jsdom) para o app Ilha Aprendiz.",
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "test": "node testes/_run_all.js"
   },
   "devDependencies": {
-    "jsdom": "^24.0.0"
+    "jsdom": "^24.0.0",
+    "vite": "^8.2.2"
   }
 }

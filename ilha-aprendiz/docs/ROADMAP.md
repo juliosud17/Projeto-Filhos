@@ -68,14 +68,14 @@ plano completo). Estado:
 1. ~~Fase 0 — Auditoria de produção~~ — **feita** em 2026-08-20. Ver `docs/PRODUCTION_AUDIT.md`.
 2. ~~Fase 0.5 — Saneamento pré-produção~~ — **feita** em 2026-08-20 (correção de bug de TTS, blindagem de BNCC na UI, normalização de case de mídia, QA de assets, documentação viva atualizada). Pendências manuais dessa fase (renomear pastas `audio/Lia`→`audio/lia` e `dígrafos`→`digrafos`) resolvidas pelo Júlio em 2026-08-21.
 3. ~~Fase 1 — Preparação estrutural para produção~~ — **feita** em 2026-08-21. Não é a migração para Vite — documentou os contratos que a Fase 2 precisa preservar: ordem de carga dos 24 `<script>` e mapa de globais (`docs/RUNTIME_DEPENDENCIES.md`, `docs/GLOBALS_INVENTORY.md`), paths de asset (`docs/PATHS_MIGRATION.md`), contrato de `localStorage` (`docs/LOCAL_STORAGE_CONTRACT.md`), contrato de IDs (`docs/ID_CONTRACT.md`), auditoria de segredos (nenhum encontrado, `docs/SECRETS_AUDIT_FASE1.md`), `.gitignore` preparado sem quebrar o projeto atual, `docs/ARQUITETURA.md` com a visão de curto prazo, e `docs/VITE_MIGRATION_CHECKLIST.md` operacional pra Fase 2 executar. Nenhum código de produto foi alterado nesta fase.
-4. Fase 2 — Migração para Vite — **não iniciada**. Depende de decisão explícita do Júlio pra começar (ver `docs/VITE_MIGRATION_CHECKLIST.md`, seção ANTES).
+4. ~~Fase 2 — Migração controlada para Vite/HTTP~~ — **feita** em 2026-08-21. `npm run dev`/`npm run build`/`npm run preview` funcionando, servindo o mesmo `app/ilha_aprendiz.html` e os mesmos 24 scripts clássicos sem nenhuma conversão pra ES Modules — Vite usado só como infraestrutura (`publicDir` passthrough), zero reescrita de arquitetura. `file://` e GitHub Pages (que serve os arquivos-fonte direto, sem `dist/`) continuam funcionando sem alteração. Detalhe completo em `docs/DECISOES.md` (entrada de 2026-08-21) e `docs/DEV_SETUP.md`.
+5. Fase 3 (futura, não planejada em detalhe ainda) — possíveis direções: modularização real (ES Modules) dos 24 scripts, publicar `dist/` de verdade em algum lugar (GitHub Pages ou outro), distinção dev/staging/prod via `import.meta.env`. Nenhuma decisão tomada.
 
-Achado da Fase 1 que precisa de ação humana (não é código, é decisão/dado
-pendente): `docs/audio/VOZ_LIA.md` continua com Voice ID/modelo/configurações
-do ElevenLabs como "PENDENTE DE PREENCHIMENTO" no arquivo real do projeto —
-apesar de mencionado como resolvido no início desta Fase 1, a checagem
-direta do arquivo no dispositivo confirmou que os três campos técnicos
-ainda não foram preenchidos (ver `docs/SECRETS_AUDIT_FASE1.md`).
+Achado da Fase 1 (`docs/audio/VOZ_LIA.md` com Voice ID/modelo do ElevenLabs
+ainda pendentes) — **resolvido pelo Júlio em 2026-08-21**, antes do início
+da Fase 2: Voice ID e modelo (`Eleven Multilingual v2`) confirmados
+preenchidos no arquivo real do projeto (commit `e0f276b`), sem nenhuma
+chave de API exposta.
 
 ## Fora do roadmap (decisão já tomada, não revisitar sem motivo novo)
 
