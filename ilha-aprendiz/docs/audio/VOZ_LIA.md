@@ -1,6 +1,6 @@
 # Voz da Lia — Ilha Aprendiz
 
-*Documento permanente da identidade sonora da guia oficial do app. Criado em 2026-08-17, junto com o piloto audiovisual VACA (ver `docs/DECISOES.md`). Voice ID pode ficar registrado aqui; **chave de API nunca vai pra este repositório**.*
+_Documento permanente da identidade sonora da guia oficial do app. Criado em 2026-08-17, junto com o piloto audiovisual VACA (ver `docs/DECISOES.md`). Voice ID pode ficar registrado aqui; **chave de API nunca vai pra este repositório**._
 
 ## Identidade e papel
 
@@ -10,17 +10,21 @@ Papel: orientação e encorajamento. Nunca entrega a resposta antes da criança 
 
 ## Provider e configuração técnica
 
-| Campo | Valor |
-|---|---|
-| Provider | ElevenLabs |
-| Método de criação | Voice Design |
-| Voice ID | **PENDENTE DE PREENCHIMENTO PELO RESPONSÁVEL** |
-| Modelo | **PENDENTE DE PREENCHIMENTO PELO RESPONSÁVEL** |
-| Configurações relevantes (stability, similarity, style, speaker boost etc.) | **PENDENTE** |
-| Idioma | Português brasileiro (pt-BR) nativo |
-| API key | **NUNCA registrar aqui nem em nenhum outro arquivo do repositório** |
-
-> **Pendência confirmada na Fase 0.5 (saneamento pré-produção, 2026-08-20):** mesmo com a produção real de áudio já concluída (banco de 87 palavras + falas da Lia, ver `docs/CHANGELOG.md`), este documento nunca recebeu de volta o Voice ID, o modelo nem as configurações de geração usados no ElevenLabs — ninguém preencheu esses campos depois da primeira geração real. Isso não foi inferido nem inventado aqui: **Júlio precisa preencher os três campos acima a partir do painel do ElevenLabs** (Voice ID da voz da Lia, nome do modelo usado — ex. `eleven_multilingual_v2` ou o que de fato foi usado — e as configurações de estabilidade/similaridade/estilo, se ajustadas). Sem isso, não há registro de como reproduzir a mesma voz caso seja preciso gerar áudio adicional no futuro.
+| Campo                             | Valor                                                               |
+| --------------------------------- | ------------------------------------------------------------------- |
+| Provider                          | ElevenLabs                                                          |
+| Nome da voz                       | Lia - Guia Principal                                                |
+| Método de criação                 | Voice Design                                                        |
+| Voice ID                          | `G8ekPQuvNoc80ZMG2T3T`                                              |
+| Modelo TTS                        | Eleven Multilingual v2                                              |
+| Velocidade                        | 0.78                                                                |
+| Estabilidade                      | 50%                                                                 |
+| Aumento de similaridade           | 75%                                                                 |
+| Estilo                            | 0%                                                                  |
+| Aumento de volume do alto-falante | Ativado                                                             |
+| Idioma                            | Português brasileiro (pt-BR)                                        |
+| Formato de exportação padrão      | MP3, 44,1 kHz, 128 kbps                                             |
+| API key                           | **NUNCA registrar aqui nem em nenhum outro arquivo do repositório** |
 
 ## Prompt original do Voice Design
 
