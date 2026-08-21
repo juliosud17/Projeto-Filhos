@@ -58,6 +58,25 @@ Arquitetura aprovada e piloto VACA (`ilha-aprendiz`, Módulo 1 → Monte a Síla
 
 Pendência real ainda aberta (não documental, precisa de ação humana): `docs/audio/VOZ_LIA.md` não tem o Voice ID/modelo/configurações do ElevenLabs preenchidos — Júlio precisa preencher a partir do próprio painel.
 
+## Frente paralela: preparação estrutural para produção (Vite/hospedagem)
+
+Sequência de fases pequenas e reversíveis, separada das frentes pedagógicas
+acima, iniciada em 2026-08-20 (ver `docs/PRODUCTION_AUDIT.md` e
+`docs/PRODUCAO/ILHA_APRENDIZ_PLANO_MESTRE_PRODUCAO_COMERCIAL.md` para o
+plano completo). Estado:
+
+1. ~~Fase 0 — Auditoria de produção~~ — **feita** em 2026-08-20. Ver `docs/PRODUCTION_AUDIT.md`.
+2. ~~Fase 0.5 — Saneamento pré-produção~~ — **feita** em 2026-08-20 (correção de bug de TTS, blindagem de BNCC na UI, normalização de case de mídia, QA de assets, documentação viva atualizada). Pendências manuais dessa fase (renomear pastas `audio/Lia`→`audio/lia` e `dígrafos`→`digrafos`) resolvidas pelo Júlio em 2026-08-21.
+3. ~~Fase 1 — Preparação estrutural para produção~~ — **feita** em 2026-08-21. Não é a migração para Vite — documentou os contratos que a Fase 2 precisa preservar: ordem de carga dos 24 `<script>` e mapa de globais (`docs/RUNTIME_DEPENDENCIES.md`, `docs/GLOBALS_INVENTORY.md`), paths de asset (`docs/PATHS_MIGRATION.md`), contrato de `localStorage` (`docs/LOCAL_STORAGE_CONTRACT.md`), contrato de IDs (`docs/ID_CONTRACT.md`), auditoria de segredos (nenhum encontrado, `docs/SECRETS_AUDIT_FASE1.md`), `.gitignore` preparado sem quebrar o projeto atual, `docs/ARQUITETURA.md` com a visão de curto prazo, e `docs/VITE_MIGRATION_CHECKLIST.md` operacional pra Fase 2 executar. Nenhum código de produto foi alterado nesta fase.
+4. Fase 2 — Migração para Vite — **não iniciada**. Depende de decisão explícita do Júlio pra começar (ver `docs/VITE_MIGRATION_CHECKLIST.md`, seção ANTES).
+
+Achado da Fase 1 que precisa de ação humana (não é código, é decisão/dado
+pendente): `docs/audio/VOZ_LIA.md` continua com Voice ID/modelo/configurações
+do ElevenLabs como "PENDENTE DE PREENCHIMENTO" no arquivo real do projeto —
+apesar de mencionado como resolvido no início desta Fase 1, a checagem
+direta do arquivo no dispositivo confirmou que os três campos técnicos
+ainda não foram preenchidos (ver `docs/SECRETS_AUDIT_FASE1.md`).
+
 ## Fora do roadmap (decisão já tomada, não revisitar sem motivo novo)
 
 - **Módulo 8 de Português** e **M13 de Matemática** — ambos fora da tela por design (projeto leitor semanal / pesquisa de campo). Já estão no formato certo pra habilidade que cobrem, não entram como "pendência".

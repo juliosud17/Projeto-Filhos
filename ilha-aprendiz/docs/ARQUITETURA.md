@@ -91,6 +91,57 @@ O corte de ~5.600 linhas em 15 arquivos foi feito por **extração mecânica de 
 - **Per-módulo em vez de per-trilha** em `data/portugues-atividades.js`/`matematica-atividades.js` (19 arquivos menores em vez de 2 grandes) — só vale a pena se esses arquivos ficarem difíceis de navegar na prática.
 - **Schema JSON por conceito pedagógico** (`id`, `titulo`, `pre_requisitos`, `ensino: {...}`) — ideia registrada em `pedagogia/PREREQUISITOS.md`, ainda não aplicada aos dados reais; hoje o conteúdo continua como array/objeto JS "achatado", não nesse formato mais rico.
 
+## Duas visões (Fase 1, 2026-08-21 — preparação estrutural para produção)
+
+*Adicionado na Fase 1 (`docs/RUNTIME_DEPENDENCIES.md`, `docs/GLOBALS_INVENTORY.md`,
+`docs/PATHS_MIGRATION.md`, `docs/LOCAL_STORAGE_CONTRACT.md`, `docs/ID_CONTRACT.md`
+têm o detalhe completo de cada peça abaixo). Esta seção não descreve nada
+novo implementado — só organiza em duas visões o que já existe hoje e o
+que a Fase 2 pretende mudar, para servir de referência rápida.*
+
+### 1. Visão atual (hoje, sem build step)
+
+```
+Navegador (Chrome/Edge, via duplo-clique em file://)
+  └─ app/ilha_aprendiz.html
+       ├─ <link href="css/app.css">                (CSS estático)
+       ├─ 24× <script src="...">, ordem fixa        (ver RUNTIME_DEPENDENCIES.md)
+       │    ├─ 8 arquivos data/*.js                 (conteúdo curricular, const)
+       │    └─ 16 arquivos js/*.js                  (lógica, todos em escopo global)
+       ├─ bootstrap: loadProgress()+updateGlobalStars()  (fim de js/storage.js)
+       ├─ localStorage["ilhaAprendizProgresso"]      (única chave, ver LOCAL_STORAGE_CONTRACT.md)
+       └─ app/assets/ (áudio .mp3, vídeo .mp4, imagem .webp)  (paths relativos, MEDIA_BASE="assets/")
+```
+
+Sem servidor, sem processo de build, sem `npm run dev`/`npm run build` —
+`npm test` existe só para rodar a suíte de QA (Node + jsdom), não para
+servir o app.
+
+### 2. Visão de curto prazo (alvo da Fase 2 — ainda não implementada)
+
+```
+Navegador (HTTP, local via `vite dev` ou publicado)
+  └─ Vite serve app/ilha_aprendiz.html (ou equivalente movido pra raiz do projeto Vite)
+       ├─ CSS/scripts servidos via Vite (dev: HMR; build: bundle/dist/)
+       ├─ MESMOS 24 arquivos JS preservados — ordem de carga e contrato de
+       │    globais mantidos tal como documentado em RUNTIME_DEPENDENCIES.md,
+       │    GLOBALS_INVENTORY.md e ID_CONTRACT.md (nenhuma migração pra ES
+       │    Modules decidida ainda — decisão em aberto pra Fase 2)
+       ├─ localStorage["ilhaAprendizProgresso"]      (schema preservado, ver LOCAL_STORAGE_CONTRACT.md)
+       └─ app/assets/ servido como pasta estática (public/), path preservado
+            (ver PATHS_MIGRATION.md — decisão recomendada é NÃO processar/
+            hashear os assets de mídia, dado o volume de paths montados por
+            concatenação de string em media-catalog.js)
+```
+
+**Importante:** esta visão de curto prazo NÃO inclui Supabase, backend,
+login, PWA, service worker ou React — esses continuam como evolução
+futura, fora do escopo até de uma eventual Fase 3+ (ver PASSO 12 do
+relatório da Fase 1, `docs/DECISOES.md`). O único objetivo da Fase 2, tal
+como planejada aqui, é trocar `file://` por HTTP/Vite preservando 100% do
+comportamento e dos contratos documentados nesta Fase 1 — ver
+`docs/VITE_MIGRATION_CHECKLIST.md`.
+
 ## Pendências técnicas conhecidas
 
 - ~~Caminho hardcoded `/tmp/ilha_aprendiz.html` nos testes~~ — resolvido em 2026-08-16, ver `docs/DECISOES.md`.

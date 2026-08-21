@@ -1,1 +1,29 @@
 node_modules/
+
+# Fase 2 (Vite) -- build de produção, não deve ser versionado.
+# Ainda não existe hoje (Vite não foi instalado nesta fase), mas já fica
+# preparado para quando existir, sem afetar nada do projeto atual.
+dist/
+
+# Variáveis de ambiente reais nunca devem ir para o repositório -- mas o
+# .env.example (se/quando existir) É pra ser versionado, daí a negação
+# explícita abaixo. Hoje o projeto não usa nenhuma variável de ambiente
+# (ver docs/SECRETS_AUDIT_FASE1.md) -- preparado preventivamente.
+.env
+.env.*
+!.env.example
+
+# Logs e arquivos temporários comuns de qualquer ferramenta de build/teste.
+*.log
+npm-debug.log*
+*.tmp
+*.temp
+
+# Artefatos de sistema operacional.
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# NÃO ignorar: app/assets/ (mídia real do produto), docs/, testes/,
+# package-lock.json -- nenhum desses deve ser tratado como artefato
+# descartável.

@@ -4,6 +4,28 @@
 
 ---
 
+## 2026-08-21 — Fase 1: preparação estrutural para produção (contratos pré-Vite)
+
+Seguindo a sequência de fases pequenas e reversíveis do plano de produção
+(`docs/PRODUCTION_AUDIT.md`, `docs/PRODUCAO/ILHA_APRENDIZ_PLANO_MESTRE_PRODUCAO_COMERCIAL.md`).
+**Não é a migração para Vite** — só documentação de contratos, para minimizar
+risco da Fase 2. Nenhum código de `app/` foi alterado; só documentação e
+`.gitignore`. Baseline de testes conferida antes e depois: 37/38 arquivos
+limpos, mesma falha já conhecida (`qa_test_regression.js`), zero falhas
+novas.
+
+- **`docs/RUNTIME_DEPENDENCIES.md`** (novo): ordem exata dos 24 `<script>`, o que cada arquivo produz/consome de globais, confirmação de que não existe `DOMContentLoaded`/`window.onload` (o bootstrap real é `loadProgress()`+`updateGlobalStars()` no fim de `js/storage.js`), inventário de `onclick=` inline e dinâmico, referências adiantadas (candidato mais próximo de dependência circular que o projeto tem hoje), e paths de asset dependentes da posição do HTML.
+- **`docs/GLOBALS_INVENTORY.md`** (novo): todos os globais do projeto classificados em A (dado curricular) a H (compatibilidade/legado), com origem, consumidores e risco de modularização futura.
+- **`docs/PATHS_MIGRATION.md`** (novo): todo path runtime auditado por categoria (HTML, assets, áudio, vídeo, imagem, dados, CSS, fontes, `file://`) com comportamento atual, esperado sob Vite, risco e ação prevista — nenhum path alterado nesta fase.
+- **`docs/LOCAL_STORAGE_CONTRACT.md`** (novo): a única chave de `localStorage` do projeto (`ilhaAprendizProgresso`) documentada campo a campo, com exemplo anonimizado e risco de perda de dado se o schema mudar sem migração.
+- **`docs/ID_CONTRACT.md`** (novo): IDs de criança, atividade, módulo/container, personagem, palavra e nível classificados em ESTÁVEL/INTERNO/VISUAL, com risco de renomeação para cada categoria.
+- **`docs/SECRETS_AUDIT_FASE1.md`** (novo): varredura por segredos/chaves de API — nenhum encontrado. Achado registrado: `docs/audio/VOZ_LIA.md` continua com Voice ID/modelo/configurações do ElevenLabs pendentes no arquivo real do projeto, apesar de mencionado como resolvido no início desta fase.
+- **`docs/VITE_MIGRATION_CHECKLIST.md`** (novo): checklist operacional pra Fase 2 executar (ANTES/DURANTE/TESTES AUTOMÁTICOS/VALIDAÇÃO MANUAL/CRITÉRIO DE APROVAÇÃO/ROLLBACK) — nenhum passo executado nesta fase.
+- **`docs/ARQUITETURA.md`**: nova seção "Duas visões" — arquitetura atual (sem build step) e visão de curto prazo (Vite, ainda não implementada), lado a lado.
+- **`docs/ROADMAP.md`**: nova seção resumindo o estado da frente de preparação para produção (Fases 0/0.5/1 feitas, Fase 2 não iniciada) e o achado pendente do Voice ID da Lia.
+- **`.gitignore`** (raiz de `10_PROJETO_FILHOS/`): preparado para o futuro sem quebrar o projeto atual — adiciona `dist/`, `.env`/`.env.*` (com exceção explícita pra `.env.example`), logs e arquivos temporários/de SO comuns. `app/assets/` e demais artefatos reais do produto continuam fora do `.gitignore`.
+- Vite, Supabase, backend, login, PWA, service worker, React e ES Modules **não foram introduzidos** — fora do escopo desta fase, conforme combinado.
+
 ## 2026-08-20 — Fase 0.5: saneamento pré-produção (achados da auditoria de produção)
 
 Seguindo `docs/PRODUCTION_AUDIT.md` (Fase 0, aprovada), correções pontuais dos problemas encontrados na auditoria, sem nenhuma mudança estrutural (sem Vite, sem Supabase, sem ES Modules, sem dependência nova). Checkpoint de commit e baseline de testes registrados antes de qualquer alteração, conforme `claude/REGRAS_PERMANENTES.md`.
