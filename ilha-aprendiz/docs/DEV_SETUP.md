@@ -8,6 +8,7 @@ cobre só o "como rodar" localmente. Para o "por quê" da arquitetura, ver
 
 - Node.js instalado (usado nesta fase: v22 — qualquer versão moderna do Node 18+ deve funcionar).
 - `npm` (vem junto com o Node).
+- Arquivo `.env.local` na raiz de `ilha-aprendiz/` (ver seção abaixo) — prepara as variáveis para a integração de backend (Fase 4.3+); o app roda sem ele e o comportamento permanece inalterado até a Fase 4.3.
 
 ## Passo a passo
 
@@ -92,6 +93,26 @@ ferramenta manual de exportar/importar o valor de
 `localStorage.getItem("ilhaAprendizProgresso")` — **não implementada nesta
 fase** (decisão explícita: qualquer ferramenta assim precisa de aprovação
 antes de ser criada, ver `docs/VITE_MIGRATION_CHECKLIST.md`, PASSO 7).
+
+## Variáveis de ambiente (Fase 4+)
+
+Crie um arquivo `.env.local` na raiz de `ilha-aprendiz/` (nunca commitado —
+já está no `.gitignore`) com o seguinte conteúdo:
+
+```
+VITE_SUPABASE_URL=https://jvvbjwsgxxsyreptpxrm.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=<publishable key do painel Supabase>
+```
+
+A publishable key está disponível em
+**Supabase → Settings → API Keys → Publishable key** (formato `sb_publishable_...`).
+Não usar a "anon key" legada — o contrato deste projeto é exclusivamente a
+publishable key atual. É um valor seguro de publicar — aparece no bundle do
+frontend por design.
+
+Sem `.env.local` (ou com variáveis em branco), as variáveis ficam ausentes
+do bundle e nenhuma conexão Supabase é criada. O comportamento do app
+permanece inalterado — a integração real só ocorre a partir da Fase 4.3.
 
 ## Troubleshooting
 

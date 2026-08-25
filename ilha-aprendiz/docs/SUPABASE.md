@@ -22,7 +22,7 @@ necessidade real.
 | Variável | Onde fica | Natureza |
 |---|---|---|
 | `VITE_SUPABASE_URL` | `.env.local` (dev) / GitHub Repository Variable (CI) | Pública — segura no bundle |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | `.env.local` (dev) / GitHub Repository Variable (CI) | Pública — segura no bundle (anon key) |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | `.env.local` (dev) / GitHub Repository Variable (CI) | Pública — segura no bundle (publishable key, formato `sb_publishable_...`) |
 | `SUPABASE_ACCESS_TOKEN` | Terminal / `npx supabase login` | **Secreto pessoal** — nunca em arquivo versionado, nunca em `.env.example`, nunca em variável `VITE_*` |
 
 ### Regras absolutas
@@ -40,9 +40,17 @@ necessidade real.
 
 ### `.env.example`
 
-Ainda não criado nesta fase (Fase 4.1). Nasce na Fase 4.2, no mesmo commit
-que introduz as variáveis reais — nunca antecipado sem uso, conforme
-disciplina já registrada em `docs/DECISOES.md`.
+Versionado na raiz de `ilha-aprendiz/` (Fase 4.2). Contém apenas os nomes
+das variáveis, sem valores — é o contrato público de "o que este projeto
+precisa":
+
+```
+VITE_SUPABASE_URL=
+VITE_SUPABASE_PUBLISHABLE_KEY=
+```
+
+O arquivo `.env.local` (com os valores reais) não é versionado — ver
+`.gitignore` e `docs/DEV_SETUP.md` para instruções de preenchimento.
 
 ## Workflow local
 
@@ -103,8 +111,8 @@ Toda tabela de domínio criada em fases futuras deve seguir este contrato:
 - `ALTER TABLE <tabela> ENABLE ROW LEVEL SECURITY;` — obrigatório em todas
   as tabelas
 - Nenhuma política `FOR ALL TO anon USING (true)` ou equivalente permissiva
-  — a anon key (publishable key) nunca concede leitura ou escrita a dados
-  de aplicação diretamente
+  — a publishable key nunca concede leitura ou escrita a dados de aplicação
+  diretamente
 - Acesso a dados de aplicação só via políticas explícitas com usuário
   autenticado (Fase 5+)
 - A segurança será testada concretamente quando houver tabelas reais nas
@@ -121,10 +129,12 @@ Toda tabela de domínio criada em fases futuras deve seguir este contrato:
 | 4.1 | Projeto remoto criado no painel (`ilha-aprendiz-prod`) | Feito |
 | 4.1 | `npx supabase login` na máquina de desenvolvimento | Feito |
 | 4.1 | `npx supabase link --project-ref jvvbjwsgxxsyreptpxrm` | Feito |
-| 4.2 | `@supabase/supabase-js` instalado | Pendente |
-| 4.2 | `.env.example` criado | Pendente |
-| 4.2 | `.env.local` preenchido localmente | Pendente |
-| 4.2 | GitHub Repository Variables configuradas | Pendente |
+| 4.2 | `@supabase/supabase-js` instalado como dependency | Feito |
+| 4.2 | `.env.example` criado e versionado | Feito |
+| 4.2 | workflow CI com `env:` no step de build | Feito |
+| 4.2 | `docs/DEV_SETUP.md` atualizado com instruções de `.env.local` | Feito |
+| 4.2 | `.env.local` preenchido localmente | Feito |
+| 4.2 | GitHub Repository Variables configuradas | Feito |
 | 4.3 | `app/js/supabase-client.js` criado | Pendente |
 | 4.4 | Workflow local validado, scripts npm, docs | Pendente |
 | 4.5 | Gate final | Pendente |
