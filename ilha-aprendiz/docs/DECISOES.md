@@ -578,3 +578,23 @@ Suíte completa: `qa_test_piloto_vaca.js` 838/838 (836→837 com a seção 3 ree
 **Testado:** `qa_test_regression.js` isolado, 3 execuções seguidas depois da correção — **`RESULT: 12 passed, 0 failed`** nas 3 (determinístico, não só "passou uma vez por sorte"). Suíte completa (`npm test`): **39/39 arquivos sem falha, exit code 0** — mesma suíte, mesmo código de produção, primeira vez que a suíte inteira fecha 100% desde que este arquivo existe. `qa_test_vite_build.js` também confirmado à parte, rodado depois de `npm run build` (não durante a suíte, quando `dist/` ainda não existe): `RESULT: 8 passed, 0 failed`.
 
 **Efeito no workflow:** `.github/workflows/deploy-pages.yml` mantém `npm test` como gate real, sem `continue-on-error`/`|| true` — agora o gate é honesto (bloqueia de verdade só em falha real) porque a única falha que existia era do teste, já corrigida. Passo novo adicionado depois de `npm run build`: `node testes/qa_test_vite_build.js`, validando o `dist/` gerado antes do `upload-pages-artifact`.
+
+---
+
+## 2026-08-24 — Fase 4.1: Fundação Supabase — decisões de infraestrutura
+
+**Contexto:** início da Fase 4 (Backend/Banco). Objetivo desta fase: Supabase integrado como infraestrutura reproduzível do projeto, com SDK, CLI, ambientes, migrations e cliente frontend disponíveis, mas sem acessar dados de usuário e sem alterar o comportamento atual do Ilha Aprendiz. `storage.js` permanece intocado; localStorage continua sendo a persistência oficial; nenhum sync, nenhum incremento de `STORAGE_VERSION`.
+
+**Decisões desta fase:**
+
+**1 — 1 projeto remoto, sem staging separado:** um único projeto Supabase remoto para produção. Desenvolvimento usa Supabase local via CLI (`npx supabase start`). Sem segundo projeto remoto de staging — sem infraestrutura hoje (deploy por PR, múltiplos domínios) que justifique o custo de gerenciamento. Revisitável se necessidade real surgir no futuro.
+
+**2 — Supabase CLI como `devDependency` npm:** instalado via `npm install --save-dev supabase`, invocado localmente como `npx supabase ...`. `SUPABASE_ACCESS_TOKEN` (token pessoal de conta) fica fora de qualquer arquivo do repositório — autenticação via `npx supabase login`, que armazena o token no perfil local da máquina.
+
+**3 — Variáveis de ambiente:** `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` (não `ANON_KEY` — nome escolhido para deixar explícito que é seguro publicar). Ambas são valores públicos do frontend, corretas no bundle. Em CI/CD, entram como **GitHub Repository Variables** (não Secrets), pois não são secretas. `service_role`/chave secreta nunca vai ao frontend sob nenhuma circunstância.
+
+**4 — Nenhuma tabela de domínio na Fase 4:** tabelas `responsavel`, `crianca`, `progresso`, `assinatura`, `consentimento` e slugs pessoais (`benjamin`, `joaquim`) pertencem às Fases 5–7. A Fase 4 prepara a infraestrutura de banco (CLI, config.toml, migrations como código, contrato de RLS) sem antecipar o modelo de domínio.
+
+**5 — `file://` não preservado:** runtime oficial é Vite/HTTP. `type="module"` do `supabase-client.js` (Fase 4.3) falha sob CORS de `file://` — comportamento aceito; o app continua funcional via localStorage em qualquer modo.
+
+**6 — RLS como contrato, não como validação desta fase:** toda tabela futura deve ter RLS habilitada e nenhuma política pública permissiva. O teste concreto de RLS acontece nas fases em que tabelas reais forem criadas (Fase 5+), não nesta.

@@ -1,1 +1,5 @@
 .claude/scheduled_tasks.lock
+
+# Variáveis de ambiente — nunca versionar valores reais
+.env.local
+.env.*.local
