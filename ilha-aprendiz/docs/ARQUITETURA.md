@@ -156,7 +156,39 @@ movido/renomeado); GitHub Pages também continua servindo os arquivos-fonte
 direto, sem usar `dist/` — essa fase não mudou o deploy atual, só
 adicionou a opção de rodar via Vite localmente.
 
-### 3. Visão pós Fase 3 (ambientes formais + deploy via GitHub Actions)
+### 3. Visão pós Fase 4.3 (cliente Supabase como ES Module isolado)
+
+*Adicionado na Fase 4.3, 2026-08-25. A única mudança em relação à Fase 2 é a
+adição de `supabase-client.js` como segundo entry point processado pelo Vite.*
+
+```
+Navegador (HTTP, via `npm run dev`/`npm run preview`)
+  └─ vite.config.mjs: publicDir: 'app'  (passthrough puro, zero processamento)
+       ├─ index.html (raiz do projeto) -- redireciona pra /ilha_aprendiz.html
+       ├─ supabase-client.js (raiz do projeto) -- NOVO, ES Module processado
+       │    ├─ import { createClient } from '@supabase/supabase-js'  (bundlado)
+       │    ├─ import.meta.env.VITE_SUPABASE_* injetado em build-time
+       │    └─ expõe window.supabaseClient (objeto ou null se env ausente)
+       │         execução deferida -- roda DEPOIS dos 24 scripts clássicos
+       └─ app/ilha_aprendiz.html  (copiado sem alteração, exceto 1 linha nova)
+            ├─ <script type="module" src="./supabase-client.js"> (NOVO, linha 198)
+            ├─ 24× <script src="...">, MESMA ordem  (intocados)
+            ├─ bootstrap: loadProgress()+updateGlobalStars()  (intocado)
+            ├─ localStorage["ilhaAprendizProgresso"]  (intocado)
+            └─ app/assets/ (intocado)
+```
+
+`npm run build` emite `dist/supabase-client.js` com nome fixo (sem hash) via
+`rollupOptions.output.entryFileNames` seletivo — necessário porque
+`dist/ilha_aprendiz.html` é cópia estática e não pode referenciar hash
+desconhecido em build-time. Os demais entries/chunks mantêm hash.
+
+**Contrato de readiness:** `window.supabaseClient` pode não existir quando os
+24 scripts clássicos terminam de executar (módulo é deferido). Nenhum script
+clássico depende desse valor nesta fase. Consumidores futuros devem verificar
+`window.supabaseClient` explicitamente, nunca assumir sincronia.
+
+### 4. Visão pós Fase 3 (ambientes formais + deploy via GitHub Actions)
 
 *Adicionado na Fase 3, 2026-08-21. Detalhe completo da definição de cada
 ambiente em `docs/ENVIRONMENTS.md` (novo nesta fase); motivo e alternativas

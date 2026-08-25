@@ -37,7 +37,20 @@ Depois disso, o app fica em repouso até o usuário clicar num `child-card` na
 tela inicial (`onclick="selectChild('joaquim')"` ou `'benjamin'`), que é o
 primeiro ponto de interação real.
 
-## 2. Ordem exata dos `<script>` (24 tags, `ilha_aprendiz.html` linhas 198-221)
+## 2. Módulo ES (Fase 4.3)
+
+`<script type="module" src="./supabase-client.js">` — adicionado antes dos
+24 scripts clássicos na linha 198 de `ilha_aprendiz.html`. **Execução
+deferida por design:** `type="module"` carrega e executa DEPOIS de todo o
+HTML ser parseado, mesmo estando antes dos scripts clássicos na marcação.
+Nenhum script clássico depende sincronamente de `window.supabaseClient` —
+qualquer consumidor futuro deve tratar readiness explicitamente.
+
+O arquivo `supabase-client.js` fica na **raiz do projeto** (não em `app/`),
+processado pelo Vite como entry ES Module separado (ver `vite.config.mjs`).
+Em build produz `dist/supabase-client.js` com nome fixo.
+
+## 3. Ordem exata dos `<script>` clássicos (24 tags, `ilha_aprendiz.html` linhas 199-222)
 
 | # | Arquivo | Categoria |
 |---|---|---|

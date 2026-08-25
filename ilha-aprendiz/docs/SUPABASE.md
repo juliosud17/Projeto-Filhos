@@ -135,6 +135,6 @@ Toda tabela de domínio criada em fases futuras deve seguir este contrato:
 | 4.2 | `docs/DEV_SETUP.md` atualizado com instruções de `.env.local` | Feito |
 | 4.2 | `.env.local` preenchido localmente | Feito |
 | 4.2 | GitHub Repository Variables configuradas | Feito |
-| 4.3 | `app/js/supabase-client.js` criado | Pendente |
+| 4.3 | `supabase-client.js` criado na raiz (entry ES Module processado pelo Vite) | Feito |
 | 4.4 | Workflow local validado, scripts npm, docs | Pendente |
 | 4.5 | Gate final | Pendente |

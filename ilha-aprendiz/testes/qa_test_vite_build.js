@@ -17,8 +17,9 @@
 //    é passthrough puro, ver vite.config.mjs).
 // 4. Os 24 <script src> aparecem em dist/ilha_aprendiz.html, na MESMA
 //    ordem documentada em docs/RUNTIME_DEPENDENCIES.md.
-// 5. Nenhum <script type="module"> foi introduzido (Fase 2 não converte
-//    pra ES Modules).
+// 5. Exatamente 1 <script type="module"> em dist/ilha_aprendiz.html:
+//    somente supabase-client.js (Fase 4.3). Os 24 scripts clássicos
+//    permanecem sem type="module".
 // 6. css/app.css existe em dist/ e é idêntico ao de origem.
 // 7. Assets críticos existem em dist/ (amostra: mapa da Ilha das Letras;
 //    demais assets de mídia dependem do que estiver fisicamente presente
@@ -84,7 +85,9 @@ if (fs.existsSync(DIST_HTML) && fs.existsSync(APP_HTML)) {
     console.log('  encontrado: ' + JSON.stringify(foundScripts));
   }
 
-  check('nenhum <script type="module"> introduzido em dist/ilha_aprendiz.html', !/type=["']module["']/.test(distHtml));
+  const moduleScripts = (distHtml.match(/type=["']module["']/g) || []);
+  check('exatamente 1 <script type="module"> (supabase-client.js) em dist/ilha_aprendiz.html',
+    moduleScripts.length === 1 && /supabase-client\.js/.test(distHtml));
 }
 
 if (fs.existsSync(DIST_CSS) && fs.existsSync(APP_CSS)) {

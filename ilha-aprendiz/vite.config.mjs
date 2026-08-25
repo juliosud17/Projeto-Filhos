@@ -37,8 +37,26 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     // Zero aviso sobre chunk grande sendo esperado -- o "app" de verdade
-    // nem passa pelo pipeline de bundle, só a página de redirecionamento.
-    chunkSizeWarningLimit: 100,
+    // nem passa pelo pipeline de bundle, só a página de redirecionamento
+    // e o supabase-client.js (Fase 4.3).
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      input: {
+        index: './index.html',
+        // Segundo entry ES Module -- processado pelo Vite (resolve npm import,
+        // injeta import.meta.env). NÃO fica em app/ (publicDir = cópia estática).
+        'supabase-client': './supabase-client.js',
+      },
+      output: {
+        // Nome fixo só para supabase-client porque app/ilha_aprendiz.html é
+        // copiado estaticamente (publicDir) e não pode referenciar hash
+        // desconhecido em build-time. Demais entries/chunks mantêm hash.
+        entryFileNames: chunkInfo =>
+          chunkInfo.name === 'supabase-client'
+            ? 'supabase-client.js'
+            : 'assets/[name]-[hash].js',
+      },
+    },
   },
 
   server: {
