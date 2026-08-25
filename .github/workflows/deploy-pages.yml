@@ -1,0 +1,90 @@
+# Deploy do Ilha Aprendiz (build Vite) para GitHub Pages — Fase 3.
+#
+# Caminho minimo e oficial pedido para esta fase: master -> GitHub Actions
+# -> npm ci -> npm test -> npm run build -> validacao pos-build do dist/ ->
+# upload-pages-artifact -> deploy-pages -> GitHub Pages. Nenhuma peca alem
+# dessa foi adicionada (sem matrix build, sem staging, sem preview por PR,
+# sem release automation) -- evolucao de CI/CD alem disso pertence a uma
+# fase futura.
+#
+# Gate de testes: `npm test` roda a suite inteira (testes/_run_all.js) e
+# retorna exit code != 0 se qualquer arquivo falhar (process.exit(1) em
+# testes/_run_all.js) -- nao ha continue-on-error/`|| true` neste workflow,
+# entao qualquer falha de teste interrompe o job ANTES do build/deploy.
+# qa_test_regression.js (unica falha conhecida ate a Fase 3) foi corrigido
+# nesta fase -- so no teste, nao no codigo de producao -- ver
+# docs/DECISOES.md para o diagnostico completo.
+#
+# IMPORTANTE: este workflow so publica de verdade depois que a
+# configuracao de Pages do repositorio for trocada manualmente de
+# "Deploy from a branch" para "GitHub Actions" (Settings > Pages) --
+# mudanca que ainda NAO foi autorizada/aplicada nesta fase.
+
+name: Deploy Ilha Aprendiz to GitHub Pages
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'ilha-aprendiz/**'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Evita duas publicacoes concorrentes; nao cancela um deploy em andamento
+# no meio do caminho.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ilha-aprendiz
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: ilha-aprendiz/package-lock.json
+
+      - name: Preparar GitHub Pages (config oficial do ambiente de deploy)
+        uses: actions/configure-pages@v5
+
+      - name: Instalar dependencias (reprodutivel, a partir do lockfile)
+        run: npm ci
+
+      - name: Rodar suite de testes (gate obrigatorio -- exit code != 0 interrompe o job)
+        run: npm test
+
+      - name: Build de producao (Vite)
+        run: npm run build
+
+      - name: Validar dist/ pos-build (qa_test_vite_build.js)
+        run: node testes/qa_test_vite_build.js
+
+      - name: Publicar dist/ como artefato do Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ilha-aprendiz/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

@@ -43,23 +43,33 @@ activityLevel.pares_minimos = 1;
 mastery['pares_minimos:1'] = [];
 startGame('pares_minimos');
 check("game screen active after startGame", document.getElementById('screen-game').classList.contains('active'));
-// simulate winning all rounds
-for(let i=0;i<state.totalRounds;i++){
-  const opts = document.querySelectorAll('.option-btn');
-  // find correct option by trying each (test harness trick: click all, first success stops via disableOptions)
-  let clicked = false;
-  for(const b of opts){
-    if(!b.onclick) continue;
-    const before = state.sessionStars;
-    b.onclick();
-    if(state.sessionStars > before){ clicked = true; break; }
+// simulate winning all rounds -- nextRound() e agendado via setTimeout real
+// (game-loop.js, opts.nextRoundDelay || 1100ms); sem esperar de verdade entre
+// uma rodada e outra, os botoes da rodada anterior (ja desabilitados) sao
+// testados de novo e nenhum clique aumenta state.sessionStars a partir da
+// rodada 1 -- nao e flakiness de timing aleatorio, e o teste nao esperar o
+// setTimeout real disparar (achado e corrigido na Fase 3, so aqui no teste,
+// ver docs/DECISOES.md).
+(async function(){
+  for(let i=0;i<state.totalRounds;i++){
+    if(i>0) await new Promise(r => setTimeout(r, 1200));
+    const opts = document.querySelectorAll('.option-btn');
+    // find correct option by trying each (test harness trick: click all, first success stops via disableOptions)
+    let clicked = false;
+    for(const b of opts){
+      if(!b.onclick) continue;
+      const before = state.sessionStars;
+      b.onclick();
+      if(state.sessionStars > before){ clicked = true; break; }
+    }
+    if(!clicked) console.log("  no correct click found round " + i);
   }
-  if(!clicked) console.log("  no correct click found round " + i);
-}
-check("session ended on end screen", document.getElementById('screen-end').classList.contains('active'));
-check("mastery recorded for pares_minimos:1", mastery['pares_minimos:1'] && mastery['pares_minimos:1'].length > 0);
+  await new Promise(r => setTimeout(r, 1200));
+  check("session ended on end screen", document.getElementById('screen-end').classList.contains('active'));
+  check("mastery recorded for pares_minimos:1", mastery['pares_minimos:1'] && mastery['pares_minimos:1'].length > 0);
 
-console.log("\\nRESULT: " + ok + " passed, " + fail + " failed");
+  console.log("\\nRESULT: " + ok + " passed, " + fail + " failed");
+})();
 <\/script>
 `;
 

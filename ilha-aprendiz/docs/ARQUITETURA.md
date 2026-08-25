@@ -156,6 +156,91 @@ movido/renomeado); GitHub Pages também continua servindo os arquivos-fonte
 direto, sem usar `dist/` — essa fase não mudou o deploy atual, só
 adicionou a opção de rodar via Vite localmente.
 
+### 3. Visão pós Fase 3 (ambientes formais + deploy via GitHub Actions)
+
+*Adicionado na Fase 3, 2026-08-21. Detalhe completo da definição de cada
+ambiente em `docs/ENVIRONMENTS.md` (novo nesta fase); motivo e alternativas
+descartadas da decisão de deploy em `docs/DECISOES.md` (entrada de
+2026-08-21, Fase 3). Esta seção só localiza a decisão na arquitetura geral.*
+
+```
+master (push)
+  └─ .github/workflows/deploy-pages.yml (GitHub Actions, novo nesta fase)
+       ├─ actions/checkout
+       ├─ actions/setup-node
+       ├─ actions/configure-pages        (preparação oficial do ambiente Pages)
+       ├─ npm ci                (reprodutível, a partir do package-lock.json)
+       ├─ npm test              (gate real -- sem continue-on-error/`|| true`;
+       │                         suíte precisa fechar 39/39, exit code 0)
+       ├─ npm run build         (idêntico ao build local da Fase 2, dist/)
+       ├─ node testes/qa_test_vite_build.js  (valida dist/ pós-build antes do upload)
+       ├─ actions/upload-pages-artifact  (empacota dist/ como artefato do Pages)
+       └─ actions/deploy-pages           (publica o artefato no GitHub Pages)
+```
+
+**Gate de testes, sem mascarar falha:** o workflow não usa
+`continue-on-error`/`|| true` em nenhum passo -- `npm test` roda a suíte
+inteira (`testes/_run_all.js`) e o job para de verdade se qualquer arquivo
+falhar (`process.exit(1)`). A única falha conhecida até esta revisão da
+Fase 3, `qa_test_regression.js`, foi diagnosticada como determinística
+(não flakiness aleatória -- falhava 5/5 vezes, sempre do mesmo jeito): o
+teste clicava nos botões da rodada seguinte antes do `setTimeout(nextRound,
+...)` real de produção (`js/game-loop.js`) disparar. Corrigido **só no
+arquivo de teste** (`testes/qa_test_regression.js` passa a esperar de
+verdade entre rodadas, com `await` sobre um `setTimeout` real) -- nenhuma
+linha de `app/js/`/`app/data/` foi tocada. Suíte completa fecha 39/39,
+`npm test` retorna exit code 0. Diagnóstico completo em `docs/DECISOES.md`
+(entrada de revisão da Fase 3).
+
+**Diferença central em relação à Fase 2:** até aqui, GitHub Pages servia
+`app/` cru direto do repositório, nunca passando pelo `dist/` do Vite —
+qualquer variável `import.meta.env`/`VITE_*` futura não teria efeito nenhum
+em produção real. A partir desta fase, o artefato publicado é literalmente
+o `dist/` gerado pelo build (mesma estrutura já documentada na seção
+anterior: `index.html` de redirecionamento + `ilha_aprendiz.html` +
+`css/`/`data/`/`js/`/`assets/` copiados 1:1) — produção e build deixam de
+ser dois caminhos desconectados.
+
+**Ambientes formais** (`docs/ENVIRONMENTS.md`): `development` (`npm run
+dev`), `production` (`npm run build` → `dist/` → publicado pelo workflow
+acima) e `preview` (`npm run preview`, validação local do artefato de
+produção — não é um terceiro ambiente com identidade própria). `file://`
+continua funcionando, mas passa a ser tratado como modo legado/local de
+compatibilidade, não como `development` oficial. Nenhum ambiente de
+`staging` foi criado — sem infraestrutura hoje que o justifique.
+
+**Alternativa descartada:** configurar Pages em modo "Deploy from a
+branch" apontando pra uma pasta `dist/` dentro de `master` — Pages nesse
+modo só aceita `/(root)` ou `/docs` como pasta de publicação, incompatível
+com um `dist/` gerado dentro de `ilha-aprendiz/`. O caminho oficial via
+Actions (`upload-pages-artifact`/`deploy-pages`) foi escolhido por ser o
+suportado nativamente pelo GitHub para esse exato cenário.
+
+**Mudança de URL esperada:** publicar `dist/` como artefato faz o conteúdo
+publicado virar a raiz do site, não mais um subcaminho dentro do
+repositório-fonte — a URL pública muda de
+`.../Projeto-Filhos/ilha-aprendiz/app/ilha_aprendiz.html` para algo como
+`.../Projeto-Filhos/` (redirecionando pra `/ilha_aprendiz.html`). Detalhe
+completo em `docs/ENVIRONMENTS.md`.
+
+**Ainda não aplicado nesta fase:** o workflow existe no repositório local,
+mas nenhum commit/push foi feito e a configuração real de Pages (trocar
+"Deploy from a branch" por "GitHub Actions" em Settings) continua
+inalterada — ambos pendentes de autorização explícita separada, depois de
+revisão do workflow e da validação local (build/teste/preview/QA manual).
+
+**Escopo explicitamente fora desta fase** (fica para uma fase de CI/CD
+própria): pipeline complexo, múltiplos ambientes de deploy, preview
+automático por Pull Request, matrix builds, release automation,
+versionamento automático/semantic release, deploy mobile, Docker,
+infraestrutura externa.
+
+**Variáveis de ambiente (`VITE_*`):** mecanismo documentado e disponível
+(`docs/ENVIRONMENTS.md`), mas nenhuma variável real foi introduzida nesta
+fase — zero uso de `import.meta.env`/`process.env` em `app/`, confirmado de
+novo na auditoria desta fase. `.env`/`.env.example` continuam não
+existindo, por não haver nada real a documentar ainda.
+
 ## Pendências técnicas conhecidas
 
 - ~~Caminho hardcoded `/tmp/ilha_aprendiz.html` nos testes~~ — resolvido em 2026-08-16, ver `docs/DECISOES.md`.
