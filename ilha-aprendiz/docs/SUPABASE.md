@@ -145,5 +145,5 @@ Toda tabela de domínio criada em fases futuras deve seguir este contrato:
 | 4.2 | GitHub Repository Variables configuradas | Feito |
 | 4.3 | `supabase-client.js` criado na raiz (entry ES Module processado pelo Vite) | Feito |
 | 4.4 | Scripts npm `db:*` adicionados; docs de workflow e ciclo de migration | Feito |
-| 4.4 | Validação local (`supabase start/reset/stop`) | **Requer Docker — pendente** |
-| 4.5 | Gate final | Pendente |
+| 4.4 | Validação local (`supabase start/status/reset/stop`) | Feito — 2026-08-25 |
+| 4.5 | Gate final (testes, build, segurança, contratos, escopo) | Feito — 2026-08-25 |
