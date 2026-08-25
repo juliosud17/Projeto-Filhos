@@ -62,26 +62,18 @@ O arquivo `.env.local` (com os valores reais) não é versionado — ver
 - Para trabalhar com o projeto remoto: `npx supabase link --project-ref <ref>`
   (ação humana, exige o Project ref do painel)
 
-### Comandos principais
+### Workflow local (requer Docker)
 
 ```bash
-# Sobe Postgres + Studio local (porta 54323) — requer Docker
-npx supabase start
-
-# Para os containers locais
-npx supabase stop
-
-# Recria o banco local do zero, replaying todas as migrations
-npx supabase db reset
-
-# Cria novo arquivo de migration versionado em supabase/migrations/
-npx supabase migration new <nome-descritivo>
-
-# Aplica migrations pendentes no projeto remoto (requer link feito)
-npx supabase db push
+npm run db:start    # sobe Postgres + Studio local (porta 54323)
+npm run db:status   # mostra URLs e status dos serviços locais
+npm run db:reset    # recria o banco local do zero (replay de todas as migrations)
+npm run db:stop     # para os containers locais
 ```
 
-Scripts npm de conveniência serão adicionados na Fase 4.4.
+`db push` **não** é um script npm — operação de produção, deve ser executada
+explicitamente como `npx supabase db push` após revisão local. Não existe
+push automático em CI nesta fase.
 
 ### Vinculação ao projeto remoto
 
@@ -90,19 +82,35 @@ Scripts npm de conveniência serão adicionados na Fase 4.4.
 npx supabase link --project-ref jvvbjwsgxxsyreptpxrm
 ```
 
-Após o link, `npx supabase db push` aplica as migrations locais no remoto.
+### Primeiro arquivo de migration
 
-## Ciclo de migration
+`supabase/migrations/` existe no repositório mas está vazio — correto para
+esta fase. Nenhuma tabela de domínio é criada aqui. O primeiro arquivo
+nascerá quando a primeira migration real for necessária (Fase 5+):
 
-1. `npx supabase migration new <nome>` → cria
-   `supabase/migrations/<timestamp>_<nome>.sql`
-2. Editar o arquivo SQL com o schema desejado
-3. `npx supabase db reset` → valida localmente (recria o banco do zero)
-4. Revisar e commitar `supabase/migrations/` no repositório
-5. `npx supabase db push` → aplica no projeto remoto
+```bash
+npx supabase migration new <nome-descritivo>
+# → cria supabase/migrations/<timestamp>_<nome>.sql
+```
 
-Migrations são **código versionado** — nunca editar uma migration já aplicada
-e commitada; criar uma nova migration com a alteração desejada.
+## Ciclo de migration (referência para fases futuras)
+
+1. `npx supabase migration new <nome>` → cria arquivo SQL versionado
+2. Editar o SQL (schema, RLS, policies)
+3. `npm run db:reset` → valida localmente (recria do zero, replay de todas as migrations)
+4. Revisar schema e diff
+5. `npx supabase db push --dry-run` → confirma o que seria aplicado no remoto
+6. Somente após revisão explícita: `npx supabase db push` → aplica no projeto remoto
+
+**`npx supabase db push` aponta para o projeto remoto linkado (`ilha-aprendiz-prod`)
+e deve ser tratado como operação de produção — nunca executar sem revisar
+o `--dry-run` antes.**
+
+Migrations são **código versionado** — nunca editar uma migration já commitada;
+criar uma nova com a alteração desejada.
+
+Auth e tabelas de domínio (`responsavel`, `crianca`, `progresso`) pertencem
+às Fases 5–7, não a esta.
 
 ## Contrato de RLS (Row Level Security)
 
@@ -136,5 +144,6 @@ Toda tabela de domínio criada em fases futuras deve seguir este contrato:
 | 4.2 | `.env.local` preenchido localmente | Feito |
 | 4.2 | GitHub Repository Variables configuradas | Feito |
 | 4.3 | `supabase-client.js` criado na raiz (entry ES Module processado pelo Vite) | Feito |
-| 4.4 | Workflow local validado, scripts npm, docs | Pendente |
+| 4.4 | Scripts npm `db:*` adicionados; docs de workflow e ciclo de migration | Feito |
+| 4.4 | Validação local (`supabase start/reset/stop`) | **Requer Docker — pendente** |
 | 4.5 | Gate final | Pendente |
