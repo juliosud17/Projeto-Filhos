@@ -20,6 +20,14 @@ Este arquivo contém somente instruções que precisam valer em quase toda sess�
 - Preserve contratos de progresso, IDs e storage; mudança de schema exige migração.
 - Não introduza tecnologia, arquitetura ou escopo de fase futura sem pedido e aprovação explícitos.
 
+## Roadmap e limites de fase
+
+- Se a tarefa mencionar, iniciar, planejar, executar ou fechar uma fase, consulte antes somente a seção correspondente de `docs/ROADMAP.md`.
+- Consulte `docs/BRIEFING.md` apenas se precisar confirmar o estado atual do projeto.
+- Os limites entre fases são contrato: não implemente nem planeje como parte da fase atual entregas reservadas a fases posteriores.
+- Não releia o roadmap inteiro; localize apenas a fase necessária.
+- Se o repositório atual e o roadmap parecerem divergir, não invente nem antecipe: reporte a divergência e pare para decisão.
+
 ## Modo cirúrgico — padrão
 
 Conclua exclusivamente a tarefa atual com a menor leitura, alteração, execução e explicação necessárias.
